@@ -98,24 +98,16 @@ script_includes:
     </div>
   </header>
 
-  {% comment %} ----- 语言切换器逻辑开始 (带调试信息) ----- {% endcomment %}
-<div style="border: 1px dashed red; padding: 5px; margin: 10px 0; font-size: 0.8em; background-color: #ffeeee;">
-  <p style="margin:0; font-weight: bold; color: red;">--- DEBUG START ---</p>
+  {% comment %} ----- 语言切换器逻辑开始 ----- {% endcomment %}
   {% assign current_lang = page.lang | default: site.lang | default: "en" %}
   {% assign current_translation_id = page.translation_id %}
-  <p style="margin:0;">Current Lang: <code style="color: blue;">{{ current_lang | inspect }}</code></p>
-  <p style="margin:0;">Current Translation ID: <code style="color: blue;">{{ current_translation_id | inspect }}</code></p>
   {% assign translation_url = nil %}
   {% assign translation_lang_name = nil %}
-  {% assign match_found = false %}
-
+  
   {% if current_translation_id %}
-    <p style="margin:0;">Looping through posts to find match...</p>
     {% for p in site.posts %}
       {% if p.translation_id == current_translation_id and p.lang != current_lang %}
-        <p style="margin:0; color: green;">MATCH FOUND! Post: {{ p.title | inspect }}, Lang: {{ p.lang | inspect }}, URL: {{ p.url | inspect }}</p>
         {% assign translation_url = p.url %}
-        {% assign match_found = true %}
         {% if p.lang == "zh" %}
           {% assign translation_lang_name = "中文" %}
         {% elsif p.lang == "en" %}
@@ -126,28 +118,16 @@ script_includes:
         {% break %}
       {% endif %}
     {% endfor %}
-    {% unless match_found %}
-      <p style="margin:0; color: orange;">No matching post found in loop.</p>
-    {% endunless %}
-  {% else %}
-     <p style="margin:0; color: orange;">No 'translation_id' found for this page.</p>
   {% endif %}
-
-  <p style="margin:0;">Final Translation URL: <code style="color: blue;">{{ translation_url | inspect }}</code></p>
-
+  
   {% if translation_url %}
-    <p style="margin:0; color: green;">Rendering button...</p>
     <div class="language-switcher mb-3 mt-3" style="text-align: right;">
       <a href="{{ translation_url | relative_url }}" class="btn btn-outline-primary btn-sm" role="button">
         <i class="fas fa-language"></i> {{ translation_lang_name }}
       </a>
     </div>
-  {% else %}
-     <p style="margin:0; color: orange;">Button not rendered (translation_url is nil).</p>
   {% endif %}
-  <p style="margin:0; font-weight: bold; color: red;">--- DEBUG END ---</p>
-</div>
-{% comment %} ----- 语言切换器逻辑结束 ----- {% endcomment %}
+  {% comment %} ----- 语言切换器逻辑结束 ----- {% endcomment %}
 
 </header>
 
