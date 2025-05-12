@@ -1,0 +1,172 @@
+---
+layout: page
+# All the Categories of posts
+---
+
+{% include lang.html %}
+
+{% assign HEAD_PREFIX = 'h_' %}
+{% assign LIST_PREFIX = 'l_' %}
+
+{% assign group_index = 0 %}
+
+{% assign sort_categories = site.categories | sort %}
+
+{% for category in sort_categories %}
+  {% assign category_name = category | first %}
+  {% assign posts_of_category = category | last %}
+  {% assign first_post = posts_of_category | first %}
+
+  {% comment %} Check if this is likely a top-level category {% endcomment %}
+  {% if category_name == first_post.categories[0] %}
+
+    {% comment %} ----- 计算该顶级分类下英文文章的数量 开始 ----- {% endcomment %}
+    {% assign count_english_top_posts = 0 %}
+    {% for post in posts_of_category %}
+      {% assign post_lang = post.lang | default: site.lang | default: 'en' %}
+      {% if post_lang == 'en' %}
+        {% assign count_english_top_posts = count_english_top_posts | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+    {% comment %} ----- 计算该顶级分类下英文文章的数量 结束 ----- {% endcomment %}
+
+    {% comment %} Find sub-categories (we'll count their English posts later) {% endcomment %}
+    {% assign sub_categories = '' | split: '' %}
+    {% for post in posts_of_category %}
+      {% assign second_category = post.categories[1] %}
+      {% if second_category %}
+        {% unless sub_categories contains second_category %}
+          {% assign sub_categories = sub_categories | push: second_category %}
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+    {% assign sub_categories = sub_categories | sort %}
+    {% assign sub_categories_size = sub_categories | size %} {% comment %} Note: This still counts all potential sub-categories initially {% endcomment %}
+
+    {% comment %} ----- 只显示那些至少有一篇英文文章的顶级分类 (或者其子分类有英文文章 - 暂不处理此复杂情况，先修正计数) ----- {% endcomment %}
+    {% comment %} We will display the category for now if it was originally intended, just with the correct count {% endcomment %}
+    {% assign display_top_category = true %} {% comment %} Simplified logic for now - always display if it met the original criteria {% endcomment %}
+
+    {% if display_top_category %}
+      <div class="card categories">
+        <!-- top-category -->
+        <div
+          id="{{ HEAD_PREFIX }}{{ group_index }}"
+          class="card-header d-flex justify-content-between hide-border-bottom"
+        >
+          <span class="ms-2">
+            <i class="far fa-folder{% if sub_categories_size > 0 %}-open{% endif %} fa-fw"></i>
+
+            {% capture _category_url %}/categories/{{ category_name | slugify | url_encode }}/{% endcapture %}
+            <a href="{{ _category_url | relative_url }}" class="mx-2">{{ category_name }}</a>
+
+            <!-- content count -->
+            <span class="text-muted small font-weight-light">
+              {% comment %} Display sub-category count (still based on all potential subs) {% endcomment %}
+              {% if sub_categories_size > 0 %}
+                {{ sub_categories_size }}
+                {% if sub_categories_size > 1 %}
+                  {{
+                    site.data.locales[lang].categories.category_measure.plural
+                    | default: site.data.locales[lang].categories.category_measure
+                  }}
+                {% else %}
+                  {{
+                    site.data.locales[lang].categories.category_measure.singular
+                    | default: site.data.locales[lang].categories.category_measure
+                  }}
+                {% endif -%}
+                ,
+              {% endif %}
+
+              {% comment %} Display CORRECT English post count for top category {% endcomment %}
+              {{ count_english_top_posts }} <!-- ***** MODIFIED COUNT HERE ***** -->
+
+              {% if count_english_top_posts > 1 %}
+                {{
+                  site.data.locales[lang].categories.post_measure.plural
+                  | default: site.data.locales[lang].categories.post_measure
+                }}
+              {% else %}
+                {{
+                  site.data.locales[lang].categories.post_measure.singular
+                  | default: site.data.locales[lang].categories.post_measure
+                }}
+              {% endif %}
+            </span>
+          </span>
+
+          <!-- arrow -->
+          {% comment %} Arrow logic might need refinement if we hide sub-categories later {% endcomment %}
+          {% if sub_categories_size > 0 %}
+            <a
+              href="#{{ LIST_PREFIX }}{{ group_index }}"
+              data-bs-toggle="collapse"
+              aria-expanded="true"
+              aria-label="{{ HEAD_PREFIX }}{{ group_index }}-trigger"
+              class="category-trigger hide-border-bottom"
+            >
+              <i class="fas fa-fw fa-angle-down"></i>
+            </a>
+          {% else %}
+            <span data-bs-toggle="collapse" class="category-trigger hide-border-bottom disabled">
+              <i class="fas fa-fw fa-angle-right"></i>
+            </span>
+          {% endif %}
+        </div>
+        <!-- .card-header -->
+
+        <!-- Sub-categories -->
+        {% if sub_categories_size > 0 %}
+          <div id="{{ LIST_PREFIX }}{{ group_index }}" class="collapse show" aria-expanded="true">
+            <ul class="list-group">
+              {% for sub_category in sub_categories %}
+
+                {% comment %} ----- 计算该子分类下英文文章的数量 开始 ----- {% endcomment %}
+                {% assign count_english_sub_posts = 0 %}
+                {% assign posts_in_sub_category = site.categories[sub_category] %}
+                {% for post in posts_in_sub_category %}
+                  {% assign post_lang = post.lang | default: site.lang | default: 'en' %}
+                  {% if post_lang == 'en' %}
+                    {% assign count_english_sub_posts = count_english_sub_posts | plus: 1 %}
+                  {% endif %}
+                {% endfor %}
+                {% comment %} ----- 计算该子分类下英文文章的数量 结束 ----- {% endcomment %}
+
+                {% comment %} ----- 只显示那些至少有一篇英文文章的子分类 ----- {% endcomment %}
+                {% if count_english_sub_posts > 0 %}
+                  <li class="list-group-item">
+                    <i class="far fa-folder fa-fw"></i>
+
+                    {% capture _sub_ctg_url %}/categories/{{ sub_category | slugify | url_encode }}/{% endcapture %}
+                    <a href="{{ _sub_ctg_url | relative_url }}" class="mx-2">{{ sub_category }}</a>
+
+                    <span class="text-muted small font-weight-light">
+                      {{ count_english_sub_posts }} <!-- ***** MODIFIED COUNT HERE ***** -->
+
+                      {% if count_english_sub_posts > 1 %}
+                        {{
+                          site.data.locales[lang].categories.post_measure.plural
+                          | default: site.data.locales[lang].categories.post_measure
+                        }}
+                      {% else %}
+                        {{
+                          site.data.locales[lang].categories.post_measure.singular
+                          | default: site.data.locales[lang].categories.post_measure
+                        }}
+                      {% endif %}
+                    </span>
+                  </li>
+                {% endif %} {% comment %} End of check for count_english_sub_posts > 0 {% endcomment %}
+
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+      <!-- .card -->
+
+      {% assign group_index = group_index | plus: 1 %}
+    {% endif %} {% comment %} End of display_top_category check {% endcomment %}
+  {% endif %} {% comment %} End of top-level category check {% endcomment %}
+{% endfor %}
