@@ -1,0 +1,62 @@
+{% if jekyll.environment != "development" %}
+  {% include_cached head.html %}
+{% endif %}
+
+<!-- 添加语言切换脚本 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 只在文章页面添加语言切换按钮
+    if (document.querySelector('.post')) {
+      // 创建语言切换按钮
+      const switcherBtn = document.createElement('button');
+      switcherBtn.id = 'language-toggle';
+      switcherBtn.style.cssText = 'float: right; background: transparent; border: 1px solid var(--link-color); color: var(--link-color); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.9rem; cursor: pointer; margin-bottom: 1rem;';
+      
+      // 检查当前页面URL
+      let currentPath = window.location.pathname;
+      let basePath = "{{ site.baseurl }}";
+      
+      // 移除baseurl以便于处理路径
+      if (currentPath.startsWith(basePath)) {
+        currentPath = currentPath.substring(basePath.length);
+      }
+      
+      let isZhVersion = currentPath.includes('-zh');
+      
+      // 根据当前页面设置按钮文本
+      if (isZhVersion) {
+        switcherBtn.innerHTML = '切换到英文版';
+      } else {
+        switcherBtn.innerHTML = '切换到中文版';
+      }
+      
+      // 设置点击事件
+      switcherBtn.addEventListener('click', function() {
+        // 构造对应的URL
+        let newPath;
+        if (isZhVersion) {
+          // 当前是中文，切换到英文
+          newPath = currentPath.replace(/-zh\/?$/, '/');
+        } else {
+          // 当前是英文，切换到中文
+          newPath = currentPath.replace(/\/?$/, '-zh/');
+        }
+        
+        // 确保前面有baseurl
+        if (!newPath.startsWith(basePath)) {
+          newPath = basePath + newPath;
+        }
+        
+        window.location.href = newPath;
+      });
+      
+      // 找到合适的位置添加按钮
+      setTimeout(function() {
+        const postMeta = document.querySelector('.post-meta');
+        if (postMeta) {
+          postMeta.parentNode.insertBefore(switcherBtn, postMeta.nextSibling);
+        }
+      }, 500); // 延迟一点添加以确保DOM已完全加载
+    }
+  });
+</script>
