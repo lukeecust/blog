@@ -227,3 +227,8 @@ jekyll-archives:
 # 添加自定义JavaScript
 head_scripts:
   - /assets/js/custom.js
+
+# 自定义JavaScript文件
+head_scripts:
+  - /assets/js/language-switcher.js
+
