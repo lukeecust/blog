@@ -1,0 +1,45 @@
+<div class="language-selector">
+    <button id="language-toggle" class="btn btn-outline-primary btn-sm">
+      <span id="current-language">EN</span> / <span id="other-language">中文</span>
+    </button>
+  </div>
+  
+  <style>
+    .language-selector {
+      text-align: right;
+      margin-bottom: 1rem;
+    }
+  </style>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const languageToggle = document.getElementById('language-toggle');
+      const currentLanguage = document.getElementById('current-language');
+      const otherLanguage = document.getElementById('other-language');
+      
+      // 检查当前页面是否有对应的其他语言版本
+      let currentPath = window.location.pathname;
+      let isEnglish = !currentPath.includes('-zh');
+      let alternatePath;
+      
+      if (isEnglish) {
+        // 当前是英文，寻找中文版本
+        alternatePath = currentPath.replace(/\/posts\/(.+?)\/$/, '/posts/$1-zh/');
+      } else {
+        // 当前是中文，寻找英文版本
+        alternatePath = currentPath.replace(/\/posts\/(.+?)-zh\/$/, '/posts/$1/');
+      }
+      
+      // 设置点击事件
+      languageToggle.addEventListener('click', function() {
+        window.location.href = alternatePath;
+      });
+      
+      // 根据当前页面语言设置按钮状态
+      if (!isEnglish) {
+        currentLanguage.textContent = '中文';
+        otherLanguage.textContent = 'EN';
+      }
+    });
+  </script>
+  
