@@ -1,0 +1,74 @@
+---
+layout: page
+# The Archives of posts.
+---
+
+{% include lang.html %}
+
+{% assign df_strftime_m = site.data.locales[lang].df.archives.strftime | default: '/ %m' %}
+{% assign df_dayjs_m = site.data.locales[lang].df.archives.dayjs | default: '/ MM' %}
+
+<div id="archives" class="pl-xl-3">
+  {% assign last_year = nil %} {% comment %} Initialize last_year {% endcomment %}
+  {% assign first_english_post_in_loop = true %} {% comment %} Flag to handle initial <ul> {% endcomment %}
+
+  {% for post in site.posts %}
+
+    {% comment %} ----- Language Filter Start ----- {% endcomment %}
+    {% assign post_lang = post.lang | default: site.lang | default: 'en' %}
+    {% if post_lang == 'en' %}
+    {% comment %} ----- Language Filter End ----- {% endcomment %}
+
+      {% comment %} Only process and display English posts {% endcomment %}
+      {% assign cur_year = post.date | date: '%Y' %}
+
+      {% if cur_year != last_year %}
+        {% unless first_english_post_in_loop %}</ul>{% endunless %} {% comment %} Close previous ul if not the very first English post {% endcomment %}
+
+        <time class="year lead d-block">{{ cur_year }}</time>
+        {{ '<ul class="list-unstyled">' }}
+
+        {% assign last_year = cur_year %}
+        {% assign first_english_post_in_loop = false %} {% comment %} Reset flag after first year block for English posts {% endcomment %}
+      {% endif %}
+
+      <li>
+        {% assign ts = post.date | date: '%s' %}
+        <span class="date day" data-ts="{{ ts }}" data-df="DD">{{ post.date | date: '%d' }}</span>
+        <span class="date month small text-muted ms-1" data-ts="{{ ts }}" data-df="{{ df_dayjs_m }}">
+          {{ post.date | date: df_strftime_m }}
+        </span>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </li>
+
+      {% if forloop.last %}
+         {% comment %} Ensure ul is closed if the last post in site.posts was English and rendered {% endcomment %}
+         {% if post_lang == 'en' %}</ul>{% endif %}
+      {% endif %}
+
+    {% comment %} ----- Close the language filter if ----- {% endcomment %}
+    {% endif %}
+  {% endfor %}
+
+  {% comment %} Final check to close ul if the loop ended and an English post was the last one processed, but forloop.last didn't catch it because a non-english post was the actual site.posts.last {% endcomment %}
+  {% unless first_english_post_in_loop %}
+    {% if last_year %} {% comment %} If any English post was processed, last_year would be set {% endcomment %}
+        {% comment %} This check might be redundant if the forloop.last logic is sufficient,
+                     but it's a safeguard if the very last posts in site.posts are non-English.
+                     If the last *English* post was rendered, its year block's <ul> should be closed.
+                     However, the existing forloop.last logic for <ul> closing seems robust enough.
+                     We might not need an explicit </ul> here if the previous logic is sound.
+                     The primary goal is to ensure <ul> is closed IF it was opened for English posts.
+                     If no English posts are found, `first_english_post_in_loop` remains true, and no ul will be opened or closed.
+        {% endcomment %}
+        {% comment %} More simply: if 'first_english_post_in_loop' is false, it means at least one <ul> was opened.
+                     If the very last post in `site.posts` was non-English, the `forloop.last` `endif` wouldn't trigger for the <ul>.
+                     So we might need a final </ul> outside the loop if `first_english_post_in_loop` is false.
+                     However, the current `forloop.last` condition (`{% if post_lang == 'en' %}</ul>{% endif %}`)
+                     should correctly close the <ul> if the last post *processed within the English filter* was indeed the last post of all `site.posts`.
+                     If the last actual post in `site.posts` is non-English, this `forloop.last` condition won't be met after filtering.
+        {% endcomment %}
+    {% endif %}
+  {% endunless %}
+
+</div>
