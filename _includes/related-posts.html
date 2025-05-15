@@ -1,0 +1,115 @@
+<!-- Recommend the other 3 posts according to the tags and categories of the current post. -->
+<!-- Filters for posts of the same language as the current page. -->
+
+{% assign TOTAL_SIZE = 3 %}
+{% assign TAG_SCORE = 1 %}
+{% assign CATEGORY_SCORE = 0.5 %}
+{% assign SEPARATOR = ':' %}
+
+{% assign current_page_display_lang = page.lang | default: site.lang | default: 'en' %}
+
+{% assign potential_match_posts = '' | split: '' %}
+
+{% comment %} First, gather all posts that are candidates based on tags/categories,
+             AND are of the same language as the current page. {% endcomment %}
+{% for post_candidate in site.posts %}
+  {% if post_candidate.url == page.url %}
+    {% continue %}
+  {% endif %}
+
+  {% assign post_candidate_lang = post_candidate.lang | default: site.lang | default: 'en' %}
+  {% if post_candidate_lang == current_page_display_lang %}
+    {% assign shares_tag_or_category = false %}
+    {% for category in page.categories %}
+      {% if post_candidate.categories contains category %}
+        {% assign shares_tag_or_category = true %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+
+    {% unless shares_tag_or_category %}
+      {% for tag in page.tags %}
+        {% if post_candidate.tags contains tag %}
+          {% assign shares_tag_or_category = true %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+    {% endunless %}
+
+    {% if shares_tag_or_category %}
+      {% assign potential_match_posts = potential_match_posts | push: post_candidate %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% assign potential_match_posts = potential_match_posts | uniq %} {% comment %} Ensure uniqueness after gathering {% endcomment %}
+
+{% assign score_list = '' | split: '' %}
+
+{% comment %} Now, score only the potential_match_posts (which are already language-filtered) {% endcomment %}
+{% for i in (0..potential_match_posts.size) %}
+  {% assign post = potential_match_posts[i] %}
+  {% unless post %}{% continue %}{% endunless %} {% comment %} Skip if post is nil (e.g. loop goes one too far) {% endcomment %}
+
+  {% comment %} Already skipped current page in the first loop {% endcomment %}
+
+  {% assign score = 0 %}
+
+  {% for tag in post.tags %}
+    {% if page.tags contains tag %}
+      {% assign score = score | plus: TAG_SCORE %}
+    {% endif %}
+  {% endfor %}
+
+  {% for category in post.categories %}
+    {% if page.categories contains category %}
+      {% assign score = score | plus: CATEGORY_SCORE %}
+    {% endif %}
+  {% endfor %}
+
+  {% if score > 0 %}
+    {% capture score_item %}{{ score }}{{ SEPARATOR }}{{ i }}{% endcapture %}
+    {% assign score_list = score_list | push: score_item %}
+  {% endif %}
+{% endfor %}
+
+{% assign index_list = '' | split: '' %}
+
+{% if score_list.size > 0 %}
+  {% assign score_list = score_list | sort | reverse %}
+  {% for entry in score_list limit: TOTAL_SIZE %}
+    {% assign index = entry | split: SEPARATOR | last %}
+    {% assign index_list = index_list | push: index %}
+  {% endfor %}
+{% endif %}
+
+{% assign relate_posts = '' | split: '' %}
+
+{% for index in index_list %}
+  {% assign i = index | plus: 0 %} {% comment %} Ensure 'i' is treated as an integer {% endcomment %}
+  {% assign relate_posts = relate_posts | push: potential_match_posts[i] %}
+{% endfor %}
+
+{% if relate_posts.size > 0 %}
+  <aside id="related-posts" aria-labelledby="related-label">
+    <h3 class="mb-4" id="related-label">
+      {{- site.data.locales[include.lang].post.relate_posts -}}
+    </h3>
+    <nav class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-4">
+      {% for post in relate_posts %}
+        <article class="col">
+          <a href="{{ post.url | relative_url }}" class="post-preview card h-100">
+            <div class="card-body">
+              {% include datetime.html date=post.date lang=include.lang %}
+              <h4 class="pt-0 my-2">{{ post.title }}</h4>
+              <div class="text-muted">
+                <p>{% include post-description.html %}</p>
+              </div>
+            </div>
+          </a>
+        </article>
+      {% endfor %}
+    </nav>
+  </aside>
+  <!-- #related-posts -->
+{% endif %}

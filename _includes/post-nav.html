@@ -1,0 +1,71 @@
+<!-- Navigation buttons at the bottom of the post. -->
+<!-- Finds previous/next post of the same language as the current page. -->
+
+{% include lang.html %} {% comment %} Ensure 'lang' variable is available if not passed by parent {% endcomment %}
+
+{% assign previous_button_text = site.data.locales[lang].post.button.previous | default: "Previous" %}
+{% assign next_button_text = site.data.locales[lang].post.button.next | default: "Next" %}
+
+{% assign current_page_url = page.url %}
+{% assign current_page_display_lang = page.lang | default: site.lang | default: 'en' %}
+
+{% assign prev_lang_post = nil %}
+{% assign next_lang_post = nil %}
+{% assign found_current_for_prev = false %}
+{% assign found_current_for_next = false %}
+
+{% comment %} Find PREVIOUS post of the same language {% endcomment %}
+{% assign posts_reversed = site.posts | reverse %}
+{% for p in posts_reversed %}
+  {% assign p_display_lang = p.lang | default: site.lang | default: 'en' %}
+  {% if p.url == current_page_url %}
+    {% assign found_current_for_prev = true %}
+  {% elsif found_current_for_prev == true and p_display_lang == current_page_display_lang %}
+    {% assign prev_lang_post = p %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% comment %} Find NEXT post of the same language {% endcomment %}
+{% for p in site.posts %}
+  {% assign p_display_lang = p.lang | default: site.lang | default: 'en' %}
+  {% if p.url == current_page_url %}
+    {% assign found_current_for_next = true %}
+  {% elsif found_current_for_next == true and p_display_lang == current_page_display_lang %}
+    {% assign next_lang_post = p %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+
+<nav class="post-navigation d-flex justify-content-between" aria-label="Post Navigation">
+  {% if prev_lang_post %}
+    <a
+      href="{{ prev_lang_post.url | relative_url }}"
+      class="btn btn-outline-primary"
+      aria-label="{{ previous_button_text }}"
+      title="{{ prev_lang_post.title | xml_escape }}"
+    >
+      <p>{{ prev_lang_post.title }}</p>
+    </a>
+  {% else %}
+    <div class="btn btn-outline-primary disabled" aria-label="{{ previous_button_text }}">
+      <p>-</p>
+    </div>
+  {% endif %}
+
+  {% if next_lang_post %}
+    <a
+      href="{{ next_lang_post.url | relative_url }}"
+      class="btn btn-outline-primary"
+      aria-label="{{ next_button_text }}"
+      title="{{ next_lang_post.title | xml_escape }}"
+    >
+      <p>{{ next_lang_post.title }}</p>
+    </a>
+  {% else %}
+    <div class="btn btn-outline-primary disabled" aria-label="{{ next_button_text }}">
+      <p>-</p>
+    </div>
+  {% endif %}
+</nav>
