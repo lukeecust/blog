@@ -49,7 +49,7 @@ These objectives are clearly in conflict. For instance, to maximize agricultural
     *   If two solutions do not dominate each other, they are **non-dominated**.
 
 6.  **Pareto Optimal Solution / Non-dominated Solution:**
-    *   A solution $x^*$ is a Pareto optimal solution if no other feasible solution $x$ can Pareto dominate $x^*$.
+    *   A solution $x^{\ast}$  is a Pareto optimal solution if no other feasible solution $x$ can Pareto dominate  $x^{\ast}$.
     *   In other words, for a Pareto optimal solution, you **cannot improve any single objective without worsening at least one other objective**.
 
 7.  **Pareto Front / Pareto Optimal Set:**
