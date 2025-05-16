@@ -1,7 +1,7 @@
 ---
 title: 多目标优化的基本概念
 description: 简单说明多目标优化的基本概念、核心原理、方法、度量指标及挑战。
-author: Haoxiang Lu
+author: lukeecust
 date: 2025-05-16 14:10:00 +0800
 categories: [Multi-Objective Optimization]
 lang: zh

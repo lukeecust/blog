@@ -1,7 +1,7 @@
 ---
 title: Basic Concepts of Multi-Objective Optimization
 description: Briefly explain the basic concepts, core principles, methods, metrics, and challenges of multi-objective optimization.
-author: Haoxiang Lu
+author: lukeecust
 date: 2025-05-16 14:10:00 +0800
 categories: [Multi-Objective Optimization]
 lang: en
