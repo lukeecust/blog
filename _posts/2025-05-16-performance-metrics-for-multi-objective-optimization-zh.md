@@ -21,7 +21,7 @@ render_with_liquid: false
 
 ### **<font color="red">超体积（Hypervolume，HV）</font>**：
 
-![Desktop View](2025-05-16-performance-metrics-for-multi-objective-optimization\1688440-fig-1-source-large.png){: .w-50 .left }
+![Desktop View]![Desktop View](https://lukeecust.github.io/blog/assets/imgages/2025-05-16-performance-metrics-for-multi-objective-optimization/1688440-fig-1-source-large.png){: .w-50 .left }{: .w-50 .left }
 
 _两目标问题的超体积指标_
 
