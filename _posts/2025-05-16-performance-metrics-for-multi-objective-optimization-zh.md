@@ -467,12 +467,12 @@ Spacing（SP）指标用于衡量近似帕累托前沿$PF_{approx}$中解分布�
 
 - 对于 $PF_{approx}$ 中的每个解 $x_i$，计算它与其他所有解 $x_j(j \neq i)$ 之间的距离 $d_{ij}$。
 - 找到每个解 $x_i$ 的最近邻距离 $D_i = \min_{j \neq i} d_{ij}$。
-- 计算这些最近邻距离的平均值 $\bar{D} = \frac{1}{|PF_{approx}|} \sum_{i=1}^{|PF_{approx}|} D_i$。
+- 计算这些最近邻距离的平均值 $\bar{D} = \frac{1}{|PF_{\text{approx}}|} \sum_{i=1}^{|PF_{\text{approx}}|} D_i$。
 - 计算SP：
 
-$$ SP=\sqrt{\frac{1}{|PF_{approx}|-1} \sum_{i=1}^{|PF_{approx}|}(D_i-\bar{D})^2} $$
+$$ SP=\sqrt{\frac{1}{|PF_{\text{approx}}|-1} \sum_{i=1}^{|PF_{\text{approx}}|}(D_i-\bar{D})^2} $$
 
-（有些定义中使用$|PF_{approx}|$作为分母）。理想情况下，如果所有解等距分布，则SP为0。
+（有些定义中使用 $|PF_{\text{approx}}|$ 作为分母）。理想情况下，如果所有解等距分布，则SP为0。
 
 
 
