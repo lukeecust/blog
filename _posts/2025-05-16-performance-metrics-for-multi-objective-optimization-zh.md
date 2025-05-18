@@ -459,24 +459,18 @@ Pymoo本身不直接提供MIGD，需要在多次运行后手动计算平均值�
 
 ## 分布性指标 (Diversity/Spread Metrics)
 
-### **<font color="red">Spacing</font>**：
+### **Spacing**：
 
-Spacing（SP）指标用于衡量近似帕累托前沿$P F_{\text {approx }}$中解分布的均匀性。它计算每个解与其最近邻解之间的距离的标准差。SP值越小，表示解在近似前沿上分布越均匀。
-
-
+Spacing（SP）指标用于衡量近似帕累托前沿$PF_{approx}$中解分布的均匀性。它计算每个解与其最近邻解之间的距离的标准差。SP值越小，表示解在近似前沿上分布越均匀。
 
 计算步骤：
 
-- 对于 $P F_{\text {approx }}$ 中的每个解 $x_i$ ，计算它与其他所有解 $x_j(j \neq i)$ 之间的距离 $d_{i j}$ 。
-- 找到每个解 $x_i$ 的最近邻距离 $D_i = \min_{j \neq i} \left\{ d_{ij} \right\}$。
-- 计算这些最近邻距离的平均值 $\bar{D} = \frac{1}{|PF_{\text{approx}}|} \sum_{i=1}^{|PF_{\text{approx}}|} D_i$。
+- 对于 $PF_{approx}$ 中的每个解 $x_i$，计算它与其他所有解 $x_j(j \neq i)$ 之间的距离 $d_{ij}$。
+- 找到每个解 $x_i$ 的最近邻距离 $D_i = \min_{j \neq i} d_{ij}$。
+- 计算这些最近邻距离的平均值 $\bar{D} = \frac{1}{|PF_{approx}|} \sum_{i=1}^{|PF_{approx}|} D_i$。
 - 计算SP：
 
-$$
-\begin{equation}
-S P=\sqrt{\frac{1}{\left|P F_{\text {approx }}\right|-1} \sum_{i=1}^{\left|P F_{\text {approx }}\right|}\left(D_i-\bar{D}\right)^2}
-\end{equation}
-$$
+$$ SP=\sqrt{\frac{1}{|PF_{approx}|-1} \sum_{i=1}^{|PF_{approx}|}(D_i-\bar{D})^2} $$
 
 （有些定义中使用$|PF_{approx}|$作为分母）。理想情况下，如果所有解等距分布，则SP为0。
 
