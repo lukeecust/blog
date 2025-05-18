@@ -468,8 +468,8 @@ Spacing（SP）指标用于衡量近似帕累托前沿$P F_{\text {approx }}$中
 计算步骤：
 
 - 对于 $P F_{\text {approx }}$ 中的每个解 $x_i$ ，计算它与其他所有解 $x_j(j \neq i)$ 之间的距离 $d_{i j}$ 。
-- 找到每个解 $x_i$ 的最近邻距离 $D_i=\min_{j \neq i}\left\{d_{i j}\right\}$。
-- 计算这些最近邻距离的平均值 $\bar{D}=\frac{1}{\left|PF_{\text {approx }}\right|} \sum_{i=1}^{\left|PF_{\text {approx }}\right|} D_i$ 。
+- 找到每个解 $x_i$ 的最近邻距离 $D_i = \min_{j \neq i} \left\{ d_{ij} \right\}$。
+- 计算这些最近邻距离的平均值 $\bar{D} = \frac{1}{|PF_{\text{approx}}|} \sum_{i=1}^{|PF_{\text{approx}}|} D_i$。
 - 计算SP：
 
 $$
