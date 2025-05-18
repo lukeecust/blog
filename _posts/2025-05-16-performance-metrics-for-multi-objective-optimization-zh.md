@@ -144,8 +144,7 @@ import numpy as np
 ```
 
 ### **<font color="red">平均超体积MHV</font>**：
-
-MHV refers to the average HV value across multiple independent runs of a multi-objective optimization algorithm, used to evaluate stability and average performance.
+MHV指多目标优化算法在多次独立运行后得到的超体积（HV）值的平均值，用于评估算法的稳定性和平均性能。
 $$
 \begin{equation}
 M H V=\frac{1}{N_{\text {runs }}} \sum_{i=1}^{N_{\text {runs }}} H V_i
@@ -178,7 +177,7 @@ GD衡量算法找到的近似帕累托前沿$PF_{\text {approx}}$中的每个解
 
 - **<font color="blue">确定真实的帕累托前沿$PF_{\text {true }}$</font>**：这是一组已知的最优解。
 - **<font color="blue">确定计算解集$PF_{\text {approx}}$</font>**：这是算法找到的解集。
-- **<font color="blue">计算每个解与真实帕累托前沿之间的最小欧氏距离</font>**：对于$PF_{\text {approx}}$中的每个解，计算它与 $PF_{\text {true }}$上所有解$z_j$的欧氏距离，并取最小值 $d_j^{\prime} = \min_{x_i \in PF_{\text{approx}}} \operatorname{distance}\left(z_j, x_i\right)$
+- **<font color="blue">计算每个解与真实帕累托前沿之间的最小欧氏距离</font>**：对于$PF_{\text {approx}}$中的每个解，计算它与 $PF_{\text {true }}$上所有解$z_j$的欧氏距离，并取最小值 $d_j^{\prime} = \min_{x_i \in PF_{\text{approx}}} \operatorname{distance}\left(z_j, x_i\right)$。
 - **<font color="blue">计算所有解的距离的平均值</font>**：
 
 $$
@@ -317,7 +316,7 @@ IGD衡量真实帕累托前沿$P F_{\text {true }}$ 中的每个点到算法找�
 
 - **<font color="blue">确定真实的帕累托前沿$PF_{\text {true }}$</font>**：
 - **<font color="blue">确定计算解集$PF_{\text {approx}}$</font>**：
-- **<font color="blue">计算每个真实帕累托前沿解与计算解集之间的最小距离</font>**：对于 $P F_{\text {true }}$ 中的每个点 $z_j$ ，计算它与 $P F_{\text {approx }}$ 中所有解 $x_i$ 的欧氏距离，并取最小值 $d_j^{\prime}=\min _{x_i \in P F_{\text {approx }}} \operatorname{distance}\left(z_j, x_i\right)$ 。
+- **<font color="blue">计算每个真实帕累托前沿解与计算解集之间的最小距离</font>**：对于 $P F_{\text {true }}$ 中的每个点 $z_j$ ，计算它与 $P F_{\text {approx }}$ 中所有解 $x_i$ 的欧氏距离，并取最小值 $d_j^{\prime} = \min_{x_i \in PF_{\text{approx}}} \operatorname{distance}\left(z_j, x_i\right)$。
 - **<font color="blue">计算所有真实帕累托前沿解的平均距离</font>**：
 
 $$
@@ -469,8 +468,8 @@ Spacing（SP）指标用于衡量近似帕累托前沿$P F_{\text {approx }}$中
 计算步骤：
 
 - 对于 $P F_{\text {approx }}$ 中的每个解 $x_i$ ，计算它与其他所有解 $x_j(j \neq i)$ 之间的距离 $d_{i j}$ 。
-- 找到每个解 $x_i$ 的最近邻距离 $D_i=\min _{j \neq i}\left\{d_{i j}\right\}$。
-- 计算这些最近邻距离的平均值 $\bar{D}=\frac{1}{\left|P F_{\text {approx }}\right|} \sum_{i=1}^{\left|P F_{\text {approx }}\right|} D_i$ 。
+- 找到每个解 $x_i$ 的最近邻距离 $D_i=\min_{j \neq i}\left\{d_{i j}\right\}$。
+- 计算这些最近邻距离的平均值 $\bar{D}=\frac{1}{\left|PF_{\text {approx }}\right|} \sum_{i=1}^{\left|PF_{\text {approx }}\right|} D_i$ 。
 - 计算SP：
 
 $$
@@ -479,7 +478,7 @@ S P=\sqrt{\frac{1}{\left|P F_{\text {approx }}\right|-1} \sum_{i=1}^{\left|P F_{
 \end{equation}
 $$
 
-（有些定义中使用 $|PF_{approx}|$ 作为分母）。理想情况下，如果所有解等距分布，则SP为0。
+（有些定义中使用$|PF_{approx}|$作为分母）。理想情况下，如果所有解等距分布，则SP为0。
 
 
 
