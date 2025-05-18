@@ -108,7 +108,7 @@ Methods can be classified into three categories based on when the decision-maker
     *   **Advantages:** The decision-maker can gradually learn problem characteristics and adjust preferences, avoiding the difficulties of preference setting in a priori methods and the overwhelming number of solutions in a posteriori methods.
     *   **Disadvantages:** Requires significant time commitment from the decision-maker to participate in the optimization process.
 
-## Performance Metrics for Multi-Objective Optimization
+## [Performance Metrics for Multi-Objective Optimization](https://lukeecust.github.io/blog/posts/performance-metrics-for-multi-objective-optimization/)
 How to evaluate the "goodness" of a Pareto front found by a multi-objective optimization algorithm? Common metrics include:
 1.  **Hypervolume (HV):** Measures the volume of the objective space dominated by the solution set and bounded by a reference point. Larger is better.
 2.  **Generational Distance (GD):** Measures the average distance from the found solution set to the true (or best known) Pareto front. Smaller is better.
@@ -123,4 +123,4 @@ How to evaluate the "goodness" of a Pareto front found by a multi-objective opti
 5.  **Uncertainty:** Many real-world problems (e.g., parameters in groundwater models) inherently involve uncertainty, which affects the robustness of optimization results.
 
 ## Summary
-Multi-Objective Optimization is a complex but very important field of research dedicated to solving ubiquitous real-world problems that require trade-offs between multiple conflicting objectives. Its core lies in understanding Pareto dominance and aiming to find a set of Pareto optimal solutions (the Pareto front) for the decision-maker to choose from based on their ultimate preferences. In the optimization of complex systems like groundwater management, multi-objective methods can provide more comprehensive and scientific decision support.
+Multi-Objective Optimization is a complex but very important field of research dedicated to solving ubiquitous real-world problems that require trade-offs between multiple conflicting objectives. Its core lies in understanding Pareto dominance and aiming to find a set of Pareto optimal solutions (the Pareto front) for the decision-maker to choose from based on their ultimate preferences.
