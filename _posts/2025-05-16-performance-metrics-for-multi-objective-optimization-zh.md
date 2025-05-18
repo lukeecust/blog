@@ -469,7 +469,12 @@ Spacing（SP）指标用于衡量近似帕累托前沿$PF_{approx}$中解分布�
 - 找到每个解 $x_i$ 的最近邻距离 $D_i = \min_{j \neq i} d_{ij}$。
 - 计算这些最近邻距离的平均值$\bar{D} = \frac{1}{\lvert PF_{\mathrm{approx}} \rvert} \sum_{i=1}^{\lvert PF_{\mathrm{approx}} \rvert} D_i$。
 - 计算SP：
-  $$ SP = \sqrt{\frac{1}{\lvert PF_{\mathrm{approx}} \rvert - 1} \sum_{i=1}^{\lvert PF_{\mathrm{approx}} \rvert} (D_i - \bar{D})^2 } $$
+  $$ 
+  \begin{equation}
+  SP = \sqrt{\frac{1}{\lvert PF_{\mathrm{approx}} \rvert - 1} \sum_{i=1}^{\lvert PF_{\mathrm{approx}} \rvert} (D_i - \bar{D})^2 } 
+  \end{equation}
+  $$
+
   （有些定义中使用 $\lvert PF_{\mathrm{approx}} \rvert$ 作为分母）。理想情况下，如果所有解等距分布，则SP为0。
 
 
@@ -510,7 +515,9 @@ import numpy as np
 
 Pymoo 中的 `MaximumSpread` (来自 `pymoo.indicators.ms`): 它计算的是近似前沿的边界框的对角线长度与真实前沿的边界框对角线长度的比值。
 $$
+\begin{equation}
 M S=\frac{\operatorname{diag}\left(B o x\left(P F_{\text {approx }}\right)\right)}{\operatorname{diag}\left(B o x\left(P F_{\text {true }}\right)\right)}
+\end{equation}
 $$
 优点：
 
@@ -559,7 +566,9 @@ import numpy as np
 
 C－metric（Coverage）用于比较两个解集 $A$ 和 $B$ 的相对性能。 $C(A, B)$ 表示解集 $B$ 中有多少比例的解被解集 $A$ 中的至少一个解所帕累托支配（或相等）。
 $$
+\begin{equation}
 C(A, B)=\frac{|\{\mathbf{b} \in B \mid \exists \mathbf{a} \in A, \mathbf{a} \preceq \mathbf{b}\}|}{|B|}
+\end{equation}
 $$
 其中 $\mathbf{a} \preceq \mathbf{b}$ 表示 $\mathbf{a}$ 帕累托支配或等于 $\mathbf{b}_{\text {。 }}$
 	$C(A, B)=1$ 意味着 $A$ 中的解支配或等于 $B$ 中的所有解。
