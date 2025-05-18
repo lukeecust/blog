@@ -21,7 +21,7 @@ In multi-objective optimization, since the solutions are typically not unique bu
 
 ### **<font color="red">Hypervolume (HV)</font>**：
 
-![Desktop View](2025-05-16-performance-metrics-for-multi-objective-optimization\1688440-fig-1-source-large.png){: .w-50 .left }
+![Desktop View](https://lukeecust.github.io/blog/assets/imgages/2025-05-16-performance-metrics-for-multi-objective-optimization/1688440-fig-1-source-large.png){: .w-50 .left }
 
 _Hypervolume metric for a two-objective problem_
 
