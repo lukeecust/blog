@@ -6,7 +6,7 @@ categories: [Multi-Objective Optimization, Optimization Algorithm]
 lang: zh
 math: true
 translation_id: genetic-algorithm
-permalink: /zh/genetic-algorithm/
+permalink: /zh/posts/genetic-algorithm/
 render_with_liquid: false
 ---
 

@@ -6,19 +6,16 @@ categories: [Multi-Objective Optimization, Optimization Algorithm]
 lang: zh
 math: true
 translation_id: non-dominated-sorting-genetic-algorithm-2
-permalink: /zh/postsnon-dominated-sorting-genetic-algorithm-2/
+permalink: /zh/posts/non-dominated-sorting-genetic-algorithm-2/
 render_with_liquid: false
 ---
 
 
 
 
-
-## NSGA-II 算法详解
-
 NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)的扩展得到的非常流行的多目标优化算法，由 Deb 等人在 2002 年提出，它保留了GA的基本框架，并加入了非支配排序和多样性维持策略，是多目标优化中的经典方法之一。它在初代 NSGA 的基础上进行了改进，主要解决了 NSGA 计算复杂度高、缺乏精英保留策略以及需要指定共享参数等问题。NSGA-II 的核心思想是基于帕累托最优概念，通过非支配排序和拥挤度计算来指导种群的进化，从而找到一组近似的帕累托最优解集。
 
-### 1. 核心概念
+### 核心概念
 
 在理解 NSGA-II 之前，需要先了解以下几个核心概念：
 
@@ -34,20 +31,11 @@ NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)
     \end{aligned}
     \]
     其中 \(x\) 是决策变量向量，\(F(x)\) 是目标函数向量，\(g_j(x)\) 和 \(h_l(x)\) 分别是不等式约束和等式约束。
-
-*   **支配 (Dominate):**
-    在多目标优化中，如果解 \(x_A\) 在所有目标上都不劣于解 \(x_B\)，并且至少在一个目标上严格优于解 \(x_B\)，则称解 \(x_A\) **支配** 解 \(x_B\)。
-    形式化定义：对于最小化问题，向量 \(u = (u_1, \dots, u_k)\) 支配向量 \(v = (v_1, \dots, v_k)\) (记作 \(u \prec v\))，当且仅当：
-    1.  \(\forall i \in \{1, \dots, k\}, u_i \le v_i\)
-    2.  \(\exists j \in \{1, \dots, k\}, u_j < v_j\)
-
-*   **非支配解 (Non-dominated Solution):**
-    如果一个解在解集中没有被任何其他解所支配，则称该解为**非支配解**。
-
-*   **帕累托最优解集 (Pareto Optimal Set):**
-    所有非支配解构成的集合称为帕累托最优解集。这些解在目标空间中形成一个**帕累托前沿 (Pareto Front)**。帕累托前沿上的点代表了不同目标之间的权衡，决策者可以根据自己的偏好从中选择一个最终解。
+non-dominated-level.png
 
 *   **非支配排序 (Non-dominated Sorting):**
+![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/non-dominated-level.png){:.left }
+_遗传算法基本流程_
     这是 NSGA-II 的核心步骤之一。它将种群中的所有个体分到不同的非支配层级 (fronts)。
     1.  第一层 (Front 1)：包含所有非支配解。
     2.  第二层 (Front 2)：移除第一层解后，在剩余解中找到所有非支配解。
@@ -58,8 +46,8 @@ NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)
     当两个解具有相同的非支配等级时，拥挤度用来衡量解在其所在层级中的密度。拥挤度大的解更受欢迎，因为它有助于保持解的多样性，避免算法过早收敛到帕累托前沿的某个小区域。
     计算方法：
     1.  对于每个目标函数，对同一层级内的个体进行排序。
-    2.  该层级边界上的两个个体（目标值最小和最大的个体）的拥挤度设为无穷大。
-    3.  对于其他个体，其拥ging度是其在该目标维度上，其左右两个邻居的目标值之差的归一化总和。具体来说，对于个体 \(i\) 在目标 \(m\) 上的拥挤距离分量是 \( (f_m(i+1) - f_m(i-1)) / (f_m^{max} - f_m^{min}) \)。
+    2.  该层级边界上的两个个体（**目标值最小和最大的个体**）的拥挤度设为无穷大。
+    3.  对于其他个体，其拥挤度是其在该目标维度上，其左右两个邻居的目标值之差的归一化总和。具体来说，对于个体 \(i\) 在目标 \(m\) 上的拥挤距离分量是 $\frac{f_m(i+1) - f_m(i-1)}{f_m^{max} - f_m^{min}}$。
     4.  个体的总拥挤度是其在所有目标维度上拥挤距离分量的总和。
 
 ### 2. NSGA-II 算法流程
