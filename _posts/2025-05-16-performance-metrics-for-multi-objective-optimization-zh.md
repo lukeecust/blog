@@ -177,7 +177,7 @@ GD衡量算法找到的近似帕累托前沿$PF_{\text {approx}}$中的每个解
 
 - **<font color="blue">确定真实的帕累托前沿$PF_{\text {true }}$</font>**：这是一组已知的最优解。
 - **<font color="blue">确定计算解集$PF_{\text {approx}}$</font>**：这是算法找到的解集。
-- **<font color="blue">计算每个解与真实帕累托前沿之间的最小欧氏距离</font>**：对于$PF_{\text {approx}}$中的每个解，计算它与 $PF_{\text {true }}$上所有解$z_j$的欧氏距离，并取最小值 $d_j^{\prime} = \min_{x_i \in PF_{\text{approx}}} \operatorname{distance}\left(z_j, x_i\right)$。
+- **<font color="blue">计算每个解与真实帕累托前沿之间的最小欧氏距离</font>**：对于$PF_{\text {approx}}$中的每个解，计算它与 $PF_{\text {true }}$上所有解$z_j$的欧氏距离，并取最小值 $d_i = \min_{z_j \in PF_{\text{true}}} \operatorname{distance}\left(x_i, z_j\right)$。
 - **<font color="blue">计算所有解的距离的平均值</font>**：
 
 $$

@@ -160,7 +160,7 @@ Calculation steps:
 
 - **<font color="blue">Determine the true Pareto front $PF_{\text {true }}$</font>**: This is a set of known optimal solutions.
 - **<font color="blue">Determine the computed solution set $PF_{\text {approx}}$</font>**: This is the set of solutions found by the algorithm.
-- **<font color="blue">Calculate the minimum Euclidean distance between each solution and the true Pareto front</font>**: For each solution in $PF_{\text {approx}}$, calculate its Euclidean distance to all solutions $z_j$ on $PF_{\text {true }}$, and take the minimum value $d_i=\min _{z_j \in P F_{\text {true }}}$ distance $\left(x_i, z_j\right)$.
+- **<font color="blue">Calculate the minimum Euclidean distance between each solution and the true Pareto front</font>**: For each solution in $PF_{\text {approx}}$, calculate its Euclidean distance to all solutions $z_j$ on $PF_{\text {true }}$, and take the minimum value $d_i = \min_{z_j \in PF_{\text{true}}} \operatorname{distance}\left(x_i, z_j\right)$.
 - **<font color="blue">Calculate the average of all distances</font>**:
 
 
@@ -255,6 +255,7 @@ import numpy as np
 
 
 ### **<font color="red">GD+</font>**
+GD+ (Generational Distance Plus) is a variant of GD that considers dominance relationships when calculating distances. For a solution $x$ in $PF_{\text {approx}}$, if it is dominated by some solution $z$ in $PF_{\text {true }}$, their distance is the "correction distance" needed to move from $x$ to $z$ (usually the sum of objective component differences, considering only where $x$ is worse than $z$). If $x$ is not dominated by any solution in $PF_{\text {true }}$ (i.e., $x$ is above or outside the true front), its distance is 0. A smaller GD+ value is better.
 
 $$
 \begin{equation}
@@ -293,7 +294,7 @@ Calculation steps:
 
 - **<font color="blue">Determine the true Pareto front $PF_{\text {true }}$</font>**
 - **<font color="blue">Determine the computed solution set $PF_{\text {approx}}$</font>**
-- **<font color="blue">Calculate the minimum distance between each true Pareto front solution and the computed solution set</font>**: For each point $z_j$ in $PF_{\text {true }}$, calculate its Euclidean distance to all solutions $x_i$ in $PF_{\text {approx}}$, and take the minimum value $d_j^{\prime}=\min _{x_i \in P F_{\text {approx }}} \operatorname{distance}\left(z_j, x_i\right)$
+- **<font color="blue">Calculate the minimum distance between each true Pareto front solution and the computed solution set</font>**: For each point $z_j$ in $PF_{\text {true }}$, calculate its Euclidean distance to all solutions $x_i$ in $PF_{\text {approx}}$, and take the minimum value $d_j^{\prime} = \min_{x_i \in PF_{\text{approx}}} \operatorname{distance}\left(z_j, x_i\right)$.
 - **<font color="blue">Calculate the average distance of all true Pareto front solutions</font>**:
 
 $$
@@ -440,8 +441,8 @@ The Spacing (SP) metric measures the uniformity of solution distribution in the 
 Calculation steps:
 
 - For each solution $x_i$ in $PF_{\text {approx }}$, calculate its distance $d_{i j}$ to all other solutions $x_j(j \neq i)$.
-- Find the nearest neighbor distance $D_i=\min _{j \neq i}\left\{d_{i j}\right\}$ for each solution $x_i$.
-- Calculate the mean of these nearest neighbor distances $\bar{D}=\frac{1}{\left|P F_{\text {approx }}\right|} \sum_{i=1}^{\left|P F_{\text {approx }}\right|} D_i$.
+- Find the nearest neighbor distance $D_i=\min_{j \neq i} d_{ij}$ for each solution $x_i$.
+- Calculate the mean of these nearest neighbor distances $\bar{D} = \frac{1}{\lvert PF_{\mathrm{approx}} \rvert} \sum_{i=1}^{\lvert PF_{\mathrm{approx}} \rvert} D_i$.
 - Calculate SP:
 
 $$
@@ -450,7 +451,7 @@ S P=\sqrt{\frac{1}{\left|P F_{\text {approx }}\right|-1} \sum_{i=1}^{\left|P F_{
 \end{equation}
 $$
 
-(Some definitions use $|PF_{approx}|$ as the denominator). Ideally, if all solutions are evenly distributed, SP equals 0.
+(Some definitions use $\lvert PF_{\mathrm{approx}} \rvert$ as the denominator). Ideally, if all solutions are evenly distributed, SP equals 0.
 
 Advantages:
 
@@ -485,7 +486,9 @@ For bi-objective problems, one can calculate the diagonal length of the convex h
 
 Pymoo's `MaximumSpread` (from `pymoo.indicators.ms`): It calculates the ratio of the diagonal length of the approximate front's bounding box to the diagonal length of the true front's bounding box.
 $$
+\begin{equation}
 M S=\frac{\operatorname{diag}\left(B o x\left(P F_{\text {approx }}\right)\right)}{\operatorname{diag}\left(B o x\left(P F_{\text {true }}\right)\right)}
+\end{equation}
 $$
 
 Advantages:
@@ -533,7 +536,9 @@ Implementation involves performing non-dominated sorting on the algorithm's outp
 
 C-metric (Coverage) is used to compare the relative performance of two solution sets A and B. C(A,B) represents the proportion of solutions in set B that are Pareto-dominated by (or equal to) at least one solution in set A.
 $$
+\begin{equation}
 C(A, B)=\frac{|\{\mathbf{b} \in B \mid \exists \mathbf{a} \in A, \mathbf{a} \preceq \mathbf{b}\}|}{|B|}
+\end{equation}
 $$
 where $\mathbf{a} \preceq \mathbf{b}$ means $\mathbf{a}$ Pareto-dominates or equals $\mathbf{b}$.
     C(A,B) = 1 means solutions in A dominate or equal all solutions in B.
