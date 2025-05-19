@@ -41,12 +41,11 @@ These objectives are clearly in conflict. For instance, to maximize agricultural
     *   The **Objective Space** is the $k$-dimensional space formed by the objective function values $(f_1(x), f_2(x), ..., f_k(x))$.
     *   The optimization process searches in the decision space, but the quality of solutions is evaluated in the objective space.
 
-5.  **Pareto Dominance:**
-    This is the core concept for comparing the quality of solutions in multi-objective optimization.
-    *   For a minimization problem, solution $x_A$ **Pareto dominates** solution $x_B$ if and only if:
-        1.  For all objectives $i$ (from 1 to $k$), $f_i(x_A) \leq f_i(x_B)$ (i.e., $x_A$ is no worse than $x_B$ in all objectives).
-        2.  There exists at least one objective $j$ such that $f_j(x_A) < f_j(x_B)$ (i.e., $x_A$ is strictly better than $x_B$ in at least one objective).
-    *   If two solutions do not dominate each other, they are **non-dominated**.
+5. **Pareto Dominance:** This is the fundamental criterion in multi-objective optimization for comparing the relative merit of different solutions. It provides a method for making trade-offs between multiple potentially conflicting objectives.
+   - For a multi-objective minimization problem with $n$ objective functions $f_1, f_2, ..., f_n$, and two solutions $X_a$ and $X_b$ in the decision space. We say solution $X_a$ **Pareto dominates** solution $X_b$ (denoted as $X_a \prec X_b$) if and only if both conditions are met:
+     1. For $\forall i \in \{1,2,...,n\}$, $f_i(X_a) \leq f_i(X_b)$ holds.
+     2. There exists $i \in \{1,2,...,n\}$ such that $f_i(X_a) < f_i(X_b)$ holds.
+   - If there exists no other decision variable that can dominate a given decision variable, then that decision variable is called a **non-dominated solution**.
 
 6.  **Pareto Optimal Solution / Non-dominated Solution:**
     *   A solution $x^{\ast}$  is a Pareto optimal solution if no other feasible solution $x$ can Pareto dominate  $x^{\ast}$.
