@@ -36,7 +36,7 @@ NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)
 
 *   **非支配排序 (Non-dominated Sorting):**
     这是 NSGA-II 的核心步骤之一。它将种群中的所有个体分到不同的非支配层级 (fronts)。
-![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/non-dominated-level.png){:.left }
+![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/non-dominated-level.png){: .w-50 .left }
 _非支配等级示意图_
     1.  第一层 (Front 1)：包含所有非支配解。
     2.  第二层 (Front 2)：移除第一层解后，在剩余解中找到所有非支配解。
@@ -90,17 +90,6 @@ _NSGA-II算法流程图_
 ## `pymoo` 中的 NSGA-II
 
 `pymoo` 是一个功能强大的 Python 多目标优化框架。它提供了各种多目标优化算法的实现，包括 NSGA-II，并且易于使用和扩展。
-
-### 1. `pymoo` 简介
-
-`pymoo` 的设计目标是：
-
-*   提供一个灵活的框架来定义和解决多目标优化问题。
-*   实现多种最先进的多目标优化算法。
-*   提供可视化工具来分析优化结果。
-*   易于与其他 Python 库集成。
-
-### 2. 在 `pymoo` 中使用 NSGA-II
 
 使用 `pymoo` 来运行 NSGA-II 通常包括以下步骤：
 
