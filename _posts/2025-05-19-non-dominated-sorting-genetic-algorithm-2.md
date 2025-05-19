@@ -32,7 +32,7 @@ Before understanding NSGA-II, it's essential to grasp these core concepts:
     \end{aligned}
     \end{equation}
     $$
-    where \(x\) is the decision variable vector, \(F(x)\) is the objective function vector, and \(g_j(x)\) and \(h_l(x)\) are inequality and equality constraints respectively.
+    where $x$ is the decision variable vector, $F(x)$ is the objective function vector, and $g_j(x)$ and $h_l(x)$ are inequality and equality constraints respectively.
 
 *   **Non-dominated Sorting:**
     This is a key step in NSGA-II. It divides the population into different non-dominated fronts.
@@ -48,7 +48,7 @@ _Non-dominated levels illustration_
     Calculation method:
     1.  Sort solutions within each front by each objective.
     2.  Assign infinite crowding distance to boundary solutions (those with minimum and maximum objective values).
-    3.  For other solutions, crowding distance component for objective m is $\frac{f_m(i+1) - f_m(i-1)}{f_m^{max} - f_m^{min}}$ for solution i.
+    3.  For other solutions, crowding distance component for objective $m$ is $\frac{f_m(i+1) - f_m(i-1)}{f_m^{max} - f_m^{min}}$ for solution $i$.
     4.  Total crowding distance is the sum across all objectives.
 
 ## NSGA-II Algorithm Flow
