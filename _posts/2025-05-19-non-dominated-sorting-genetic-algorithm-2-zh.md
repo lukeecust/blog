@@ -15,7 +15,7 @@ render_with_liquid: false
 
 NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)的扩展得到的非常流行的多目标优化算法，由 Deb 等人在 2002 年提出，它保留了GA的基本框架，并加入了非支配排序和多样性维持策略，是多目标优化中的经典方法之一。它在初代 NSGA 的基础上进行了改进，主要解决了 NSGA 计算复杂度高、缺乏精英保留策略以及需要指定共享参数等问题。NSGA-II 的核心思想是基于帕累托最优概念，通过非支配排序和拥挤度计算来指导种群的进化，从而找到一组近似的帕累托最优解集。
 
-### 核心概念
+## 核心概念
 
 在理解 NSGA-II 之前，需要先了解以下几个核心概念：
 
@@ -35,9 +35,9 @@ NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)
     其中 \(x\) 是决策变量向量，\(F(x)\) 是目标函数向量，\(g_j(x)\) 和 \(h_l(x)\) 分别是不等式约束和等式约束。
 
 *   **非支配排序 (Non-dominated Sorting):**
+    这是 NSGA-II 的核心步骤之一。它将种群中的所有个体分到不同的非支配层级 (fronts)。
 ![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/non-dominated-level.png){:.left }
 _非支配等级示意图_
-    这是 NSGA-II 的核心步骤之一。它将种群中的所有个体分到不同的非支配层级 (fronts)。
     1.  第一层 (Front 1)：包含所有非支配解。
     2.  第二层 (Front 2)：移除第一层解后，在剩余解中找到所有非支配解。
     3.  以此类推，直到所有个体都被分配到一个层级。
@@ -51,9 +51,8 @@ _非支配等级示意图_
     3.  对于其他个体，其拥挤度是其在该目标维度上，其左右两个邻居的目标值之差的归一化总和。具体来说，对于个体 $i$ 在目标 $m$ 上的拥挤距离分量是 $\frac{f_m(i+1) - f_m(i-1)}{f_m^{max} - f_m^{min}}$。
     4.  个体的总拥挤度是其在所有目标维度上拥挤距离分量的总和。
 
-### 2. NSGA-II 算法流程
+## NSGA-II 算法流程
 
-NSGA-II 的主要步骤如下：
 ![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/algorithm-for-nsga-2.png){:.left }
 _NSGA-II算法流程图_
 1.  **初始化种群 $P_0$:**
@@ -81,9 +80,9 @@ _NSGA-II算法流程图_
 7.  **终止条件:**
     重复步骤 2-6，直到满足预设的终止条件（例如，达到最大迭代次数、帕累托前沿不再显著变化等）。
 
-### 3. NSGA-II 的优点
+## NSGA-II 的优点
 
-*   **计算效率高:** 快速非支配排序算法的复杂度为 \(O(M N^2)\) (M 为目标数，N 为种群大小)，优于初代 NSGA 的 \(O(M N^3)\)。
+*   **计算效率高:** 快速非支配排序算法的复杂度为 $O(M N^2)$ ($M$ 为目标数，$N$ 为种群大小)，优于初代 NSGA 的 $O(M N^3)$。
 *   **精英保留策略:** 确保了优秀个体不会在进化过程中丢失，有助于提高收敛性。
 *   **多样性保持:** 通过拥挤度计算和比较，有效维持了种群在帕累托前沿上的多样性，避免了对共享参数的依赖。
 *   **广泛应用:** 是多目标优化领域最常用和最经典的算法之一。
