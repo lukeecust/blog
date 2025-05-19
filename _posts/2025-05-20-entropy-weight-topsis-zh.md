@@ -1,12 +1,12 @@
 ---
-title: 基于熵权法-TOPSIS的多目标优化决策分析
+title: Multi-Objective Decision Analysis Based on Entropy Weight Method and TOPSIS
 author: lukeecust
 date: 2025-05-20 02:09:00 +0800
 categories: [Multi-Objective Optimization, Decision Analysis]
-lang: zh
+lang: en
 math: true
 translation_id: entropy-weight-topsis
-permalink: /zh/posts/entropy-weight-topsis/
+permalink: posts/entropy-weight-topsis/
 render_with_liquid: false
 ---
 
