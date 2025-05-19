@@ -32,7 +32,7 @@ NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)
     \end{aligned}
     \end{equation}
     $$
-    其中 \(x\) 是决策变量向量，\(F(x)\) 是目标函数向量，\(g_j(x)\) 和 \(h_l(x)\) 分别是不等式约束和等式约束。
+    其中 $x$ 是决策变量向量，$F(x)$ 是目标函数向量，$g_j(x)$ 和 $h_l(x)$ 分别是不等式约束和等式约束。
 
 *   **非支配排序 (Non-dominated Sorting):**
     这是 NSGA-II 的核心步骤之一。它将种群中的所有个体分到不同的非支配层级 (fronts)。
