@@ -1,7 +1,7 @@
 ---
 title: 非支配排序遗传算法2（NSGA-II）
 author: lukeecust
-date: 2025-05-19 15:09:00 +0800
+date: 2025-05-19 22:09:00 +0800
 categories: [Multi-Objective Optimization, Optimization Algorithm]
 lang: zh
 math: true
