@@ -217,7 +217,6 @@ def normalize_and_positiveize_data(X, criteria_types, moderate_params=None, epsi
             Z_prime[:, j] = np.clip(Z_prime[:, j], 0, 1)
         else:
             raise ValueError(f"Unknown criteria type: {crit_type} at column {j}")
-
     return Z_prime
 
 def calculate_entropy_weights(Z_prime, zero_pij_treatment='shift', epsilon_p_log=1e-9, calculate_F_scores=False):
@@ -300,7 +299,6 @@ def calculate_entropy_weights(Z_prime, zero_pij_treatment='shift', epsilon_p_log
         F_scores = Z_prime @ weights  # 使用原始Z_prime计算得分
         return weights, F_scores
     return weights
-
 ```
 ## TOPSIS法
 
