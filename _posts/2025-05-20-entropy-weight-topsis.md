@@ -1,35 +1,36 @@
 ---
-title: 基于熵权法-TOPSIS的多目标优化决策分析
+title: Multi-Objective Decision Analysis Based on Entropy Weight Method and TOPSIS
 author: lukeecust
 date: 2025-05-20 02:09:00 +0800
 categories: [Multi-Objective Optimization, Decision Analysis]
-lang: zh
+lang: en
 math: true
 translation_id: entropy-weight-topsis
-permalink: /zh/posts/entropy-weight-topsis/
+permalink: posts/entropy-weight-topsis/
 render_with_liquid: false
 ---
 
-在现实世界的决策问题中，往往需要同时考虑多个相互冲突或关联的目标，这类问题被称为多目标优化决策问题。如何科学、客观地评价不同方案的优劣，并从中选出最优方案，是决策分析领域的核心议题。熵权法（Entropy Weight Method, EWM）作为一种客观赋权方法，能够依据数据本身的波动性确定指标权重，有效避免主观因素的干扰。TOPSIS法（Technique for Order Preference by Similarity to Ideal Solution）则是一种经典的逼近理想解的排序方法，通过计算评价对象与最优、最劣方案的相对接近程度来进行排序。
+In real-world decision-making problems, it is often necessary to consider multiple conflicting or interrelated objectives simultaneously, known as multi-objective optimization decision problems. How to scientifically and objectively evaluate different alternatives and select the optimal solution is a core issue in decision analysis. The Entropy Weight Method (EWM), as an objective weighting method, can determine indicator weights based on data variability, effectively avoiding subjective interference. The Technique for Order Preference by Similarity to Ideal Solution (TOPSIS) is a classical ranking method that orders alternatives by calculating their relative proximity to the best and worst solutions.
 
-将熵权法与TOPSIS法相结合，首先利用熵权法确定各评价指标的客观权重，然后将这些权重应用于TOPSIS法中，对备选方案进行综合评价和排序。这种组合方法既发挥了熵权法客观赋权的优势，又利用了TOPSIS法对多方案进行综合排序的系统性，在项目评估、绩效评价、风险分析等多个领域得到了广泛应用。
-
-## 熵权法
-
-熵权法的主要目的是基于数据本身的特性对指标体系进行客观赋权。
-
-**基本原理：**
-熵权法是一种基于信息熵的客观赋权方法。信息熵用于度量系统的不确定性或混乱程度。在多指标评价中：
-- 若指标的观测值差异较大（变异程度大），则该指标包含更多有用信息，应赋予较大权重，其信息熵较小
-- 若指标的观测值差异较小（变异程度小），则该指标对决策的区分能力弱，应赋予较小权重，其信息熵较大
-
-熵权法通过计算各指标的信息熵来确定权重。指标的信息熵越小，其效用值和权重就越大；反之则越小。这种方法完全依赖数据的客观属性。
+By combining the Entropy Weight Method with TOPSIS, we first use EWM to determine objective weights for evaluation indicators, then apply these weights in TOPSIS for comprehensive evaluation and ranking of alternatives. This combined approach leverages both the objective weighting advantage of EWM and the systematic multi-alternative ranking capability of TOPSIS, finding wide applications in project evaluation, performance assessment, risk analysis, and other fields.
 
 
-**计算步骤：**
+## Entropy Weight Method
 
-1.  **数据准备**
-    假设有 $n$ 个评价对象（样本），$m$ 个评价指标，构成原始数据矩阵 $X$：
+The main purpose of the Entropy Weight Method is to objectively assign weights to indicator systems based on the characteristics of the data itself.
+
+**Basic Principles:**
+The Entropy Weight Method is an objective weighting method based on information entropy. Information entropy measures the degree of uncertainty or disorder in a system. In multi-indicator evaluation:
+- If an indicator's observed values show large differences (high degree of variation), the indicator contains more useful information and should be assigned a larger weight, with lower information entropy
+- If an indicator's observed values show small differences (low degree of variation), the indicator has weak discriminating power for decision-making and should be assigned a smaller weight, with higher information entropy
+
+The Entropy Weight Method determines weights by calculating the information entropy of each indicator. The smaller the information entropy of an indicator, the greater its utility value and weight; conversely, the smaller. This method relies entirely on the objective attributes of the data.
+
+
+**Calculation Steps:**
+
+1.  **Data Preparation**
+    Assume there are $n$ evaluation objects (samples) and $m$ evaluation indicators, forming the original data matrix $X$:
     $$
     \begin{equation}
     X=\left[\begin{array}{cccc}
@@ -40,40 +41,41 @@ render_with_liquid: false
     \end{array}\right]
     \end{equation}
     $$
-    其中，$x_{ij}$ 表示第 $i$ 个评价对象在第 $j$ 个指标下的原始值。对于某项指标，其值的离散程度越大，则该指标在综合评价中所起的作用就越大。如果该指标的所有评价值都相等，则该指标在评价中不起作用，权重应为0。
+    where $x_{ij}$ represents the original value of the $i$-th evaluation object under the $j$-th indicator. The more dispersed the values of an indicator, the greater its role in comprehensive evaluation. If all evaluation values for an indicator are equal, that indicator plays no role in the evaluation and its weight should be 0.
 
-2.  **数据预处理（正向化与标准化）**
-    为消除因量纲不同及指标方向不一致对评价结果的影响，需要对各指标进行正向化和标准化处理，将所有指标转化为数值越大越优，且取值范围统一（通常为[0, 1]）的形态。
-    指标类型一般有三种：
-    *   **正向指标（效益型指标）：** 越大越好，如收入、产量、评分、满意度等。
-    *   **负向指标（成本型指标）：** 越小越好，如成本、能耗、延误时间、故障率等。
-    *   **适度指标（区间型指标）：** 指标值落在某个特定区间或接近某个特定值最好，如水中的PH值（越接近7越好）、温度（某个范围最佳）。
+2.  **Data Preprocessing (Forward Transformation and Standardization)**
+    To eliminate the impact of different dimensions and inconsistent indicator directions on evaluation results, indicators need to be forward transformed and standardized, converting all indicators into a form where larger values are better and the value range is unified (typically [0, 1]).
+    There are generally three types of indicators:
+    *   **Positive Indicators (Benefit Type):** Larger is better, such as income, output, scores, satisfaction, etc.
+    *   **Negative Indicators (Cost Type):** Smaller is better, such as cost, energy consumption, delay time, failure rate, etc.
+    *   **Moderate Indicators (Interval Type):** Indicator values are best when falling within a specific interval or close to a specific value, such as PH value in water (closer to 7 is better), temperature (optimal within a certain range).
 
-    常用的处理方法是**极差法（Min-Max Normalization）**，它同时完成正向化和标准化。处理后的矩阵记为 $Z'$，其中元素为 $z'_{ij}$。
+    The commonly used method is **Min-Max Normalization**, which accomplishes both forward transformation and standardization simultaneously. The processed matrix is denoted as $Z'$, with elements $z'_{ij}$.
 
-    *   **正向指标：**
+
+    *   **Positive Indicators:**
         $$
         \begin{equation}
         z'_{i j}=\frac{x_{i j}-x_j^{\min }}{x_j^{\max }-x_j^{\min }}
         \end{equation}
         $$
-        其中 $x_j^{\min }$ 和 $x_j^{\max }$ 分别为第 $j$ 个指标在所有对象中的最小值和最大值。
+        where $x_j^{\min }$ and $x_j^{\max }$ are the minimum and maximum values of the $j$-th indicator across all objects.
 
-    *   **负向指标：**
+    *   **Negative Indicators:**
         $$
         \begin{equation}
         z'_{i j}=\frac{x_j^{\max }-x_{i j}}{x_j^{\max }-x_j^{\min }}
         \end{equation}
         $$
 
-    *   **适度指标：**
-        *   若最佳值为一个点 $x_{best_j}$，可按如下公式转换：
+    *   **Moderate Indicators:**
+        *   If the optimal value is a specific point $x_{best_j}$, use the following formula:
         $$
         \begin{equation}
         z'_{i j}=1-\frac{\left|x_{i j}-x_{best_j}\right|}{\max_k \left(\left|x_{k j}-x_{best_j}\right|\right)}
         \end{equation}
         $$
-        *   若最佳为一个区间 $[a_j, b_j]$，则：
+        *   If the optimal value is an interval $[a_j, b_j]$, then:
         $$
         \begin{equation}
         z'_{i j}= \begin{cases}
@@ -84,50 +86,49 @@ render_with_liquid: false
         \end{equation}
         $$
         
-        处理后，所有 $z'\_\{ij\}$ 的值都落在 $[0,1]$ 区间内，且都是正向化的。若出现 $\{z'\_\{\{ij\}\}=0\}$ 的情况，在后续计算信息熵时，会涉及到 $\ln(p\_{ij})$。为避免 $p\_{ij}=0$ 导致 $\ln(p\_{ij})$ 无意义，通常约定当 $p\_{ij}=0$ 时，其在熵值计算中的贡献项 $p\_{ij} \ln p\_{ij} = 0$。另一种处理方式是对所有 $z'_{ij}$ 加上一个极小的正数 $\epsilon$ (例如0.0001)，即 ${z''}\_{\{ij\}} = z'\_\{ij\} + \epsilon$，然后再进行后续计算。但这种平移可能会轻微改变原始数据的相对差异，通常优先采用前一种约定。
-
-3.  **计算第 $j$ 项指标下第 $i$ 个对象所占比重 $p_{ij}$**
-    对于标准化后的矩阵 $Z'$ ，计算第 $i$ 个评价对象在第 $j$ 个指标上的贡献度或比重：
+        After processing, all $z'\_\{ij\}$ values fall within the $[0,1]$ interval and are all positively oriented. If $\{z'\_\{\{ij\}\}=0\}$ occurs, the subsequent calculation of information entropy will involve $\ln(p\_{ij})$. To avoid the undefined case when $p\_{ij}=0$ (since $\ln(p\_{ij})$ is not defined), it is usually stipulated that when $p\_{ij}=0$, its contribution to the entropy calculation, $p\_{ij} \ln p\_{ij}$, is set to $0$. Another approach is to add a very small positive number $\epsilon$ (e.g., 0.0001) to all $z'_{ij}$, i.e., ${z''}\_{\{ij\}} = z'\_\{ij\} + \epsilon$, before proceeding with subsequent calculations. However, this shift may slightly alter the relative differences in the original data, so the first convention is generally preferred.
+3.  **Calculate the proportion $p_{ij}$ of the $i$-th object under the $j$-th indicator**  
+    For the normalized matrix $Z'$, calculate the contribution or proportion of the $i$-th evaluation object on the $j$-th indicator:
     $$
     \begin{equation}
     p_{ij} = \frac{z'_{ij}}{\sum_{k=1}^{n} z'_{kj}}
     \end{equation}
     $$
 
-4.  **计算第 $j$ 项指标的熵值 $e_j$**
+4.  **Calculate the entropy value $e_j$ of the $j$-th indicator**  
     $$
     \begin{equation}
     e_j = -k \sum_{i=1}^{n} (p_{ij} \ln p_{ij})
     \end{equation}
     $$
-    其中，常数 $k = \frac{1}{\ln n}$，$n$ 为评价对象的数量。$k$ 的作用是使得熵值 $e_j$ 规范化到 $[0,1]$ 区间。
+    where the constant $k = \frac{1}{\ln n}$ and $n$ is the number of evaluation objects. The purpose of $k$ is to normalize the entropy value $e_j$ to the $[0,1]$ interval.
 
-5.  **计算第 $j$ 项指标的差异程度（信息冗余度） $d_j$**
-    指标的差异程度 $d_j$ 用 $1$ 减去其信息熵 $e_j$ 得到：
+5.  **Calculate the degree of divergence (information redundancy) $d_j$ of the $j$-th indicator**  
+    The degree of divergence $d_j$ is obtained by subtracting the information entropy $e_j$ from 1:
     $$
     \begin{equation}
     d_j = 1 - e_j
     \end{equation}
     $$
-    $d_j$ 越大，表示第 $j$ 个指标的信息越多，其对于评价的重要性也越大，应赋予更大的权重。
+    The larger $d_j$ is, the more information the $j$-th indicator contains, and the more important it is in the evaluation, thus it should be assigned a larger weight.
 
-6.  **计算第 $j$ 项指标的权重 $w_j$**
-    将各指标的差异程度进行归一化处理，得到各指标的最终权重：
+6.  **Calculate the weight $w_j$ of the $j$-th indicator**  
+    Normalize the degree of divergence of each indicator to obtain the final weights:
     $$
     \begin{equation}
     w_j = \frac{d_j}{\sum_{k=1}^{m} d_k}
     \end{equation}
     $$
-    其中 $m$ 为指标的数量。确保所有指标权重之和为1，即 $\sum_{j=1}^{m} w_j = 1$。
+    where $m$ is the number of indicators. This ensures that the sum of all indicator weights is 1, i.e., $\sum_{j=1}^{m} w_j = 1$.
 
-7.  **（可选）基于熵权法的初步综合评价**
-    如果仅使用熵权法进行综合评价（不结合TOPSIS等其他方法），可以直接计算每个评价对象的加权综合得分 $F_i$：
+7.  **(Optional) Preliminary comprehensive evaluation based on the entropy weight method**  
+    If only the entropy weight method is used for comprehensive evaluation (without combining with TOPSIS or other methods), the weighted comprehensive score $F_i$ for each evaluation object can be directly calculated:
     $$
     \begin{equation}
     F_i = \sum_{j=1}^{m} w_j z'_{ij}
     \end{equation}
     $$
-    然而，更常见的做法是将熵权法计算得到的权重 $w_j$ 作为后续多属性决策方法（如TOPSIS）的输入。此时，会构建**加权标准化决策矩阵 $V$**，其元素 $v_{ij} = w_j z'_{ij}$。这个矩阵 $V$ 是TOPSIS方法的重要起点。
+    However, it is more common to use the weights $w_j$ calculated by the entropy weight method as input for subsequent multi-attribute decision-making methods (such as TOPSIS). In this case, a **weighted normalized decision matrix $V$** is constructed, with elements $v_{ij} = w_j z'_{ij}$. This matrix $V$ is an important starting point for the TOPSIS method.
     $$
     \begin{equation}
     V = \left[\begin{array}{cccc}
@@ -139,31 +140,31 @@ render_with_liquid: false
     \end{equation}
     $$
 
-## TOPSIS法
+## TOPSIS Method
 
-TOPSIS法，全称为“逼近理想解排序法”，是一种常用的多属性决策（MADM）方法。
+The TOPSIS method, short for "Technique for Order Preference by Similarity to Ideal Solution," is a widely used Multi-Attribute Decision Making (MADM) approach.
 
-**核心思想：**
-TOPSIS法的核心思想是基于评价对象与“理想解”和“负理想解”的相对接近程度来进行排序。
-*   **正理想解 ($V^+$)：** 一个虚拟的最佳方案，其每个指标值都达到所有备选方案中的最优水平。
-*   **负理想解 ($V^-$)：** 一个虚拟的最劣方案，其每个指标值都达到所有备选方案中的最差水平。
+**Core Concept:**  
+The core idea of TOPSIS is to rank alternatives based on their relative closeness to the "ideal solution" and "negative ideal solution."
+*   **Positive Ideal Solution ($V^+$):** A hypothetical best alternative, where each indicator achieves the optimal value among all alternatives.
+*   **Negative Ideal Solution ($V^-$):** A hypothetical worst alternative, where each indicator takes the least favorable value among all alternatives.
 
-通过计算每个评价对象到正理想解和负理想解的（加权）欧氏距离，如果一个评价对象越接近正理想解，同时越远离负理想解，则该对象越优。
+By calculating the (weighted) Euclidean distance from each alternative to the positive and negative ideal solutions, alternatives that are closer to the positive ideal and farther from the negative ideal are considered superior.
 
-**与熵权法的结合点：**
-1.  **数据标准化：** TOPSIS的第一步通常也是数据正向化和标准化，可以直接采用熵权法步骤2得到的标准化矩阵 $Z'$。
-2.  **指标权重：** TOPSIS在计算距离或构建加权决策矩阵时需要各指标的权重，这可以直接采用熵权法步骤6计算得到的权重向量 $W = [w_1, w_2, \dots, w_m]$。
+**Integration with the Entropy Weight Method:**  
+1.  **Data Normalization:** The first step of TOPSIS is usually data normalization and positive transformation, which can directly use the standardized matrix $Z'$ obtained in Step 2 of the Entropy Weight Method.
+2.  **Indicator Weights:** TOPSIS requires indicator weights when calculating distances or constructing the weighted decision matrix. These can be directly taken from the weight vector $W = [w_1, w_2, \dots, w_m]$ calculated in Step 6 of the Entropy Weight Method.
 
-**计算步骤：**
+**Calculation Steps:**
 
-1.  **构建加权标准化矩阵 $V$**
-    使用熵权法得到的权重 $w_j$ 和标准化后的数据 $z'_{ij}$，构建加权标准化矩阵 $V$：
+1.  **Construct the Weighted Normalized Matrix $V$**  
+    Using the weights $w_j$ obtained from the entropy weight method and the normalized data $z'_{ij}$, construct the weighted normalized matrix $V$:
     $$
     \begin{equation}
     v_{ij} = w_j z'_{ij}
     \end{equation}
     $$
-    矩阵形式如下：
+    The matrix form is as follows:
     $$
     V=\left[\begin{array}{cccc}
     v_{11} & v_{12} & \cdots & v_{1 m} \\
@@ -173,23 +174,23 @@ TOPSIS法的核心思想是基于评价对象与“理想解”和“负理想�
     \end{array}\right]
     $$
 
-2.  **确定正理想解 $V^+$ 和负理想解 $V^-$**
-    由于所有指标都已正向化（越大越好），正理想解由加权标准化矩阵 $V$ 中每列的最大值构成，负理想解由每列的最小值构成。
-    *   **正理想解 $V^+$：**
+2.  **Determine the Positive Ideal Solution $V^+$ and Negative Ideal Solution $V^-$**  
+    Since all indicators have been positively oriented (the larger, the better), the positive ideal solution is composed of the maximum value in each column of the weighted normalized matrix $V$, and the negative ideal solution is composed of the minimum value in each column.
+    *   **Positive Ideal Solution $V^+$:**
         $$
         \begin{equation}
         V^+ = (V_1^+, V_2^+, \dots, V_m^+) = (\max_i v_{i1}, \max_i v_{i2}, \dots, \max_i v_{im})
         \end{equation}
         $$
-    *   **负理想解 $V^-$：**
+    *   **Negative Ideal Solution $V^-$:**
         $$
         \begin{equation}
         V^- = (V_1^-, V_2^-, \dots, V_m^-) = (\min_i v_{i1}, \min_i v_{i2}, \dots, \min_i v_{im})
         \end{equation}
         $$
 
-3.  **计算各评价对象到正、负理想解的距离**
-    通常使用欧氏距离来计算第 $i$ 个评价对象与正理想解 $V^+$ 的距离 $D_i^+$ 和与负理想解 $V^-$ 的距离 $D_i^-$：
+3.  **Calculate the Distance from Each Alternative to the Positive and Negative Ideal Solutions**  
+    The Euclidean distance is usually used to calculate the distance from the $i$-th alternative to the positive ideal solution $V^+$ ($D_i^+$) and to the negative ideal solution $V^-$ ($D_i^-$):
     $$
     \begin{equation}
     D_i^{+} = \sqrt{\sum_{j=1}^m (v_{ij} - V_j^{+})^2}
@@ -201,38 +202,38 @@ TOPSIS法的核心思想是基于评价对象与“理想解”和“负理想�
     \end{equation}
     $$
 
-4.  **计算各评价对象的相对接近度 $C_i$ (也称综合评价值或贴近度)**
-    第 $i$ 个评价对象的相对接近度 $C_i$ 定义为：
+4.  **Calculate the Relative Closeness $C_i$ (also called the Comprehensive Evaluation Value or Closeness Coefficient) for Each Alternative**  
+    The relative closeness $C_i$ of the $i$-th alternative is defined as:
     $$
     \begin{equation}
     C_i = \frac{D_i^{-}}{D_i^{+} + D_i^{-}}
     \end{equation}
     $$
-    $C_i$ 的取值范围为 $[0, 1]$。$C_i$ 越大，表示评价对象 $i$ 越接近正理想解且越远离负理想解，因此其综合评价越优。根据 $C_i$ 的值对所有评价对象进行排序，即可得到方案的优劣次序。
+    The value of $C_i$ ranges from $0$ to $1$. The larger the $C_i$, the closer the alternative $i$ is to the positive ideal solution and the farther it is from the negative ideal solution, indicating a better overall evaluation. By ranking all alternatives according to $C_i$, the order of preference can be determined.
 
 
-## 熵权法 + TOPSIS 结合应用
+## Combined Application of Entropy Weight Method and TOPSIS
 
-熵权法与TOPSIS法的结合应用展现出独特的优势：
+The integration of the Entropy Weight Method (EWM) with the TOPSIS method demonstrates unique advantages:
 
-*   **熵权法优势**：提供客观的指标权重计算方法，避免主观赋权可能带来的偏差，使评价结果更具科学性。
-*   **TOPSIS法优势**：构建了系统化的多方案评价框架，通过与理想解的距离度量实现方案的科学排序。
+*   **Advantages of EWM:** Provides an objective approach for calculating indicator weights, avoiding biases that may arise from subjective weighting, and making the evaluation results more scientific.
+*   **Advantages of TOPSIS:** Establishes a systematic multi-alternative evaluation framework, enabling scientific ranking of alternatives through distance measurement from the ideal solution.
 
-在实际应用中，首先运用熵权法计算得到各指标的客观权重，然后将这些权重作为TOPSIS法的输入参数，对评价对象进行系统性分析和排序。这种结合不仅保证了权重确定的客观性，也确保了最终评价结果的可靠性。
+In practical applications, the EWM is first used to objectively determine the weights of each indicator. These weights are then used as input parameters for the TOPSIS method, which systematically analyzes and ranks the evaluation objects. This combination not only ensures the objectivity of weight determination but also guarantees the reliability of the final evaluation results.
 
-**论文中存在的不同做法：**
+**Different Approaches in the Literature:**
 
-1.  **最常见做法：**
-    *   先用熵权法计算出权重 $w_j$。
-    *   然后用 $w\_j$ 和标准化数据 $z'\_\{ij\}$ 构建加权标准化矩阵 $V = (w\_j z'\_\{ij\})$。
-    *   基于 $V$ 确定正负理想解 $V^+, V^-$。
-    *   计算各方案到 $V^+, V^-$ 的距离（此时距离公式中不再显式出现 $w_j$，因为它已包含在 $v_{ij}$ 中）。
-    *   这是逻辑最清晰、应用最广泛的方式。
+1.  **Most Common Approach:**
+    *   First, use the entropy weight method to calculate the weights $w_j$.
+    *   Then, use $w\_j$ and the normalized data $z'\_\{ij\}$ to construct the weighted normalized matrix $V = (w\_j z'\_\{ij\})$.
+    *   Determine the positive and negative ideal solutions $V^+, V^-$ based on $V$.
+    *   Calculate the distance from each alternative to $V^+$ and $V^-$ (at this point, the distance formula no longer explicitly includes $w_j$, as it is already incorporated in $v_{ij}$).
+    *   This is the clearest and most widely used approach.
 
-2.  **权重在距离计算中体现：**
-    *   先对原始数据进行标准化处理得到 $Z'$。
-    *   基于标准化矩阵 $Z'$ 确定正理想解 $Z'^+$ 和负理想解 $Z'^-$。
-    *   在计算各方案到 $Z'^+, Z'^-$ 的距离时，引入熵权法得到的权重 $w_j$：
+2.  **Weights Reflected in Distance Calculation:**
+    *   First, normalize the original data to obtain $Z'$.
+    *   Determine the positive ideal solution $Z'^+$ and negative ideal solution $Z'^-$ based on the normalized matrix $Z'$.
+    *   When calculating the distance from each alternative to $Z'^+$ and $Z'^-$, introduce the weights $w_j$ obtained from the entropy weight method:
         $$
         \begin{equation}
         \begin{aligned}
@@ -242,33 +243,33 @@ TOPSIS法的核心思想是基于评价对象与“理想解”和“负理想�
         \end{equation}
         $$
 
-        这种方法在数学上与第一种方法中的距离计算有所不同（例如，如果 $w\_j$ 是比例，那么第一种方法的 $V\_j^+$ 是 $\max(w\_j z'\_\{ij\})$，而第二种方法的 $Z\_j'^+$ 是 $\max(z'\_\{ij\})$）。通常认为第一种方法更为标准，因为它在构建理想解时就考虑了权重的影响。但这种加权欧氏距离也是一种有效的方式。
+        This method is mathematically different from the first approach (for example, if $w\_j$ is a proportion, then in the first approach $V\_j^+$ is $\max(w\_j z'\_\{ij\})$, while in the second approach $Z\_j'^+$ is $\max(z'\_\{ij\})$). The first approach is generally considered more standard, as it incorporates the effect of weights when constructing the ideal solutions. However, this weighted Euclidean distance is also a valid method.
 
-3.  **权重在两处均使用：**
-    *   先构建 $V=(\{w\_j\} z^{\prime}\_\{\{ij\}\})$，然后确定 $V^+, V^-$，之后计算距离时再用 $D\_i^{+} =\sqrt{\sum\_{j=1}^m w\_j (v\_{ij} - V\_j^{+})^2}$。这种做法相当于权重被应用了两次（一次在 $v\_{ij}$ 中，一次在距离公式的 $w\_j$ 中），可能会导致权重的过度放大或不合理解释，除非有特殊的理论依据（例如，外部的 $w\_j$ 可能是 $w\_j$ 的某个函数，如 $w\_j^2$）。一般不推荐这种重复加权。
+3.  **Weights Used in Both Steps:**
+    *   First, construct $V=(\{w\_j\} z^{\prime}\_\{\{ij\}\})$, then determine $V^+, V^-$, and subsequently use $D\_i^{+} =\sqrt{\sum\_{j=1}^m w\_j (v\_{ij} - V\_j^{+})^2}$ to calculate the distance. This approach essentially applies the weights twice (once in $v\_{ij}$, and once in the$w\_j$ of the distance formula), which may lead to over-amplification or unreasonable interpretation of the weights, unless there is a specific theoretical basis (for example, the external $w\_j$ could be a function of $w\_j$, such as $w\_j^2$). In general, this double weighting is not recommended.
 
 
 
-## 总结
+## Summary
 
-基于熵权法-TOPSIS的多目标优化决策分析方法，通过熵权法客观确定指标权重，再结合TOPSIS法对方案进行排序，是一种实用且有效的决策支持工具。它能够较好地处理具有多个评价指标的复杂决策问题，结果相对客观、科学。
+The entropy weight-TOPSIS-based multi-objective optimization decision analysis method objectively determines indicator weights using the entropy weight method, and then ranks alternatives with the TOPSIS method. This is a practical and effective decision support tool, capable of handling complex decision problems with multiple evaluation indicators, and producing results that are relatively objective and scientific.
 
-**优势：**
-*   **客观性强：** 熵权法赋权完全依赖于数据本身，排除了主观因素。
-*   **综合性好：** TOPSIS法同时考虑了与最优和最劣方案的距离，能全面反映方案的综合表现。
-*   **原理简单，易于理解和实现：** 计算过程相对直观，便于编程实现和应用。
+**Advantages:**
+*   **High objectivity:** The entropy weight method relies entirely on the data itself, eliminating subjective factors.
+*   **Good comprehensiveness:** The TOPSIS method considers the distance to both the optimal and worst alternatives, fully reflecting the comprehensive performance of each alternative.
+*   **Simple principle, easy to understand and implement:** The calculation process is straightforward and suitable for programming and application.
 
-**局限性与注意事项：**
-*   **熵权法的敏感性：** 当样本数据量较少或数据波动性不大时，熵权法计算的权重可能不够稳定或区分度不高。
-*   **TOPSIS法的排序稳定性：** 与某些多属性决策方法类似，TOPSIS在增加或删除备选方案时，可能会出现排序逆转的现象（尽管其稳定性相对较好）。
-*   **指标独立性假设：** 传统熵权法和TOPSIS法通常假设指标之间是相互独立的，未充分考虑指标间的相关性。
-*   **对极端值敏感：** 标准化过程中的最大最小值易受极端数据点影响。
+**Limitations and Considerations:**
+*   **Sensitivity of the entropy weight method:** When the sample size is small or data variability is low, the weights calculated by the entropy weight method may be unstable or lack discrimination.
+*   **Ranking stability of the TOPSIS method:** Like some other multi-attribute decision-making methods, TOPSIS may experience rank reversal when alternatives are added or removed (although its stability is relatively good).
+*   **Assumption of indicator independence:** Traditional entropy weight and TOPSIS methods usually assume that indicators are independent, without fully considering correlations between indicators.
+*   **Sensitivity to outliers:** The min-max normalization process can be affected by extreme data points.
 
-**展望：**
-未来可以探索熵权法-TOPSIS与其他方法的进一步融合，例如：
-*   结合主观赋权法（如AHP）与熵权法，形成组合权重，兼顾专家经验与数据客观性。
-*   改进TOPSIS法，如考虑不同距离度量、引入前景理论等，以适应更复杂的决策场景。
-*   研究处理指标相关性的方法，如结合主成分分析（PCA）或灰色关联分析（GRA）等。
+**Outlook:**
+Future research may explore further integration of the entropy weight-TOPSIS method with other approaches, such as:
+*   Combining subjective weighting methods (such as AHP) with the entropy weight method to form composite weights, balancing expert experience and data objectivity.
+*   Improving the TOPSIS method, for example by considering different distance metrics or introducing prospect theory, to adapt to more complex decision scenarios.
+*   Studying methods to handle indicator correlations, such as integrating principal component analysis (PCA) or grey relational analysis (GRA).
 
 
 
