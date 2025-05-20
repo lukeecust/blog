@@ -140,6 +140,169 @@ The Entropy Weight Method determines weights by calculating the information entr
     \end{equation}
     $$
 
+The Python implementation is as follows:
+```python
+# --- 1. Data Preprocessing (Positive Transformation and Min-Max Normalization) ---
+def normalize_and_positiveize_data(X, criteria_types, moderate_params=None, epsilon_norm_denominator=1e-9):
+    """
+    Perform positive transformation and Min-Max normalization on the original data.
+    Args:
+        X (np.ndarray): Original data matrix (n_samples, m_features/objectives)
+        criteria_types (list of str): List of indicator types.
+            'positive': Positive indicator (the larger, the better)
+            'negative': Negative indicator (the smaller, the better)
+            'moderate_point': Moderate indicator (the closer to a specific point, the better)
+            'moderate_interval': Moderate indicator (best within a specific interval)
+        moderate_params (list, optional): Parameters for 'moderate_point' and 'moderate_interval'.
+            - For 'moderate_point': dict {'best_value': float}
+            - For 'moderate_interval': dict {'lower_bound': float, 'upper_bound': float}
+            - For 'positive'/'negative': None
+            The length should match criteria_types.
+        epsilon_norm_denominator (float): Small constant to prevent zero denominator in Min-Max normalization.
+    Returns:
+        np.ndarray: Data matrix Z' after positive transformation and normalization (n_samples, m_features), range [0, 1]
+    """
+    n_samples, m_features = X.shape
+    Z_prime = np.zeros_like(X, dtype=float)
+
+    if moderate_params is None:
+        moderate_params = [None] * m_features
+    if len(criteria_types) != m_features or len(moderate_params) != m_features:
+        raise ValueError("criteria_types and moderate_params must have length equal to number of features.")
+
+    for j in range(m_features):
+        col_data = X[:, j]
+        crit_type = criteria_types[j]
+        mod_param = moderate_params[j]
+
+        min_val = np.min(col_data)
+        max_val = np.max(col_data)
+        range_val = max_val - min_val
+        denominator = range_val if range_val > 0 else epsilon_norm_denominator
+
+        if crit_type == 'positive':
+            Z_prime[:, j] = (col_data - min_val) / denominator
+        elif crit_type == 'negative':
+            Z_prime[:, j] = (max_val - col_data) / denominator
+        elif crit_type == 'moderate_point':
+            if mod_param is None or 'best_value' not in mod_param:
+                raise ValueError(f"Missing 'best_value' for moderate_point indicator at column {j}")
+            best_val = mod_param['best_value']
+            abs_diff = np.abs(col_data - best_val)
+            max_abs_diff = np.max(abs_diff)
+            if max_abs_diff == 0: # All values equal to the best value
+                Z_prime[:, j] = 1.0
+            else:
+                Z_prime[:, j] = 1 - (abs_diff / max_abs_diff)
+        elif crit_type == 'moderate_interval':
+            if mod_param is None or 'lower_bound' not in mod_param or 'upper_bound' not in mod_param:
+                raise ValueError(f"Missing 'lower_bound' or 'upper_bound' for moderate_interval at col {j}")
+            a_j = mod_param['lower_bound']
+            b_j = mod_param['upper_bound']
+            if a_j > b_j:
+                raise ValueError(f"lower_bound > upper_bound for moderate_interval at col {j}")
+            m_val_denom = np.max([a_j - min_val, max_val - b_j])
+            if m_val_denom <= 0: # All data within or exactly matches the optimal interval bounds
+                                 # or the interval is wider than data range.
+                m_val_denom = epsilon_norm_denominator # Effectively makes deviations outside optimal range highly penalized
+
+            for i in range(n_samples):
+                x_ij = col_data[i]
+                if x_ij < a_j:
+                    Z_prime[i, j] = 1 - (a_j - x_ij) / m_val_denom
+                elif x_ij > b_j:
+                    Z_prime[i, j] = 1 - (x_ij - b_j) / m_val_denom
+                else: # a_j <= x_ij <= b_j
+                    Z_prime[i, j] = 1.0
+            # Clip to [0,1] as per formula structure
+            Z_prime[:, j] = np.clip(Z_prime[:, j], 0, 1)
+        else:
+            raise ValueError(f"Unknown criteria type: {crit_type} at column {j}")
+
+    return Z_prime
+
+def calculate_entropy_weights(Z_prime, zero_pij_treatment='shift', epsilon_p_log=1e-9, calculate_F_scores=False):
+    """
+    Calculate entropy weights based on the normalized data matrix Z'.
+    Provides options for handling p_ij = 0, and can optionally compute preliminary comprehensive evaluation scores F_i.
+
+    Args:
+        Z_prime (np.ndarray): Data matrix after positive transformation and normalization (n_samples, m_features)
+                              All values should be in [0, 1], and the larger, the better.
+        zero_pij_treatment (str, optional): Method for handling p_ij = 0. Default is 'shift'.
+            'shift': Shift Z_prime (Z_prime + epsilon_p_log) to avoid zero values in p_ij.
+                     epsilon_p_log should be greater than 0.
+                     For columns in Z_prime that are all zeros, this will result in d_j = 0.
+            'lnp_is_zero': Use Z_prime directly. If p_ij = 0, treat p_ij * ln(p_ij) as 0.
+                           For columns in Z_prime that are all zeros, this will result in d_j = 1.
+                           For columns in Z_prime that are all positive, this will result in d_j = 0.
+        epsilon_p_log (float, optional): Small constant for shifting Z_prime when zero_pij_treatment='shift'. Default is 1e-9.
+        calculate_F_scores (bool, optional): Whether to calculate preliminary comprehensive evaluation scores F_i based on entropy weights.
+                                             Default is False.
+
+    Returns:
+        np.ndarray: Weights for each indicator (m_features,)
+        (Optional) np.ndarray: Preliminary comprehensive evaluation scores F_i for each object (n_samples,)
+                               Returned only if calculate_F_scores=True.
+    """
+    n_samples, m_features = Z_prime.shape
+
+    # 1. Preprocess Z_prime to handle p_ij=0
+    if zero_pij_treatment == 'shift':
+        Z_prime_proc = Z_prime + epsilon_p_log  # Shift data to avoid zeros
+    elif zero_pij_treatment == 'lnp_is_zero':
+        Z_prime_proc = Z_prime  # Use original data, zeros handled specially later
+    else:
+        raise ValueError("Invalid zero_pij_treatment. Choose 'shift' or 'lnp_is_zero'.")
+
+    # 2. Calculate probability matrix p_ij = z_proc_ij / sum(z_proc_kj)
+    col_sums = Z_prime_proc.sum(axis=0, keepdims=True)  # Column sums (1, m_features)
+    p_matrix = np.zeros_like(Z_prime_proc, dtype=float)  # Initialize probability matrix
+    
+    # Mask for valid columns (column sum > 1e-12), avoid division by zero
+    valid_cols_mask = col_sums[0] > 1e-12  # (m_features,) boolean mask
+    # Only compute probability distribution for valid columns
+    if np.any(valid_cols_mask):
+        p_matrix[:, valid_cols_mask] = Z_prime_proc[:, valid_cols_mask] / col_sums[:, valid_cols_mask]
+
+    # 3. Calculate information entropy e_j
+    if n_samples == 1:  # Cannot calculate entropy for a single sample, return uniform weights
+        weights = np.full(m_features, 1.0 / m_features)
+        if calculate_F_scores:
+            F_scores = Z_prime @ weights
+            return weights, F_scores
+        return weights
+
+    k = 1 / np.log(n_samples)  # Entropy calculation coefficient
+
+    # Safely compute log(p_matrix): only for p > 0 to avoid log(0)
+    log_p_safe = np.zeros_like(p_matrix, dtype=float)
+    p_matrix_pos_mask = p_matrix > 0  # Positions where p > 0
+    if np.any(p_matrix_pos_mask):
+        log_p_safe[p_matrix_pos_mask] = np.log(p_matrix[p_matrix_pos_mask])
+    
+    # Compute entropy terms: p_ij * log(p_ij), term is 0 when p=0
+    entropy_terms = p_matrix * log_p_safe
+    entropy_values = -k * np.sum(entropy_terms, axis=0)  # Entropy for each column
+
+    # 4. Calculate degree of divergence d_j
+    d_j = 1 - entropy_values  # Degree of divergence
+
+    # 5. Calculate weights
+    sum_d_j = np.sum(d_j)
+    if sum_d_j < 1e-12:  # If all degrees of divergence are close to zero, assign uniform weights
+        weights = np.full(m_features, 1.0 / m_features)
+    else:
+        weights = d_j / sum_d_j  # Normalize weights
+
+    # 6. Optionally calculate comprehensive scores
+    if calculate_F_scores:
+        F_scores = Z_prime @ weights  # Use original Z_prime to calculate scores
+        return weights, F_scores
+    return weights
+
+```
+
 ## TOPSIS Method
 
 The TOPSIS method, short for "Technique for Order Preference by Similarity to Ideal Solution," is a widely used Multi-Attribute Decision Making (MADM) approach.
@@ -211,6 +374,53 @@ By calculating the (weighted) Euclidean distance from each alternative to the po
     $$
     The value of $C_i$ ranges from $0$ to $1$. The larger the $C_i$, the closer the alternative $i$ is to the positive ideal solution and the farther it is from the negative ideal solution, indicating a better overall evaluation. By ranking all alternatives according to $C_i$, the order of preference can be determined.
 
+The Python implementation is as follows:
+```python
+def apply_topsis_on_normalized_data(Z_prime, weights):
+    """
+    Apply the TOPSIS method on normalized and positively oriented data.
+    Args:
+        Z_prime (np.ndarray): Normalized and positively oriented data matrix (n_samples, m_features)
+                              (i.e., the Z' matrix used in the entropy weight method)
+        weights (np.ndarray): Weights for each indicator (m_features,)
+    Returns:
+        np.ndarray: Relative closeness values C_i for each alternative
+        np.ndarray: Rankings for each alternative (1 is best)
+    """
+    n_samples, m_features = Z_prime.shape
+
+    # 1. Construct the weighted normalized matrix
+    V = Z_prime * weights  # Multiply each column by its weight
+
+    # 2. Determine the positive and negative ideal solutions
+    V_plus = np.max(V, axis=0)   # Positive ideal solution: max of each column
+    V_minus = np.min(V, axis=0)  # Negative ideal solution: min of each column
+
+    # 3. Calculate Euclidean distances
+    D_plus = np.sqrt(np.sum((V - V_plus)**2, axis=1))   # Distance to positive ideal solution
+    D_minus = np.sqrt(np.sum((V - V_minus)**2, axis=1)) # Distance to negative ideal solution
+
+    # 4. Calculate relative closeness (handle division by zero)
+    sum_D = D_plus + D_minus
+    relative_closeness = np.zeros(n_samples)
+    for i in range(n_samples):
+        if sum_D[i] == 0:  # Handle extreme cases
+            if D_plus[i] == 0 and D_minus[i] == 0:
+                relative_closeness[i] = 0.5  # Both ideal, assign 0.5
+            elif D_plus[i] == 0:
+                relative_closeness[i] = 1.0  # Exactly matches positive ideal
+            elif D_minus[i] == 0:
+                relative_closeness[i] = 0.0  # Exactly matches negative ideal
+        else:
+            relative_closeness[i] = D_minus[i] / sum_D[i]
+
+    # 5. Generate rankings
+    sorted_indices = np.argsort(-relative_closeness)  # Descending order
+    ranks = np.empty_like(sorted_indices)
+    ranks[sorted_indices] = np.arange(1, n_samples + 1)  # Assign ranks
+
+    return relative_closeness, ranks
+```
 
 ## Combined Application of Entropy Weight Method and TOPSIS
 

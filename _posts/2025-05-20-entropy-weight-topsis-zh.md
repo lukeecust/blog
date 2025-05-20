@@ -139,6 +139,169 @@ render_with_liquid: false
     \end{equation}
     $$
 
+其`python`实现如下：
+```python
+# --- 1. 数据预处理 (正向化与Min-Max标准化) ---
+def normalize_and_positiveize_data(X, criteria_types, moderate_params=None, epsilon_norm_denominator=1e-9):
+    """
+    对原始数据进行正向化和Min-Max标准化处理。
+    参数:
+        X (np.ndarray): 原始数据矩阵 (n_samples, m_features/objectives)
+        criteria_types (list of str): 指标类型列表。
+            'positive': 正向指标 (越大越好)
+            'negative': 负向指标 (越小越好)
+            'moderate_point': 适度指标 (越接近某个点越好)
+            'moderate_interval': 适度指标 (落在某个区间内最好)
+        moderate_params (list, optional): 对应 'moderate_point' 和 'moderate_interval' 的参数。
+            - For 'moderate_point': dict {'best_value': float}
+            - For 'moderate_interval': dict {'lower_bound': float, 'upper_bound': float}
+            - For 'positive'/'negative': None
+            长度应与 criteria_types 一致。
+        epsilon_norm_denominator (float): 防止Min-Max标准化分母为零的小常数。
+    返回:
+        np.ndarray: 正向化和标准化后的数据矩阵 Z' (n_samples, m_features), 值域 [0, 1]
+    """
+    n_samples, m_features = X.shape
+    Z_prime = np.zeros_like(X, dtype=float)
+
+    if moderate_params is None:
+        moderate_params = [None] * m_features
+    if len(criteria_types) != m_features or len(moderate_params) != m_features:
+        raise ValueError("criteria_types and moderate_params must have length equal to number of features.")
+
+    for j in range(m_features):
+        col_data = X[:, j]
+        crit_type = criteria_types[j]
+        mod_param = moderate_params[j]
+
+        min_val = np.min(col_data)
+        max_val = np.max(col_data)
+        range_val = max_val - min_val
+        denominator = range_val if range_val > 0 else epsilon_norm_denominator
+
+        if crit_type == 'positive':
+            Z_prime[:, j] = (col_data - min_val) / denominator
+        elif crit_type == 'negative':
+            Z_prime[:, j] = (max_val - col_data) / denominator
+        elif crit_type == 'moderate_point':
+            if mod_param is None or 'best_value' not in mod_param:
+                raise ValueError(f"Missing 'best_value' for moderate_point indicator at column {j}")
+            best_val = mod_param['best_value']
+            abs_diff = np.abs(col_data - best_val)
+            max_abs_diff = np.max(abs_diff)
+            if max_abs_diff == 0: # 所有值都等于最佳值
+                Z_prime[:, j] = 1.0
+            else:
+                Z_prime[:, j] = 1 - (abs_diff / max_abs_diff)
+        elif crit_type == 'moderate_interval':
+            if mod_param is None or 'lower_bound' not in mod_param or 'upper_bound' not in mod_param:
+                raise ValueError(f"Missing 'lower_bound' or 'upper_bound' for moderate_interval at col {j}")
+            a_j = mod_param['lower_bound']
+            b_j = mod_param['upper_bound']
+            if a_j > b_j:
+                raise ValueError(f"lower_bound > upper_bound for moderate_interval at col {j}")
+            m_val_denom = np.max([a_j - min_val, max_val - b_j])
+            if m_val_denom <= 0: # All data is within or exactly matches the optimal interval bounds
+                                 # or the interval is wider than data range.
+                m_val_denom = epsilon_norm_denominator # Effectively makes deviations outside optimal range highly penalized
+
+            for i in range(n_samples):
+                x_ij = col_data[i]
+                if x_ij < a_j:
+                    Z_prime[i, j] = 1 - (a_j - x_ij) / m_val_denom
+                elif x_ij > b_j:
+                    Z_prime[i, j] = 1 - (x_ij - b_j) / m_val_denom
+                else: # a_j <= x_ij <= b_j
+                    Z_prime[i, j] = 1.0
+            # Clip to [0,1] as per formula structure, though 1-positive/positive should yield this.
+            Z_prime[:, j] = np.clip(Z_prime[:, j], 0, 1)
+        else:
+            raise ValueError(f"Unknown criteria type: {crit_type} at column {j}")
+
+    return Z_prime
+
+def calculate_entropy_weights(Z_prime, zero_pij_treatment='shift', epsilon_p_log=1e-9, calculate_F_scores=False):
+    """
+    根据标准化后的数据矩阵 Z' 计算熵权。
+    提供处理 p_ij = 0 的选项，并可选择计算初步综合评价得分 F_i。
+
+    参数:
+        Z_prime (np.ndarray): 正向化和标准化后的数据矩阵 (n_samples, m_features)
+                              所有值应在 [0, 1] 区间，且越大越好。
+        zero_pij_treatment (str, optional): 处理 p_ij = 0 的方法。默认为 'shift'。
+            'shift': 对 Z_prime进行平移 (Z_prime + epsilon_p_log) 来计算 p_ij，
+                     旨在避免 p_ij = 0。epsilon_p_log 应大于0。
+                     对于 Z_prime 中恒为0的列，此方法将导致其 d_j = 0。
+            'lnp_is_zero': 直接用 Z_prime 计算 p_ij。如果 p_ij = 0，则认为 p_ij * ln(p_ij) = 0。
+                           对于 Z_prime 中恒为0的列，此方法将导致其 d_j = 1。
+                           对于 Z_prime 中恒为正数的列，此方法将导致其 d_j = 0。
+        epsilon_p_log (float, optional): 当 zero_pij_treatment='shift' 时，
+                                         用于平移 Z_prime 中的值的小常数。默认为 1e-9。
+        calculate_F_scores (bool, optional): 是否计算基于熵权法的初步综合评价得分 F_i。
+                                             默认为 False。
+
+    返回:
+        np.ndarray: 各指标的权重 (m_features,)
+        (可选) np.ndarray: 各评价对象的初步综合评价得分 F_i (n_samples,)
+                          仅当 calculate_F_scores=True 时返回。
+    """
+    n_samples, m_features = Z_prime.shape
+
+    # 1. 预处理Z_prime以处理p_ij=0的情况
+    if zero_pij_treatment == 'shift':
+        Z_prime_proc = Z_prime + epsilon_p_log  # 平移数据避免零值
+    elif zero_pij_treatment == 'lnp_is_zero':
+        Z_prime_proc = Z_prime  # 直接使用原始数据，零值后续特殊处理
+    else:
+        raise ValueError("Invalid zero_pij_treatment. Choose 'shift' or 'lnp_is_zero'.")
+
+    # 2. 计算概率矩阵p_ij = z_proc_ij / sum(z_proc_kj)
+    col_sums = Z_prime_proc.sum(axis=0, keepdims=True)  # 计算各列和 (1, m_features)
+    p_matrix = np.zeros_like(Z_prime_proc, dtype=float)  # 初始化概率矩阵
+    
+    # 筛选有效列(列和>1e-12的列)，避免除以零
+    valid_cols_mask = col_sums[0] > 1e-12  # (m_features,)布尔掩码
+    # 仅对有效列计算概率分布
+    if np.any(valid_cols_mask):
+        p_matrix[:, valid_cols_mask] = Z_prime_proc[:, valid_cols_mask] / col_sums[:, valid_cols_mask]
+
+    # 3. 计算信息熵e_j
+    if n_samples == 1:  # 单样本时无法计算熵，返回均匀权重
+        weights = np.full(m_features, 1.0 / m_features)
+        if calculate_F_scores:
+            F_scores = Z_prime @ weights
+            return weights, F_scores
+        return weights
+
+    k = 1 / np.log(n_samples)  # 熵计算系数
+
+    # 安全计算log(p_matrix)：仅处理p>0的位置，避免log(0)
+    log_p_safe = np.zeros_like(p_matrix, dtype=float)
+    p_matrix_pos_mask = p_matrix > 0  # 找出p>0的元素位置
+    if np.any(p_matrix_pos_mask):
+        log_p_safe[p_matrix_pos_mask] = np.log(p_matrix[p_matrix_pos_mask])
+    
+    # 计算熵项：p_ij * log(p_ij)，p=0时项为0
+    entropy_terms = p_matrix * log_p_safe
+    entropy_values = -k * np.sum(entropy_terms, axis=0)  # 各列熵值
+
+    # 4. 计算信息效用值d_j
+    d_j = 1 - entropy_values  # 差异系数
+
+    # 5. 计算权重
+    sum_d_j = np.sum(d_j)
+    if sum_d_j < 1e-12:  # 所有差异系数接近零时，均匀赋权
+        weights = np.full(m_features, 1.0 / m_features)
+    else:
+        weights = d_j / sum_d_j  # 归一化权重
+
+    # 6. 可选计算综合得分
+    if calculate_F_scores:
+        F_scores = Z_prime @ weights  # 使用原始Z_prime计算得分
+        return weights, F_scores
+    return weights
+
+```
 ## TOPSIS法
 
 TOPSIS法，全称为“逼近理想解排序法”，是一种常用的多属性决策（MADM）方法。
@@ -210,6 +373,53 @@ TOPSIS法的核心思想是基于评价对象与“理想解”和“负理想�
     $$
     $C_i$ 的取值范围为 $[0, 1]$。$C_i$ 越大，表示评价对象 $i$ 越接近正理想解且越远离负理想解，因此其综合评价越优。根据 $C_i$ 的值对所有评价对象进行排序，即可得到方案的优劣次序。
 
+其`python`实现如下：
+```python
+def apply_topsis_on_normalized_data(Z_prime, weights):
+    """
+    在已正向化和标准化的数据上应用TOPSIS方法。
+    参数:
+        Z_prime (np.ndarray): 正向化和标准化后的数据矩阵 (n_samples, m_features)
+                               (即熵权法中使用的 Z' 矩阵)
+        weights (np.ndarray): 各指标的权重 (m_features,)
+    返回:
+        np.ndarray: 各方案的相对贴近度 C_i
+        np.ndarray: 各方案的排名 (1是最好)
+    """
+    n_samples, m_features = Z_prime.shape
+
+    # 1. 构建加权标准化矩阵
+    V = Z_prime * weights  # 逐列乘以权重
+
+    # 2. 确定正负理想解
+    V_plus = np.max(V, axis=0)  # 每列最大值构成正理想解
+    V_minus = np.min(V, axis=0)  # 每列最小值构成负理想解
+
+    # 3. 计算欧氏距离
+    D_plus = np.sqrt(np.sum((V - V_plus)**2, axis=1)  # 到正理想解的距离
+    D_minus = np.sqrt(np.sum((V - V_minus)**2, axis=1) ) # 到负理想解的距离
+
+    # 4. 计算相对贴近度（添加极小值处理除零异常）
+    sum_D = D_plus + D_minus
+    relative_closeness = np.zeros(n_samples)
+    for i in range(n_samples):
+        if sum_D[i] == 0:  # 极端情况处理
+            if D_plus[i] == 0 and D_minus[i] == 0:
+                relative_closeness[i] = 0.5  # 同时为最优最劣时的折中值
+            elif D_plus[i] == 0:
+                relative_closeness[i] = 1.0  # 完全匹配正理想解
+            elif D_minus[i] == 0:
+                relative_closeness[i] = 0.0  # 完全匹配负理想解
+        else:
+            relative_closeness[i] = D_minus[i] / sum_D[i]
+
+    # 5. 生成排名
+    sorted_indices = np.argsort(-relative_closeness)  # 降序排列索引
+    ranks = np.empty_like(sorted_indices)
+    ranks[sorted_indices] = np.arange(1, n_samples + 1)  # 赋予排名
+
+    return relative_closeness, ranks
+```
 
 ## 熵权法 + TOPSIS 结合应用
 
@@ -269,6 +479,4 @@ TOPSIS法的核心思想是基于评价对象与“理想解”和“负理想�
 *   结合主观赋权法（如AHP）与熵权法，形成组合权重，兼顾专家经验与数据客观性。
 *   改进TOPSIS法，如考虑不同距离度量、引入前景理论等，以适应更复杂的决策场景。
 *   研究处理指标相关性的方法，如结合主成分分析（PCA）或灰色关联分析（GRA）等。
-
-
 
