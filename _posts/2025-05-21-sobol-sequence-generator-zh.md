@@ -3,6 +3,7 @@ title: Sobol 序列：准随机序列生成器及其 Python 实现
 author: lukeecust
 date: 2025-05-21 02:09:00 +0800
 categories: [Deep Learning, Sampling]
+tags: [quasi-random sequence]
 lang: zh
 math: true
 translation_id: sobol-sequence-generator
