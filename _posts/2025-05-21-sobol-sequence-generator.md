@@ -3,7 +3,7 @@ title: Sobol Sequence: Quasi-Random Sequence Generator and Its Python Implementa
 author: lukeecust
 date: 2025-05-21 02:09:00 +0800
 categories: [Deep Learning, Sampling]
-tags: [quasi-random sequence] 
+tags: [quasi-random sequence]
 lang: en
 math: true
 translation_id: sobol-sequence-generator
