@@ -30,23 +30,23 @@ In many applications, especially Monte Carlo methods, we need points that are un
 Unlike pseudorandom numbers, low-discrepancy sequences don't aim to "look random" but rather focus on covering the sampling space more uniformly and systematically, avoiding both high clustering of points and large empty regions. Common low-discrepancy sequences include Halton sequences, Faure sequences, Niederreiter sequences, and our focus in this article—**Sobol sequences**.
 
 All random number generation algorithms based on modern CPUs are typically **pseudorandom**, generating sequences through deterministic algorithms that repeat after a very long period. **Quasi-random sequences**, like Sobol sequences, are also deterministic but are designed for low discrepancy, meaning high uniformity.
-## Two Important Dimensions of Randomness
+## 看待随机性的两个重要维度
 
-From an application perspective, we often need to evaluate random sequences from two dimensions:
+从应用的角度来看，我们经常需要从两个维度来评价随机序列：
 
-1. **Statistical Randomness:** The degree of randomness in a statistical sense, such as uniformity, correlation, and repetition period. This can be assessed through various statistical tests.
+1. **统计随机性 (Statistical Randomness)：** 序列在统计意义上的随机程度，如均匀性、相关性、重复周期等。这可以通过各种统计检验来评估。
 
-2. **Spatial Uniformity:** The distribution characteristics of the sequence in space, especially in multi-dimensional cases. This is typically quantified using discrepancy.
+2. **空间分布均匀性 (Spatial Uniformity)：** 序列在空间中的分布特性，特别是在多维情况下。这通常可以用差异性 (Discrepancy) 来量化。
 
-For a point set $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$ in an $s$-dimensional unit hypercube $[0,1]^s$, its discrepancy $D_N(P)$ can be expressed as:
+对于一个 $s$ 维单位超立方体 $[0,1]^s$ 中的点集 $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$，其差异性 $D_N(P)$ 可以表达为：
 $$
 \begin{equation}
 D_N(P) = \sup_{B \in J} \left| \frac{A(B; P)}{N} - \lambda_s(B) \right|
 \end{equation}$$
 
-where $J$ is the set of specific shaped subregions in the hypercube, $A(B; P)$ is the number of points falling in subregion $B$, $N$ is the total number of points, and $\lambda_s(B)$ is the volume of the subregion.
+其中 $J$ 是超立方体中特定形状子区域的集合，$A(B; P)$ 是落入子区域 $B$ 的点数，$N$ 是总点数，$\lambda_s(B)$ 是子区域的体积。
 
-Depending on the application scenario, we may focus more on one dimension. For example, statistical randomness is more important in encryption applications, while spatial uniformity may be more critical in numerical integration. Quasi-random sequences (like Sobol sequences) are specifically optimized for spatial uniformity.
+随着应用场景的不同，我们可能更关注其中一个维度。例如，在加密应用中，统计随机性更为重要；而在数值积分中，空间分布均匀性可能更为关键。准随机序列（如 Sobol 序列）正是在空间分布均匀性方面做了特别的优化。
 
 ## 什么是 Sobol 序列？
 
