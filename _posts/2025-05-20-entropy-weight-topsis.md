@@ -6,7 +6,7 @@ categories: [Multi-Objective Optimization, Decision Analysis]
 lang: en
 math: true
 translation_id: entropy-weight-topsis
-permalink: posts/entropy-weight-topsis/
+permalink: /posts/entropy-weight-topsis/
 render_with_liquid: false
 ---
 
