@@ -307,37 +307,36 @@ print(samples_torch_scrambled[:5])
 *   `sobol_engine_torch.draw(num_samples)`: Generates `num_samples` sample points, returning a PyTorch `Tensor`.
 *   PyTorch's `SobolEngine` supports up to approximately 1111 dimensions (as of recent versions, please check official documentation), and uses optimized direction numbers.
 
-## 不同采样方法的比较
+## Comparison of Different Sampling Methods
 
-为了更好地理解 Sobol 序列的特性，下表总结了它与其他几种常见采样方法的对比：
+To better understand the characteristics of Sobol sequences, the following table summarizes its comparison with other common sampling methods:
 
-| 特性               | 伪随机数 (PRNG)                      | 网格采样 (Grid Sampling)                | 拉丁超立方采样 (LHS)                     | Halton/Hammersley 序列            | Sobol 序列                         |
-| :----------------- | :----------------------------------- | :-------------------------------------- | :--------------------------------------- | :----------------------------------- | :--------------------------------- |
-| **类型**           | 伪随机 (Pseudo-Random)               | 确定性 / 系统性 (Deterministic/Systematic) | 分层随机 (Stratified Random)             | 准随机 (Quasi-Random)                | 准随机 (Quasi-Random)              |
-| **均匀性/覆盖度**  | 可能出现聚集和空隙                     | 规则，但可能在高维下效率低；易产生规律性伪影 | 确保每个一维投影上的分层均匀             | 良好，但低维投影可能不如 Sobol       | 非常好，尤其在高维下                 |
-| **差异性**         | 较高                                 | 较低（但结构固定）                        | 中等至较低                               | 低                                   | 非常低                             |
-| **收敛速度 (积分)** | $O(N^{-1/2})$                      | 取决于函数，可能较差                     | 通常优于 PRNG，接近 $O(N^{-1})$ (视情况) | $O(N^{-1}(\log N)^s)$ 或更好      | $O(N^{-1}(\log N)^s)$ 或更好       |
-| **确定性**         | 否 (依赖种子)                        | 是                                      | 否 (分层内随机)                          | 是                                   | 是 (不加扰时)                      |
-| **逐点生成**       | 是                                   | 通常否 (需预定总点数和网格结构)         | 通常否 (需预定总点数)                    | 是                                   | 是                                 |
-| **计算成本 (生成)** | 非常低                               | 低                                      | 低至中等                                 | 低                                   | 低 (基于位操作)                    |
-| **相关性/模式**    | 低（理论上），但周期有限                | 强烈的规律性，轴对齐模式                 | 避免一维投影的聚集，但高维投影可能仍有结构 | 某些基数选择下初始点可能线性相关     | 初始点投影可能不佳 (可通过加扰改善) |
-| **主要优点**       | 实现简单，速度快                       | 简单直观                                | 保证一维投影的良好覆盖，对某些模型有效   | 良好的均匀性，确定性                | 极佳的均匀性，快速收敛，逐点生成     |
-| **主要缺点**       | 收敛慢，高维下覆盖不均                  | "维度灾难"，高维下点数剧增，不灵活        | 高维下均匀性可能不如 QMC，非逐点        | 初始点问题，某些基数选择敏感          | 初始点问题，方向数质量依赖          |
-| **典型用例**       | 通用随机模拟，游戏，密码学 (CSPRNG)   | 低维参数扫描，可视化                     | 计算机实验设计，不确定性量化，优化     | 数值积分，参数空间探索              | 数值积分，金融，图形学，灵敏度分析   |
-| **Python 示例**    | `numpy.random.rand()` `torch.rand()` | `numpy.meshgrid()` `itertools.product()` | `scipy.stats.qmc.LatinHypercube`       | `scipy.stats.qmc.Halton`           | `scipy.stats.qmc.Sobol` `torch.quasirandom.SobolEngine` |
+| Characteristic    | Pseudo-Random Numbers (PRNG)          | Grid Sampling                         | Latin Hypercube Sampling (LHS)          | Halton/Hammersley Sequences         | Sobol Sequences                     |
+| :----------------- | :----------------------------------- | :------------------------------------ | :--------------------------------------- | :----------------------------------- | :--------------------------------- |
+| **Type**           | Pseudo-Random                        | Deterministic/Systematic              | Stratified Random                        | Quasi-Random                         | Quasi-Random                        |
+| **Uniformity/Coverage** | May have clusters and gaps      | Regular, but inefficient in high dimensions; prone to artifacts | Ensures stratified uniformity in 1D projections | Good, but low-dim projections may be inferior to Sobol | Excellent, especially in high dimensions |
+| **Discrepancy**    | High                                | Low (but fixed structure)             | Medium to Low                            | Low                                  | Very Low                           |
+| **Convergence Rate (Integration)** | $O(N^{-1/2})$       | Depends on function, may be poor      | Usually better than PRNG, near $O(N^{-1})$ (varies) | $O(N^{-1}(\log N)^s)$ or better    | $O(N^{-1}(\log N)^s)$ or better    |
+| **Deterministic**  | No (seed-dependent)                 | Yes                                   | No (random within strata)                | Yes                                  | Yes (without scrambling)            |
+| **Progressive Generation** | Yes                          | Usually No (needs predefined total points) | Usually No (needs predefined total points) | Yes                                | Yes                                |
+| **Computational Cost (Generation)** | Very Low           | Low                                   | Low to Medium                            | Low                                  | Low (bit operations)               |
+| **Correlation/Patterns** | Low (theoretically), but finite period | Strong regularity, axis-aligned patterns | Avoids 1D clustering, but may have structure in high-dim | May have linear correlation for some bases | Initial projections may be poor (improvable through scrambling) |
+| **Main Advantages** | Simple implementation, fast         | Simple and intuitive                  | Guarantees good 1D coverage, effective for certain models | Good uniformity, deterministic    | Excellent uniformity, fast convergence, progressive |
+| **Main Disadvantages** | Slow convergence, poor high-dim coverage | "Curse of dimensionality", inflexible | May be inferior to QMC in high-dim, non-progressive | Initial point issues, base-sensitive | Initial point issues, direction number dependent |
+| **Typical Uses**   | General simulation, games, cryptography (CSPRNG) | Low-dim parameter sweeps, visualization | Computer experiments, uncertainty quantification, optimization | Numerical integration, parameter space exploration | Numerical integration, finance, graphics, sensitivity analysis |
+| **Python Examples** | `numpy.random.rand()` `torch.rand()` | `numpy.meshgrid()` `itertools.product()` | `scipy.stats.qmc.LatinHypercube` | `scipy.stats.qmc.Halton` | `scipy.stats.qmc.Sobol` `torch.quasirandom.SobolEngine` |
 
-**一些解释：**
-*   **网格采样 (Grid Sampling):** 指的是在每个维度上取等间隔的点，然后组合它们。虽然在低维下直观，但在高维下所需的点数会爆炸式增长（维度灾难）。
-*   **分层采样 (Stratified Sampling):** 思想是将空间划分为若干不重叠的子区域（层），然后在每个子区域内独立采样。LHS 是分层采样的一种特殊形式。
-*   **拉丁超立方采样 (LHS):** 将每个维度划分为 $N$ 个等概率的区间，然后从每个区间中随机抽取一个值，确保在每个维度的每个分层中都有一个样本点，并将这些值随机组合。它保证了一维投影的均匀性。
-*   **Halton/Hammersley 序列:** 也是经典的低差异序列，Halton 基于不同素数为基的 Van der Corput 序列，Hammersley 则在其基础上修改第一维。
+**Some Explanations:**
+* **Grid Sampling:** Takes equidistant points in each dimension and combines them. While intuitive in low dimensions, point requirements grow exponentially with dimensions (curse of dimensionality).
+* **Stratified Sampling:** Divides space into non-overlapping subregions (strata) with independent sampling within each. LHS is a special form of stratified sampling.
+* **Latin Hypercube Sampling (LHS):** Divides each dimension into N equal-probability intervals, randomly samples one value from each interval, ensuring one sample per stratum in each dimension, then randomly combines these values. Guarantees uniformity in one-dimensional projections.
+* **Halton/Hammersley Sequences:** Classical low-discrepancy sequences. Halton uses Van der Corput sequences with different prime bases, while Hammersley modifies the first dimension.
 
-Sobol 序列通常被认为是综合性能最好的低差异序列之一，尤其是在需要高维均匀采样和快速收敛的准蒙特卡罗积分中。
-
-
-## 总结
+Sobol sequences are often considered one of the best low-discrepancy sequences, particularly for high-dimensional uniform sampling and fast convergence in quasi-Monte Carlo integration.
 
 
-Sobol 序列作为一种经典的低差异序列，通过其确定性的生成方式和优异的均匀分布特性，在多维空间采样方面表现出色。它能够比传统的伪随机数更有效地填充采样空间，从而在数值积分、金融建模、计算机图形学以及机器学习等多个领域中提高计算效率和结果精度。
+## Summary
 
-尽管存在一些如初始点分布和维度限制等问题，但通过现代实现中使用的优化方向数和加扰技术，Sobol 序列仍然是科学计算和工程实践中一个强大且有价值的工具。Python 中的 SciPy 和 PyTorch 等库使得 Sobol 序列的获取和使用变得非常便捷。
+Sobol sequences, as a classic low-discrepancy sequence, demonstrate excellent performance in multi-dimensional sampling through their deterministic generation method and superior uniform distribution properties. They can fill sampling spaces more effectively than traditional pseudorandom numbers, thereby improving computational efficiency and result accuracy in numerical integration, financial modeling, computer graphics, and machine learning applications.
+
+Despite certain challenges such as initial point distribution and dimensional limitations, Sobol sequences remain a powerful and valuable tool in scientific computing and engineering practice, thanks to optimized direction numbers and scrambling techniques in modern implementations. Libraries like SciPy and PyTorch in Python make Sobol sequences easily accessible and usable.
