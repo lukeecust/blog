@@ -122,49 +122,48 @@ Being entirely base-2, Sobol sequences can be efficiently implemented using bitw
 
 A notable property is that when the number of samples $N$ is a power of 2 (e.g., $N=2^k$), the Sobol sequence will have exactly one point in each base-2 elementary interval of $[0,1)^s$. This means it can generate samples of quality comparable to Stratified Sampling or Latin Hypercube Sampling without requiring the total number of samples to be predetermined.
 
-## Sobol 采样的优缺点
-优点：
-1.  **优越的均匀性：** 特别是在高维空间，Sobol 序列能比伪随机数更有效地、更均匀地覆盖采样空间。
-2.  **更快的收敛速度：** 在数值积分（准蒙特卡洛积分）中，对于 $s$ 维的积分问题，使用 $N$ 个点的标准蒙特卡洛方法的误差收敛速度通常是 $O(N^{-1/2})$。而使用低差异序列（如 Sobol 序列）的准蒙特卡洛方法，其误差收敛速度可以达到$O(N^{-1}(\log N)^s)$或更好。这意味着通常能用更少的样本点达到与 MC 方法相当的精度。
-3.  **确定性与可复现性：** 由于序列是确定性生成的（不加扰时），结果是可复现的，这对于调试和比较非常有利。
-4.  **高效的参数空间探索：** 适用于需要系统性探索多维参数空间的应用，如超参数优化、灵敏度分析等。
-5.  **逐点生成 (Progressive)：** 可以逐点生成，不需要预先知道总样本数 $N$，并且已生成的序列是后续更长序列的前缀，保持了良好的分布特性。这非常适合渐进式采样。
+## Advantages and Disadvantages of Sobol Sampling
 
-缺点和注意事项：
-1.  **初始点的投影可能不佳：** 对于较少的点数（例如，远小于 $2^d$，其中 $d$ 是维度），Sobol 序列在某些低维投影上可能表现出一定的规律性或对齐，看起来不够"随机"。
-2.  **方向数的质量：** 序列的质量高度依赖于所使用的方向数。早期的一些方向数集在高维情况下表现可能不佳。现代实现通常使用经过优化的方向数集（例如，由 Joe 和 Kuo 提供的方向数）。
-3.  **维度限制：** 虽然理论上 Sobol 序列可以扩展到非常高的维度，但高质量方向数的计算和存储会变得困难。对于极高维度（例如数千维），其相对于标准蒙特卡罗的优势可能会减弱或需要更复杂的加扰技术。通常，Sobol 序列在几十到几百维的问题中表现良好。
-4.  **加扰 (Scrambling)：** 为了缓解初始点投影不佳的问题并改善有限样本下的随机性外观，可以对 Sobol 序列进行"加扰"（如随机线性加扰或数字移位）。加扰会引入一定的随机性，但旨在保持低差异特性。
+Advantages:
+1.  **Superior Uniformity:** Especially in high-dimensional spaces, Sobol sequences cover the sampling space more effectively and uniformly than pseudorandom numbers.
+2.  **Faster Convergence Rate:** In numerical integration (quasi-Monte Carlo integration) for s-dimensional problems, standard Monte Carlo methods using N points typically converge at $O(N^{-1/2})$. Low-discrepancy sequences like Sobol can achieve $O(N^{-1}(\log N)^s)$ or better, meaning comparable accuracy with fewer samples.
+3.  **Deterministic and Reproducible:** When unscrambled, the sequence is deterministically generated, making results reproducible - beneficial for debugging and comparison.
+4.  **Efficient Parameter Space Exploration:** Well-suited for systematically exploring multi-dimensional parameter spaces in applications like hyperparameter optimization and sensitivity analysis.
+5.  **Progressive Generation:** Points can be generated incrementally without knowing total sample size N, with subsequences maintaining good distribution properties. Ideal for progressive sampling.
 
+Disadvantages and Considerations:
+1.  **Poor Initial Point Projections:** For small sample sizes (e.g., much less than $2^d$, where d is dimension), Sobol sequences may show patterns or alignment in certain low-dimensional projections, appearing less "random".
+2.  **Direction Number Quality:** Sequence quality heavily depends on direction numbers used. Some early direction number sets performed poorly in high dimensions. Modern implementations use optimized sets (e.g., Joe-Kuo direction numbers).
+3.  **Dimensionality Limitations:** While theoretically extensible to high dimensions, computing and storing quality direction numbers becomes challenging. For extremely high dimensions (thousands), advantages over standard Monte Carlo may diminish or require complex scrambling.
+4.  **Scrambling:** To mitigate poor initial projections and improve finite-sample randomness, Sobol sequences can be "scrambled" (random linear scrambling or digital shifts). This introduces randomness while maintaining low discrepancy.
 
-## Sobol 序列与规则网格采样 ( `linspace`) 的对比
+## Comparison between Sobol Sequences and Regular Grid Sampling (`linspace`)
 
-一个常见的问题是：既然 Sobol 序列的目标是均匀分布，为什么不直接使用像 `np.linspace` 这样的函数在每个维度上创建等距点，然后组合它们形成一个规则的多维网格呢？
+A common question arises: since Sobol sequences aim for uniform distribution, why not simply use functions like `np.linspace` to create equidistant points in each dimension and combine them into a regular multidimensional grid?
 
-虽然规则网格在低维（如1D或2D）下直观且易于实现均匀覆盖，但在多维空间和许多实际应用场景中，Sobol 序列等低差异序列通常更具优势。主要原因如下：
+While regular grids are intuitive and easy to implement for uniform coverage in low dimensions (like 1D or 2D), low-discrepancy sequences like Sobol sequences often have advantages in multidimensional spaces and many practical applications. Here's why:
 
-1.  **维度灾难 (Curse of Dimensionality)：**
-    *   **规则网格：** 若在 $d$ 维空间中，每个维度取 $k$ 个点，总点数将是 $k^d$。随着维度 $d$ 的增加，所需点数会呈指数级增长，迅速变得计算上不可行。例如，10 个维度各取 10 个点就需要 $10^{10}$ （一百亿）个样本。
-    *   **Sobol 序列：** 可以灵活地生成任意数量 $N$ 的样本点，这些点共同致力于均匀填充 $d$ 维空间，而 $N$ 通常远小于 $k^d$，使其在高维情况下更为实用。
+1.  **Curse of Dimensionality:**
+    *   **Regular Grid:** For $d$ dimensions with $k$ points per dimension, the total number of points is $k^d$. As dimension $d$ increases, the required points grow exponentially, quickly becoming computationally infeasible. For example, 10 dimensions with 10 points each requires $10^{10}$ (10 billion) samples.
+    *   **Sobol Sequence:** Can flexibly generate any number $N$ of sample points that collectively work to fill the $d$-dimensional space uniformly, where $N$ is typically much smaller than $k^d$, making it more practical for high dimensions.
 
-2.  **投影特性与"对齐"伪影：**
-    *   **规则网格：** 点严格排列在网格线上，形成高度规则的结构。这种规律性可能导致采样点与被研究函数或现象的特定结构对齐，从而产生系统性偏差。
-    *   **Sobol 序列：** 虽然也是确定性的，但其设计旨在最小化"差异性"，使得点在各种子区域（尤其是轴对齐的）中分布更均匀，避免了网格的僵硬结构，并力求在低维投影上也展现良好的分布。
+2.  **Projection Properties and "Alignment" Artifacts:**
+    *   **Regular Grid:** Points are strictly aligned on grid lines, forming highly regular structures. This regularity may cause systematic bias when sampling points align with specific structures in the studied function or phenomenon.
+    *   **Sobol Sequence:** Though deterministic, it's designed to minimize discrepancy, ensuring more uniform point distribution in various subregions (especially axis-aligned ones), avoiding rigid grid structures while maintaining good distribution in low-dimensional projections.
 
-3.  **逐点生成 (Progressive Property)：**
-    *   **规则网格：** 通常需要预先确定总点数和网格结构。若需增加样本，往往要重新生成整个更密的网格，原有样本可能无法直接复用。
-    *   **Sobol 序列：** 具有逐点生成的特性。可以先生成 $N_1$ 个点，如果需要更高精度，可以继续生成额外的点，形成一个包含 $N_1+N_2$ 个点的序列，该序列的前 $N_1$ 个点与原序列一致，且整个序列仍保持低差异性。这对于渐进式改进和自适应采样非常有利。
+3.  **Progressive Generation Property:**
+    *   **Regular Grid:** Usually requires predetermining total points and grid structure. Increasing samples often means regenerating an entirely new, denser grid, potentially unable to directly reuse existing samples.
+    *   **Sobol Sequence:** Features point-by-point generation. Can generate $N_1$ points initially, and if higher precision is needed, generate additional points to form a sequence of $N_1+N_2$ points, where the first $N_1$ points remain consistent with the original sequence while maintaining low discrepancy. This is valuable for progressive improvement and adaptive sampling.
 
-4.  **积分收敛性与效率：**
-    *   **规则网格 (用于数值积分)：** 虽然某些基于网格的求积法则（如梯形或辛普森法则）对光滑函数有较好的收敛阶，但它们受限于固定的网格结构，且在高维下常数因子可能很差。
-    *   **Sobol 序列 (用于准蒙特卡罗积分, QMC)：** QMC 方法的误差收敛速度理论上可达 $O(N^{-1}(\log N)^s)$，通常优于标准蒙特卡罗的 $O(N^{-1/2})$。对于中高维度，QMC 通常比依赖固定网格的确定性求积规则更灵活且高效。
+4.  **Integration Convergence and Efficiency:**
+    *   **Regular Grid (for numerical integration):** While some grid-based quadrature rules (like trapezoidal or Simpson's) have good convergence order for smooth functions, they're limited by fixed grid structure and may have poor constant factors in high dimensions.
+    *   **Sobol Sequence (for quasi-Monte Carlo integration, QMC):** QMC methods can theoretically achieve error convergence rates of $O(N^{-1}(\log N)^s)$, typically better than standard Monte Carlo's $O(N^{-1/2})$. For medium to high dimensions, QMC is usually more flexible and efficient than deterministic quadrature rules based on fixed grids.
 
-5.  **空间"填充"方式：**
-    *   **规则网格：** 像是在空间中规则地铺设"瓷砖"。
-    *   **Sobol 序列：** 更像是在空间中"智能地"布置点，以确保覆盖全面且避免空隙和聚集，同时不像网格那样死板。
+5.  **Space "Filling" Method:**
+    *   **Regular Grid:** Like laying "tiles" regularly in space.
+    *   **Sobol Sequence:** More like "intelligently" placing points to ensure comprehensive coverage while avoiding gaps and clustering, without the rigidity of a grid.
 
-
-`linspace` 生成的规则网格主要保证了**单维度上的等距性**，而 Sobol 序列则致力于实现**整个多维空间的低差异性和高均匀度**。因此，在高维问题、需要逐点生成能力、或追求更快积分收敛速度的应用中，Sobol 序列是比规则网格采样更优越的选择。规则网格采样更适用于维度非常低、或需要严格控制各维度采样位置的简单场景。
+Regular grids generated by `linspace` primarily ensure **equidistance in single dimensions**, while Sobol sequences aim for **low discrepancy and high uniformity across the entire multidimensional space**. Therefore, Sobol sequences are superior to regular grid sampling in high-dimensional problems, applications requiring progressive generation capability, or faster integration convergence. Regular grid sampling is more suitable for very low-dimensional scenarios or when strict control of sampling positions in each dimension is needed.
 
 
 ## Sobol 采样的主要应用领域
