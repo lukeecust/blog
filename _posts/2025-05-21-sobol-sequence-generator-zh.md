@@ -174,6 +174,31 @@ Python 中有多个库提供了 Sobol 序列的实现，其中最常用的是 Sc
 SciPy 的 `stats.qmc` (Quasi-Monte Carlo) 模块提供了 `Sobol` 类。
 
 ```python
+# 1. 初始化 Sobol 序列生成器
+dimension = 2  # 定义维度
+# Sobol 序列生成器，可以指定 scramble=True 进行加扰
+sobol_engine = qmc.Sobol(d=dimension, scramble=False, seed=None) # seed 用于加扰时的随机性
+
+# 2. 生成样本点
+num_samples = 128
+samples = sobol_engine.random(n=num_samples) # 生成 num_samples 个点
+
+print(f"Generated {num_samples} Sobol samples of dimension {dimension}:")
+print(samples[:5]) # 打印前5个样本点
+
+# 3. 跳过初始点 (可选)
+# 有时为了更好的分布特性，会跳过序列的初始部分
+# sobol_engine_skipped = qmc.Sobol(d=dimension, scramble=False)
+# sobol_engine_skipped.fast_forward(1024) # 跳过前1024个点
+# samples_skipped = sobol_engine_skipped.random(n=num_samples)
+# print("\nSobol samples after skipping 1024 points:")
+# print(samples_skipped[:5])
+
+# 4. 使用加扰 (Scrambling)
+sobol_engine_scrambled = qmc.Sobol(d=dimension, scramble=True, seed=42)
+samples_scrambled = sobol_engine_scrambled.random(n=num_samples)
+print("\nScrambled Sobol samples:")
+print(samples_scrambled[:5])
 if dimension == 2:
     fig, axs = plt.subplots(2, 2, figsize=(12, 12), sharex=True, sharey=True)  # 调整为2x2布局
 
