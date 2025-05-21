@@ -1,9 +1,8 @@
 ---
-title: Sobol Sequence: Quasi-Random Sequence Generator and Its Python Implementation
+title: Sobol 序列：准随机序列生成器及其 Python 实现
 author: lukeecust
 date: 2025-05-21 02:09:00 +0800
 categories: [Deep Learning, Sampling]
-tags: [quasi-random sequence]
 lang: en
 math: true
 translation_id: sobol-sequence-generator
@@ -11,53 +10,53 @@ permalink: /posts/sobol-sequence-generator/
 render_with_liquid: false
 ---
 
-Random numbers play a crucial role in many fields including cryptography, computer graphics, and statistics. Different applications require different types of random numbers, leading to various types of random number generation. The Sobol sequence is a special type of sequence in the category of quasi-random numbers, widely used in many fields due to its excellent uniform distribution properties.
+随机数在密码学、计算机图形学、统计学等众多领域都扮演着至关重要的角色。根据应用场景的不同，我们对随机数有不同的要求，从而也衍生出不同类型的随机数。Sobol 序列是一种特殊的序列，属于准随机数（Quasi-Random Numbers）的范畴，因其优异的均匀分布特性而在许多领域得到广泛应用。
 
-## Introduction: Importance and Classification of Random Numbers
+## 引言：随机数的重要性与分类
 
-Before diving into Sobol sequences, let's briefly review the main types of random numbers:
+在深入 Sobol 序列之前，我们先简单回顾一下随机数的几种主要类型：
 
-* **Statistically Pseudorandom Numbers:** These are random number sequences that approximate true random sequences in statistical properties (such as uniformity, independence). For example, in a pseudorandom bit stream, the number of 0s and 1s should be roughly equal.
-* **Cryptographically Secure Pseudorandom Numbers (CSPRNG):** Beyond meeting the properties of statistical pseudorandom numbers, these require that predicting any part of the sequence from other parts is computationally infeasible. This is crucial for security-related applications like key generation.
-* **True Random Numbers:** Generated based on unpredictable physical processes (such as thermal noise, radioactive decay), making samples non-reproducible. Obtaining true random numbers typically comes at a higher cost.
+*   **统计学伪随机数 (Statistically Pseudorandom Numbers)：** 指生成的随机数序列在统计特性上（如均匀性、独立性）近似于真正的随机序列。例如，对于一个伪随机比特流，0 和 1 的数量应大致相等。
+*   **密码学安全伪随机数 (Cryptographically Secure Pseudorandom Numbers, CSPRNG)：** 除了满足统计学伪随机数的特性外，还要求从序列的一部分推断出其余部分在计算上是不可行的。这对于密钥生成等安全相关的应用至关重要。
+*   **真随机数 (True Random Numbers)：** 其生成基于不可预测的物理过程（如热噪声、放射性衰变等），因此样本不可重现。获取真随机数的成本通常较高。
 
-These random number requirements become progressively stricter, with increasing difficulty in generation. Therefore, in practical applications, we need to choose appropriate random number generation methods based on specific requirements.
+这些随机数的条件是逐渐增强的，获取难度也随之增加。因此，在实际应用中，我们需要根据具体需求选择合适的随机数生成方式。
 
-## Quasi-Random Number Generators (QRNG) and Low-Discrepancy Sequences
+## 准随机数生成器 (QRNG) 与低差异序列
 
-In many applications, especially Monte Carlo methods, we need points that are uniformly distributed in the sampling space. **Quasi-Random Number Generators (QRNG)** are designed for this purpose, generating what are known as **Low-Discrepancy Sequences**.
+在许多应用中，尤其是蒙特卡洛方法，我们需要的是能够在采样空间中均匀分布的点。**准随机数生成器 (Quasi-Random Number Generator, QRNG)** 就是为此目的设计的，它们生成的是所谓的**低差异序列 (Low-Discrepancy Sequences)**。
 
-Unlike pseudorandom numbers, low-discrepancy sequences don't aim to "look random" but rather focus on covering the sampling space more uniformly and systematically, avoiding both high clustering of points and large empty regions. Common low-discrepancy sequences include Halton sequences, Faure sequences, Niederreiter sequences, and our focus in this article—**Sobol sequences**.
+与伪随机数相比，低差异序列并非追求“看起来随机”，而是致力于更均匀、更系统地覆盖整个采样空间，避免点的高度聚集或大片空白区域。常见的低差异序列包括 Halton 序列、Faure 序列、Niederreiter 序列以及我们本文的主角——**Sobol 序列**。
 
-All random number generation algorithms based on modern CPUs are typically **pseudorandom**, generating sequences through deterministic algorithms that repeat after a very long period. **Quasi-random sequences**, like Sobol sequences, are also deterministic but are designed for low discrepancy, meaning high uniformity.
-## Two Important Dimensions of Randomness
+所有基于现代 CPU 的随机数生成算法通常是**伪随机的 (pseudorandom)**，它们通过确定性算法生成序列，并在一个很长的周期后会重复。而**准随机序列 (quasi-random)**，如 Sobol 序列，也是确定性的，但其设计目标是低差异性，即高均匀度。
+## 看待随机性的两个重要维度
 
-From an application perspective, we often need to evaluate random sequences from two dimensions:
+从应用的角度来看，我们经常需要从两个维度来评价随机序列：
 
-1. **Statistical Randomness:** The degree of randomness in a statistical sense, such as uniformity, correlation, and repetition period. This can be assessed through various statistical tests.
+1. **统计随机性 (Statistical Randomness)：** 序列在统计意义上的随机程度，如均匀性、相关性、重复周期等。这可以通过各种统计检验来评估。
 
-2. **Spatial Uniformity:** The distribution characteristics of the sequence in space, especially in multi-dimensional cases. This is typically quantified using discrepancy.
+2. **空间分布均匀性 (Spatial Uniformity)：** 序列在空间中的分布特性，特别是在多维情况下。这通常可以用差异性 (Discrepancy) 来量化。
 
-For a point set $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$ in an $s$-dimensional unit hypercube $[0,1]^s$, its discrepancy $D_N(P)$ can be expressed as:
+对于一个 $s$ 维单位超立方体 $[0,1]^s$ 中的点集 $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$，其差异性 $D_N(P)$ 可以表达为：
 $$
 \begin{equation}
 D_N(P) = \sup_{B \in J} \left| \frac{A(B; P)}{N} - \lambda_s(B) \right|
 \end{equation}$$
 
-where $J$ is the set of specific shaped subregions in the hypercube, $A(B; P)$ is the number of points falling in subregion $B$, $N$ is the total number of points, and $\lambda_s(B)$ is the volume of the subregion.
+其中 $J$ 是超立方体中特定形状子区域的集合，$A(B; P)$ 是落入子区域 $B$ 的点数，$N$ 是总点数，$\lambda_s(B)$ 是子区域的体积。
 
-Depending on the application scenario, we may focus more on one dimension. For example, statistical randomness is more important in encryption applications, while spatial uniformity may be more critical in numerical integration. Quasi-random sequences (like Sobol sequences) are specifically optimized for spatial uniformity.
+随着应用场景的不同，我们可能更关注其中一个维度。例如，在加密应用中，统计随机性更为重要；而在数值积分中，空间分布均匀性可能更为关键。准随机序列（如 Sobol 序列）正是在空间分布均匀性方面做了特别的优化。
 
-## What is a Sobol Sequence?
+## 什么是 Sobol 序列？
 
-A Sobol sequence is a series of $n$-dimensional points designed to be more uniformly distributed in the unit hypercube $[0, 1)^n$ than standard pseudo-random sequences.
+Sobol 序列是一系列 $n$ 维点，它们被设计成比标准伪随机序列更均匀地分布在单位超立方体 $[0, 1)^n$ 中。
 
-* **Deterministic:** Points in a Sobol sequence are completely determined for a given dimension and index, unlike pseudo-random numbers that depend on random seeds (although some implementations allow "scrambling" to introduce randomness while maintaining low discrepancy).
-* **Low Discrepancy:** This is the core characteristic of Sobol sequences. Discrepancy is a measure of how uniformly points are distributed. Low discrepancy means the point set better avoids large gaps or excessive clustering of points.
+*   **确定性 (Deterministic)：** 对于给定的维度和索引，Sobol 序列中的点是完全确定的，不像伪随机数那样依赖于随机种子（尽管某些实现允许"加扰"以引入随机性，同时保持低差异性）。
+*   **低差异性 (Low Discrepancy)：** 这是 Sobol 序列的核心特性。差异性是衡量点集分布均匀性的一个指标。低差异意味着点集能够更好地避免出现大的空隙或过度聚集的区域。
 
-**The Concept of Discrepancy**
+**差异性 (Discrepancy) 的概念**
 
-For a point set $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$ in an $s$-dimensional unit hypercube $[0,1]^s$, its discrepancy $D_N(P)$ is defined as:
+对于一个在 $s$ 维单位超立方体 $[0,1]^s$ 中的点集 $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$，其差异性 $D_N(P)$ 定义为：
 
 $$
 \begin{equation}
@@ -65,158 +64,131 @@ D_N(P) = \sup_{B \in J} \left| \frac{A(B; P)}{N} - \lambda_s(B) \right|
 \end{equation}
 $$
 
-where:
-* $J$ is the set of all subregions of $[0,1]^s$ with specific shapes (such as axis-aligned subrectangles).
-* $A(B; P)$ is the number of points from set $P$ that fall within subregion $B$.
-* $N$ is the total number of points in set $P$.
-* $\lambda_s(B)$ is the $s$-dimensional volume (or measure) of subregion $B$.
+其中：
+*   $J$ 是 $[0,1]^s$ 中所有满足特定形状（如与坐标轴对齐的子矩形）的子区域的集合。
+*   $A(B; P)$ 是点集 $P$ 中落入子区域 $B$ 的点的数量。
+*   $N$ 是点集 $P$ 中点的总数量。
+*   $\lambda_s(B)$ 是子区域 $B$ 的 $s$ 维体积（或测度）。
 
-Simply put, discrepancy measures the maximum deviation between the proportion of points in a subregion and the volume of that subregion in the worst case. Point sets with more uniform distribution have lower discrepancy.
+简单来说，差异性衡量的是在最坏情况下，子区域内点的比例与该子区域体积之间的最大偏差。分布越均匀的点集，其差异性越低。
 
-The following figure intuitively shows the difference between pseudorandom point sets and low-discrepancy sequence point sets:
+下图直观地展示了伪随机点集与低差异序列点集的区别：
 
-![Pseudorandom and Low-discrepancy Sequences](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/discrepancy.png)
-_Left: two-dimensional point set composed of pseudorandom numbers; Right: point set from a low-discrepancy sequence (like Sobol sequence), showing more complete and uniform coverage of the space._
+![伪随机和低差异序列](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/discrepancy.png)
+_左边为伪随机数组成的二维点集，右边则是由低差异序列（如 Sobol 序列）点集，对整个空间的覆盖更加完整和均匀。_
 
-## How are Sobol Sequences Generated?
+## Sobol 序列是如何生成的？
 
-Sobol sequences are generated based on binary arithmetic and a special set of numbers called **direction numbers** or **initialization numbers**. The core idea is related to **Radical Inversion** and **Van der Corput sequences**.
+Sobol 序列的生成基于二进制算术和一组特殊的数字，称为**方向数 (direction numbers)** 或 **初始化数 (initialization numbers)**。其核心思想与 **Radical Inversion** 和 **Van der Corput 序列** 有关。
 
-**Radical Inversion and Van der Corput Sequences**
+**Radical Inversion 与 Van der Corput 序列**
 
-Radical Inversion is a method of mapping an integer $i$ to the interval $[0,1)$. For a base $b$, an integer $i$ can be represented in base $b$ as:
+Radical Inversion 是一种将整数 $i$ 映射到 $[0,1)$ 区间的方法。对于一个基数 $b$，整数 $i$ 可以表示为 $b$ 进制数：
 $$\begin{equation}
 i = \sum_{l=0}^{M-1} a_l(i) b^l
 \end{equation}$$
 
-Its Radical Inversion $\Phi_b(i)$ (in the simplified case where $C$ is the identity matrix, i.e., Van der Corput sequence) is defined as:
+其 Radical Inversion $\Phi_b(i)$（在 $C$ 为单位矩阵的简化情况下，即 Van der Corput 序列）定义为：
 $$\begin{equation}
 \Phi_b(i) = \sum_{l=0}^{M-1} a_l(i) b^{-l-1}
 \end{equation}$$
 
-This effectively mirrors the digits of $i$'s base-$b$ representation from left to right of the decimal point.
+这相当于将 $i$ 的 $b$ 进制表示的小数点左边的数字镜像到小数点右边。
 
-For example, the first few terms of the base-2 Van der Corput sequence:
+例如，以 2 为基的 Van der Corput 序列的前几项：
 *   $i=1=(1)_2 \implies \Phi_2(1) = (0.1)_2 = 1/2$
 *   $i=2=(10)_2 \implies \Phi_2(2) = (0.01)_2 = 1/4$
 *   $i=3=(11)_2 \implies \Phi_2(3) = (0.11)_2 = 3/4$
 *   $i=4=(100)_2 \implies \Phi_2(4) = (0.001)_2 = 1/8$
 
-Each point in this sequence takes the midpoint of the currently longest uncovered interval, thus ensuring uniform distribution.
+这个序列的每一个点都是取目前最长的未覆盖区域的中点，因此具有平均分布的特性。
 
-**Sobol Sequence Construction**
+**Sobol 序列的构造**
 
-Each dimension of a Sobol sequence can be viewed as a generalization of a base-2 Van der Corput sequence using different **generating matrices $\mathbf{C}_j$** (corresponding to direction numbers). The $i$-th point $\boldsymbol{X}_i$ of an $n$-dimensional Sobol sequence can be expressed as:
+Sobol 序列的每一维都可以看作是一个以 2 为基，但使用了不同**生成矩阵 $\mathbf{C}_j$**（对应于方向数）的 Van der Corput 序列的推广。一个 $n$ 维 Sobol 序列的第 $i$ 个点 $\boldsymbol{X}_i$ 可以表示为：
 $$\begin{equation}
 \boldsymbol{X}_i = \left( \boldsymbol{\Phi}_{2, \mathbf{C}_1}(i), \boldsymbol{\Phi}_{2, \mathbf{C}_2}(i), \ldots, \boldsymbol{\Phi}_{2, \mathbf{C}_n}(i) \right)
 \end{equation}$$
 
-where $\boldsymbol{\Phi}_{2, \mathbf{C}_j}(i)$ is the coordinate for dimension $j$, obtained through a series of bitwise XOR operations between the binary representation of integer $i$ and a set of direction numbers (encoded in $\mathbf{C}_j$) for dimension $j$.
+其中 $\boldsymbol{\Phi}_{2, \mathbf{C}_j}(i)$ 是第 $j$ 维的坐标，通过对整数 $i$ 的二进制表示与第 $j$ 维的一组方向数（编码在 $\mathbf{C}_j$ 中）进行一系列位异或 (XOR) 操作得到。
 
-Specifically, for the $k$-th point and dimension $j$:
-1.  Express $k$ in binary form: $k = (b_m b_{m-1} \dots b_1)_2$
-2.  The coordinate $x_{k,j}$ can be expressed as $x_{k,j} = b_1 v_{j,1} \oplus b_2 v_{j,2} \oplus \dots \oplus b_m v_{j,m}$, where $\oplus$ is the XOR operation, and $v_{j,r}$ is the $r$-th direction number for dimension $j$ (itself a binary fraction in $[0,1)$).
+具体来说，对于序列中的第 $k$ 个点和第 $j$ 维：
+1.  将 $k$ 表示为二进制形式 $k = (b_m b_{m-1} \dots b_1)_2$。
+2.  第 $j$ 维的坐标 $x_{k,j}$ 可以表示为 $x_{k,j} = b_1 v_{j,1} \oplus b_2 v_{j,2} \oplus \dots \oplus b_m v_{j,m}$，其中 $\oplus$ 是异或操作，$v_{j,r}$ 是第 $j$ 维对应的第 $r$ 个方向数（本身也是 $[0,1)$ 区间内的二进制小数）。
 
-Being entirely base-2, Sobol sequences can be efficiently implemented using bitwise operations (like right shifts and XOR), making computation very fast. The choice of primitive polynomials and derived direction numbers is crucial for ensuring the low-discrepancy property of Sobol sequences.
+由于完全以 2 为底数，Sobol 序列的生成可以直接使用高效的位操作（如右移、异或）实现，计算速度非常快。选择合适的原始多项式和由此派生的方向数对于保证 Sobol 序列的低差异性至关重要。
 
-A notable property is that when the number of samples $N$ is a power of 2 (e.g., $N=2^k$), the Sobol sequence will have exactly one point in each base-2 elementary interval of $[0,1)^s$. This means it can generate samples of quality comparable to Stratified Sampling or Latin Hypercube Sampling without requiring the total number of samples to be predetermined.
+一个显著的特性是，当样本数量 $N$ 为 $2$ 的整数次幂时（例如 $N=2^k$），Sobol 序列在 $[0,1)^s$ 区间中以 2 为底的每个基本区间 (elementary interval) 中都有且只会有一个点。这意味着它可以生成和分层采样 (Stratified Sampling) 或拉丁超立方采样 (Latin Hypercube Sampling) 同样高质量分布的样本，同时又不需要预先确定样本的总数量。
 
+## Sobol 采样的优缺点
+优点：
+1.  **优越的均匀性：** 特别是在高维空间，Sobol 序列能比伪随机数更有效地、更均匀地覆盖采样空间。
+2.  **更快的收敛速度：** 在数值积分（准蒙特卡洛积分）中，对于 $s$ 维的积分问题，使用 $N$ 个点的标准蒙特卡洛方法的误差收敛速度通常是 $O(N^{-1/2})$。而使用低差异序列（如 Sobol 序列）的准蒙特卡洛方法，其误差收敛速度可以达到$O(N^{-1}(\log N)^s)$或更好。这意味着通常能用更少的样本点达到与 MC 方法相当的精度。
+3.  **确定性与可复现性：** 由于序列是确定性生成的（不加扰时），结果是可复现的，这对于调试和比较非常有利。
+4.  **高效的参数空间探索：** 适用于需要系统性探索多维参数空间的应用，如超参数优化、灵敏度分析等。
+5.  **逐点生成 (Progressive)：** 可以逐点生成，不需要预先知道总样本数 $N$，并且已生成的序列是后续更长序列的前缀，保持了良好的分布特性。这非常适合渐进式采样。
 
-## Advantages and Disadvantages of Sobol Sampling
-
-Advantages:
-1.  **Superior Uniformity:** Especially in high-dimensional spaces, Sobol sequences cover the sampling space more effectively and uniformly than pseudorandom numbers.
-2.  **Faster Convergence Rate:** In numerical integration (quasi-Monte Carlo integration) for s-dimensional problems, standard Monte Carlo methods using N points typically converge at $O(N^{-1/2})$. Low-discrepancy sequences like Sobol can achieve $O(N^{-1}(\log N)^s)$ or better, meaning comparable accuracy with fewer samples.
-3.  **Deterministic and Reproducible:** When unscrambled, the sequence is deterministically generated, making results reproducible - beneficial for debugging and comparison.
-4.  **Efficient Parameter Space Exploration:** Well-suited for systematically exploring multi-dimensional parameter spaces in applications like hyperparameter optimization and sensitivity analysis.
-5.  **Progressive Generation:** Points can be generated incrementally without knowing total sample size N, with subsequences maintaining good distribution properties. Ideal for progressive sampling.
-
-Disadvantages and Considerations:
-1.  **Poor Initial Point Projections:** For small sample sizes (e.g., much less than $2^d$, where d is dimension), Sobol sequences may show patterns or alignment in certain low-dimensional projections, appearing less "random".
-2.  **Direction Number Quality:** Sequence quality heavily depends on direction numbers used. Some early direction number sets performed poorly in high dimensions. Modern implementations use optimized sets (e.g., Joe-Kuo direction numbers).
-3.  **Dimensionality Limitations:** While theoretically extensible to high dimensions, computing and storing quality direction numbers becomes challenging. For extremely high dimensions (thousands), advantages over standard Monte Carlo may diminish or require complex scrambling.
-4.  **Scrambling:** To mitigate poor initial projections and improve finite-sample randomness, Sobol sequences can be "scrambled" (random linear scrambling or digital shifts). This introduces randomness while maintaining low discrepancy.
-
-## Comparison between Sobol Sequences and Regular Grid Sampling (`linspace`)
-
-A common question arises: since Sobol sequences aim for uniform distribution, why not simply use functions like `np.linspace` to create equidistant points in each dimension and combine them into a regular multidimensional grid?
-
-While regular grids are intuitive and easy to implement for uniform coverage in low dimensions (like 1D or 2D), low-discrepancy sequences like Sobol sequences often have advantages in multidimensional spaces and many practical applications. Here's why:
-
-1.  **Curse of Dimensionality:**
-    *   **Regular Grid:** For $d$ dimensions with $k$ points per dimension, the total number of points is $k^d$. As dimension $d$ increases, the required points grow exponentially, quickly becoming computationally infeasible. For example, 10 dimensions with 10 points each requires $10^{10}$ (10 billion) samples.
-    *   **Sobol Sequence:** Can flexibly generate any number $N$ of sample points that collectively work to fill the $d$-dimensional space uniformly, where $N$ is typically much smaller than $k^d$, making it more practical for high dimensions.
-
-2.  **Projection Properties and "Alignment" Artifacts:**
-    *   **Regular Grid:** Points are strictly aligned on grid lines, forming highly regular structures. This regularity may cause systematic bias when sampling points align with specific structures in the studied function or phenomenon.
-    *   **Sobol Sequence:** Though deterministic, it's designed to minimize discrepancy, ensuring more uniform point distribution in various subregions (especially axis-aligned ones), avoiding rigid grid structures while maintaining good distribution in low-dimensional projections.
-
-3.  **Progressive Generation Property:**
-    *   **Regular Grid:** Usually requires predetermining total points and grid structure. Increasing samples often means regenerating an entirely new, denser grid, potentially unable to directly reuse existing samples.
-    *   **Sobol Sequence:** Features point-by-point generation. Can generate $N_1$ points initially, and if higher precision is needed, generate additional points to form a sequence of $N_1+N_2$ points, where the first $N_1$ points remain consistent with the original sequence while maintaining low discrepancy. This is valuable for progressive improvement and adaptive sampling.
-
-4.  **Integration Convergence and Efficiency:**
-    *   **Regular Grid (for numerical integration):** While some grid-based quadrature rules (like trapezoidal or Simpson's) have good convergence order for smooth functions, they're limited by fixed grid structure and may have poor constant factors in high dimensions.
-    *   **Sobol Sequence (for quasi-Monte Carlo integration, QMC):** QMC methods can theoretically achieve error convergence rates of $O(N^{-1}(\log N)^s)$, typically better than standard Monte Carlo's $O(N^{-1/2})$. For medium to high dimensions, QMC is usually more flexible and efficient than deterministic quadrature rules based on fixed grids.
-
-5.  **Space "Filling" Method:**
-    *   **Regular Grid:** Like laying "tiles" regularly in space.
-    *   **Sobol Sequence:** More like "intelligently" placing points to ensure comprehensive coverage while avoiding gaps and clustering, without the rigidity of a grid.
-
-Regular grids generated by `linspace` primarily ensure **equidistance in single dimensions**, while Sobol sequences aim for **low discrepancy and high uniformity across the entire multidimensional space**. Therefore, Sobol sequences are superior to regular grid sampling in high-dimensional problems, applications requiring progressive generation capability, or faster integration convergence. Regular grid sampling is more suitable for very low-dimensional scenarios or when strict control of sampling positions in each dimension is needed.
-
-## Main Applications of Sobol Sampling
-
-Sobol sampling finds wide application across multiple domains:
-1.  **Numerical Integration:** The classic and primary application through quasi-Monte Carlo integration.
-2.  **Financial Engineering:** Used in derivative pricing (e.g., option pricing), Value at Risk (VaR) calculations, and credit risk models.
-3.  **Computer Graphics:** Employed in global illumination algorithms (path tracing, ray tracing sampling), anti-aliasing for smoother, more realistic images.
-4.  **Sensitivity Analysis:** Evaluating model output sensitivity to input parameter changes through efficient parameter space exploration.
-5.  **Optimization:** Used as initialization or search strategy in global optimization algorithms (particle swarm optimization or simulated annealing).
-6.  **Physics and Engineering Simulation:** Applications requiring extensive simulation and parameter studies.
-7.  **Machine Learning:** Such as exploring parameter combinations in hyperparameter optimization for finding optimal configurations.
+缺点和注意事项：
+1.  **初始点的投影可能不佳：** 对于较少的点数（例如，远小于 $2^d$，其中 $d$ 是维度），Sobol 序列在某些低维投影上可能表现出一定的规律性或对齐，看起来不够"随机"。
+2.  **方向数的质量：** 序列的质量高度依赖于所使用的方向数。早期的一些方向数集在高维情况下表现可能不佳。现代实现通常使用经过优化的方向数集（例如，由 Joe 和 Kuo 提供的方向数）。
+3.  **维度限制：** 虽然理论上 Sobol 序列可以扩展到非常高的维度，但高质量方向数的计算和存储会变得困难。对于极高维度（例如数千维），其相对于标准蒙特卡罗的优势可能会减弱或需要更复杂的加扰技术。通常，Sobol 序列在几十到几百维的问题中表现良好。
+4.  **加扰 (Scrambling)：** 为了缓解初始点投影不佳的问题并改善有限样本下的随机性外观，可以对 Sobol 序列进行"加扰"（如随机线性加扰或数字移位）。加扰会引入一定的随机性，但旨在保持低差异特性。
 
 
-## Sobol Sequence Implementation in Python
+## Sobol 序列与规则网格采样 ( `linspace`) 的对比
 
-Several Python libraries provide implementations of Sobol sequences, with SciPy and PyTorch being the most commonly used.
+一个常见的问题是：既然 Sobol 序列的目标是均匀分布，为什么不直接使用像 `np.linspace` 这样的函数在每个维度上创建等距点，然后组合它们形成一个规则的多维网格呢？
 
-### Using SciPy (`scipy.stats.qmc.Sobol`)
+虽然规则网格在低维（如1D或2D）下直观且易于实现均匀覆盖，但在多维空间和许多实际应用场景中，Sobol 序列等低差异序列通常更具优势。主要原因如下：
 
-The `stats.qmc` (Quasi-Monte Carlo) module in SciPy provides the `Sobol` class.
+1.  **维度灾难 (Curse of Dimensionality)：**
+    *   **规则网格：** 若在 $d$ 维空间中，每个维度取 $k$ 个点，总点数将是 $k^d$。随着维度 $d$ 的增加，所需点数会呈指数级增长，迅速变得计算上不可行。例如，10 个维度各取 10 个点就需要 $10^{10}$ （一百亿）个样本。
+    *   **Sobol 序列：** 可以灵活地生成任意数量 $N$ 的样本点，这些点共同致力于均匀填充 $d$ 维空间，而 $N$ 通常远小于 $k^d$，使其在高维情况下更为实用。
+
+2.  **投影特性与"对齐"伪影：**
+    *   **规则网格：** 点严格排列在网格线上，形成高度规则的结构。这种规律性可能导致采样点与被研究函数或现象的特定结构对齐，从而产生系统性偏差。
+    *   **Sobol 序列：** 虽然也是确定性的，但其设计旨在最小化"差异性"，使得点在各种子区域（尤其是轴对齐的）中分布更均匀，避免了网格的僵硬结构，并力求在低维投影上也展现良好的分布。
+
+3.  **逐点生成 (Progressive Property)：**
+    *   **规则网格：** 通常需要预先确定总点数和网格结构。若需增加样本，往往要重新生成整个更密的网格，原有样本可能无法直接复用。
+    *   **Sobol 序列：** 具有逐点生成的特性。可以先生成 $N_1$ 个点，如果需要更高精度，可以继续生成额外的点，形成一个包含 $N_1+N_2$ 个点的序列，该序列的前 $N_1$ 个点与原序列一致，且整个序列仍保持低差异性。这对于渐进式改进和自适应采样非常有利。
+
+4.  **积分收敛性与效率：**
+    *   **规则网格 (用于数值积分)：** 虽然某些基于网格的求积法则（如梯形或辛普森法则）对光滑函数有较好的收敛阶，但它们受限于固定的网格结构，且在高维下常数因子可能很差。
+    *   **Sobol 序列 (用于准蒙特卡罗积分, QMC)：** QMC 方法的误差收敛速度理论上可达 $O(N^{-1}(\log N)^s)$，通常优于标准蒙特卡罗的 $O(N^{-1/2})$。对于中高维度，QMC 通常比依赖固定网格的确定性求积规则更灵活且高效。
+
+5.  **空间"填充"方式：**
+    *   **规则网格：** 像是在空间中规则地铺设"瓷砖"。
+    *   **Sobol 序列：** 更像是在空间中"智能地"布置点，以确保覆盖全面且避免空隙和聚集，同时不像网格那样死板。
+
+
+`linspace` 生成的规则网格主要保证了**单维度上的等距性**，而 Sobol 序列则致力于实现**整个多维空间的低差异性和高均匀度**。因此，在高维问题、需要逐点生成能力、或追求更快积分收敛速度的应用中，Sobol 序列是比规则网格采样更优越的选择。规则网格采样更适用于维度非常低、或需要严格控制各维度采样位置的简单场景。
+
+
+## Sobol 采样的主要应用领域
+
+Sobol 采样因其优越的特性被广泛应用于多个领域：
+1.  **数值积分 (Numerical Integration)：** 这是 Sobol 序列最经典和最主要的应用，即准蒙特卡洛积分。
+2.  **金融工程 (Financial Engineering)：** 用于衍生品定价（如期权定价）、风险价值 (VaR) 计算、信用风险模型等。
+3.  **计算机图形学 (Computer Graphics)：** 用于全局光照算法（如路径追踪、光线追踪中的采样）、抗锯齿等，以产生更平滑、更真实的图像。
+4.  **灵敏度分析 (Sensitivity Analysis)：** 评估模型输出对输入参数变化的敏感程度，Sobol 采样可以有效地探索参数空间。
+5.  **优化 (Optimization)：** 作为某些全局优化算法（如基于粒子群的算法或模拟退火）的初始化或搜索策略。
+6.  **物理和工程模拟：** 在需要进行大量模拟和参数研究的领域。
+7.  **机器学习：** 例如在超参数优化中探索参数组合，以期更有效地找到最优配置。
+
+## Python 中的 Sobol 序列实现
+
+Python 中有多个库提供了 Sobol 序列的实现，其中最常用的是 SciPy 和 PyTorch。
+
+### 使用 SciPy (`scipy.stats.qmc.Sobol`)
+
+SciPy 的 `stats.qmc` (Quasi-Monte Carlo) 模块提供了 `Sobol` 类。
 
 ```python
-# 1. Initialize Sobol sequence generator
-dimension = 2  # define dimension
-# Sobol sequence generator, can specify scramble=True for scrambling
-sobol_engine = qmc.Sobol(d=dimension, scramble=False, seed=None) # seed for randomness when scrambling
-
-# 2. Generate sample points
-num_samples = 128
-samples = sobol_engine.random(n=num_samples) # generate num_samples points
-
-print(f"Generated {num_samples} Sobol samples of dimension {dimension}:")
-print(samples[:5]) # print first 5 sample points
-
-# 3. Skip initial points (optional)
-# Sometimes we skip the initial part of the sequence for better distribution properties
-# sobol_engine_skipped = qmc.Sobol(d=dimension, scramble=False)
-# sobol_engine_skipped.fast_forward(1024) # skip first 1024 points
-# samples_skipped = sobol_engine_skipped.random(n=num_samples)
-# print("\nSobol samples after skipping 1024 points:")
-# print(samples_skipped[:5])
-
-# 4. Use scrambling
-sobol_engine_scrambled = qmc.Sobol(d=dimension, scramble=True, seed=42)
-samples_scrambled = sobol_engine_scrambled.random(n=num_samples)
-print("\nScrambled Sobol samples:")
-print(samples_scrambled[:5])
-
-# 5. Visualization (2D only)
 if dimension == 2:
-    fig, axs = plt.subplots(2, 2, figsize=(12, 12), sharex=True, sharey=True)  # adjust to 2x2 layout
+    fig, axs = plt.subplots(2, 2, figsize=(12, 12), sharex=True, sharey=True)  # 调整为2x2布局
 
-    # Standard Sobol sequence
+    # 普通 Sobol 序列
     axs[0, 0].scatter(samples[:, 0], samples[:, 1], s=20, marker='o', label=f'Sobol (N={num_samples})')
     axs[0, 0].set_title('Standard Sobol Sequence')
     axs[0, 0].set_xlabel('Dimension 1')
@@ -225,7 +197,7 @@ if dimension == 2:
     axs[0, 0].legend()
     axs[0, 0].grid(True, linestyle='--', alpha=0.7)
 
-    # Pseudo-random numbers for comparison
+    # 伪随机数作为对比
     pseudo_random_samples = np.random.rand(num_samples, dimension)
     axs[0, 1].scatter(pseudo_random_samples[:, 0], pseudo_random_samples[:, 1], s=20, marker='x', color='red',
                       label=f'Pseudo-Random (N={num_samples})')
@@ -236,7 +208,7 @@ if dimension == 2:
     axs[0, 1].legend()
     axs[0, 1].grid(True, linestyle='--', alpha=0.7)
 
-    # Scrambled Sobol sequence
+    # 加扰的 Sobol 序列
     axs[1, 0].scatter(samples_scrambled[:, 0], samples_scrambled[:, 1], s=20, marker='s', color='green',
                       label=f'Scrambled Sobol (N={num_samples})')
     axs[1, 0].set_title('Scrambled Sobol Sequence')
@@ -246,7 +218,7 @@ if dimension == 2:
     axs[1, 0].legend()
     axs[1, 0].grid(True, linestyle='--', alpha=0.7)
 
-    # Latin Hypercube Sampling (LHS)
+    # 拉丁超立方采样 (LHS)
     lhs_engine = qmc.LatinHypercube(d=dimension, seed=42)
     samples_lhs = lhs_engine.random(n=num_samples)
     axs[1, 1].scatter(samples_lhs[:, 0], samples_lhs[:, 1], s=20, marker='P', color='purple',
@@ -259,41 +231,41 @@ if dimension == 2:
     axs[1, 1].grid(True, linestyle='--', alpha=0.7)
 
     plt.suptitle('Comparison of Sampling Methods (2D)', fontsize=16)
-    plt.tight_layout(rect=[0, 0, 1, 0.95])  # adjust layout for title
+    plt.tight_layout(rect=[0, 0, 1, 0.95])  # 调整布局适应标题
     plt.savefig('sampling_methods_2d.png', dpi=600)
     plt.show()
 ```
 
-![Sampling Methods Comparison](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/sampling_methods_2d.png)
+![采样方法对比](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/sampling_methods_2d.png)
 
-**Notes:**
-* `qmc.Sobol(d=dimension, scramble=False)`: Initializes a Sobol sequence generator. `d` is the dimension. `scramble=True` enables scrambling, which typically improves finite sample quality but loses pure determinism (scrambling itself is random, but for a fixed seed, the scrambled sequence is deterministic).
-* `sobol_engine.random(n=num_samples)`: Generates `num_samples` sample points. Each point is a `dimension`-dimensional vector with components in the interval $[0, 1)$.
-* `sobol_engine.fast_forward(m)`: Can skip the first `m` points in the sequence.
-* `seed`: When `scramble=True`, `seed` controls the randomness of scrambling to ensure reproducibility.
+**说明：**
+*   `qmc.Sobol(d=dimension, scramble=False)`: 初始化一个 Sobol 序列生成器。`d` 是维度。`scramble=True` 会启用加扰，这通常能改善有限样本的质量，但会失去纯粹的确定性（加扰本身是随机的，但对于固定的种子，加扰后的序列是确定的）。
+*   `sobol_engine.random(n=num_samples)`: 生成 `num_samples` 个样本点。每个点是一个 `dimension` 维的向量，其分量在 $[0, 1)$区间内。
+*   `sobol_engine.fast_forward(m)`: 可以跳过序列中的前 `m` 个点。
+*   `seed`: 当 `scramble=True` 时，`seed` 控制加扰的随机性，以确保可复现性。
 
-### Using PyTorch (`torch.quasirandom.SobolEngine`)
+### 使用 PyTorch (`torch.quasirandom.SobolEngine`)
 
-PyTorch also provides `SobolEngine` for generating Sobol sequences, which is particularly convenient when working within the PyTorch ecosystem (e.g., for hyperparameter search in deep learning models or gradient-based expectation estimation).
+PyTorch 也提供了 `SobolEngine` 用于生成 Sobol 序列，这对于在 PyTorch 生态系统中进行工作（例如，在深度学习模型的超参数搜索或基于梯度的期望估计中）非常方便。
 
 ```python
 import torch
 from torch.quasirandom import SobolEngine
 
-# 1. Initialize SobolEngine
+# 1. 初始化 SobolEngine
 dimension = 2
-# scramble=True enables scrambling, seed for reproducibility when scrambling
+# scramble=True 进行加扰, seed 用于复现加扰结果
 sobol_engine_torch = SobolEngine(dimension=dimension, scramble=False, seed=None)
 
-# 2. Generate sample points
+# 2. 生成样本点
 num_samples = 128
-# draw method returns a Tensor
+# draw 方法返回一个 Tensor
 samples_torch = sobol_engine_torch.draw(num_samples) 
 
 print(f"\nGenerated {num_samples} Sobol samples using PyTorch (dimension {dimension}):")
 print(samples_torch[:5])
 
-# 3. Use scrambling
+# 3. 使用加扰
 sobol_engine_torch_scrambled = SobolEngine(dimension=dimension, scramble=True, seed=42)
 samples_torch_scrambled = sobol_engine_torch_scrambled.draw(num_samples)
 print("\nScrambled Sobol samples using PyTorch:")
@@ -301,42 +273,42 @@ print(samples_torch_scrambled[:5])
 
 ```
 
-**Notes:**
-*   `SobolEngine(dimension=dimension, scramble=False, seed=None)`: Initializes the engine. `dimension` is the dimensionality. `scramble=True` enables scrambling. `seed` fixes random number generator state when scrambling.
-*   `sobol_engine_torch.draw(num_samples)`: Generates `num_samples` sample points, returning a PyTorch `Tensor`.
-*   PyTorch's `SobolEngine` supports up to approximately 1111 dimensions (as of recent versions, please check official documentation), and uses optimized direction numbers.
+**说明：**
+*   `SobolEngine(dimension=dimension, scramble=False, seed=None)`: 初始化引擎。`dimension` 是维度。`scramble=True` 启用加扰。`seed` 用于在加扰时固定随机数生成器状态。
+*   `sobol_engine_torch.draw(num_samples)`: 生成 `num_samples` 个样本点，返回一个 PyTorch `Tensor`。
+*   PyTorch 的 `SobolEngine` 最高支持约 1111 维（截至较新版本，具体请查阅官方文档），并且其方向数是经过优化的。
+
+## 不同采样方法的比较
+
+为了更好地理解 Sobol 序列的特性，下表总结了它与其他几种常见采样方法的对比：
+
+| 特性               | 伪随机数 (PRNG)                      | 网格采样 (Grid Sampling)                | 拉丁超立方采样 (LHS)                     | Halton/Hammersley 序列            | Sobol 序列                         |
+| :----------------- | :----------------------------------- | :-------------------------------------- | :--------------------------------------- | :----------------------------------- | :--------------------------------- |
+| **类型**           | 伪随机 (Pseudo-Random)               | 确定性 / 系统性 (Deterministic/Systematic) | 分层随机 (Stratified Random)             | 准随机 (Quasi-Random)                | 准随机 (Quasi-Random)              |
+| **均匀性/覆盖度**  | 可能出现聚集和空隙                     | 规则，但可能在高维下效率低；易产生规律性伪影 | 确保每个一维投影上的分层均匀             | 良好，但低维投影可能不如 Sobol       | 非常好，尤其在高维下                 |
+| **差异性**         | 较高                                 | 较低（但结构固定）                        | 中等至较低                               | 低                                   | 非常低                             |
+| **收敛速度 (积分)** | $O(N^{-1/2})$                      | 取决于函数，可能较差                     | 通常优于 PRNG，接近 $O(N^{-1})$ (视情况) | $O(N^{-1}(\log N)^s)$ 或更好      | $O(N^{-1}(\log N)^s)$ 或更好       |
+| **确定性**         | 否 (依赖种子)                        | 是                                      | 否 (分层内随机)                          | 是                                   | 是 (不加扰时)                      |
+| **逐点生成**       | 是                                   | 通常否 (需预定总点数和网格结构)         | 通常否 (需预定总点数)                    | 是                                   | 是                                 |
+| **计算成本 (生成)** | 非常低                               | 低                                      | 低至中等                                 | 低                                   | 低 (基于位操作)                    |
+| **相关性/模式**    | 低（理论上），但周期有限                | 强烈的规律性，轴对齐模式                 | 避免一维投影的聚集，但高维投影可能仍有结构 | 某些基数选择下初始点可能线性相关     | 初始点投影可能不佳 (可通过加扰改善) |
+| **主要优点**       | 实现简单，速度快                       | 简单直观                                | 保证一维投影的良好覆盖，对某些模型有效   | 良好的均匀性，确定性                | 极佳的均匀性，快速收敛，逐点生成     |
+| **主要缺点**       | 收敛慢，高维下覆盖不均                  | "维度灾难"，高维下点数剧增，不灵活        | 高维下均匀性可能不如 QMC，非逐点        | 初始点问题，某些基数选择敏感          | 初始点问题，方向数质量依赖          |
+| **典型用例**       | 通用随机模拟，游戏，密码学 (CSPRNG)   | 低维参数扫描，可视化                     | 计算机实验设计，不确定性量化，优化     | 数值积分，参数空间探索              | 数值积分，金融，图形学，灵敏度分析   |
+| **Python 示例**    | `numpy.random.rand()` `torch.rand()` | `numpy.meshgrid()` `itertools.product()` | `scipy.stats.qmc.LatinHypercube`       | `scipy.stats.qmc.Halton`           | `scipy.stats.qmc.Sobol` `torch.quasirandom.SobolEngine` |
+
+**一些解释：**
+*   **网格采样 (Grid Sampling):** 指的是在每个维度上取等间隔的点，然后组合它们。虽然在低维下直观，但在高维下所需的点数会爆炸式增长（维度灾难）。
+*   **分层采样 (Stratified Sampling):** 思想是将空间划分为若干不重叠的子区域（层），然后在每个子区域内独立采样。LHS 是分层采样的一种特殊形式。
+*   **拉丁超立方采样 (LHS):** 将每个维度划分为 $N$ 个等概率的区间，然后从每个区间中随机抽取一个值，确保在每个维度的每个分层中都有一个样本点，并将这些值随机组合。它保证了一维投影的均匀性。
+*   **Halton/Hammersley 序列:** 也是经典的低差异序列，Halton 基于不同素数为基的 Van der Corput 序列，Hammersley 则在其基础上修改第一维。
+
+Sobol 序列通常被认为是综合性能最好的低差异序列之一，尤其是在需要高维均匀采样和快速收敛的准蒙特卡罗积分中。
 
 
-## Comparison of Different Sampling Methods
-
-To better understand the characteristics of Sobol sequences, the following table summarizes its comparison with other common sampling methods:
-
-| Characteristic    | Pseudo-Random Numbers (PRNG)          | Grid Sampling                         | Latin Hypercube Sampling (LHS)          | Halton/Hammersley Sequences         | Sobol Sequences                     |
-| :----------------- | :----------------------------------- | :------------------------------------ | :--------------------------------------- | :----------------------------------- | :--------------------------------- |
-| **Type**           | Pseudo-Random                        | Deterministic/Systematic              | Stratified Random                        | Quasi-Random                         | Quasi-Random                        |
-| **Uniformity/Coverage** | May have clusters and gaps      | Regular, but inefficient in high dimensions; prone to artifacts | Ensures stratified uniformity in 1D projections | Good, but low-dim projections may be inferior to Sobol | Excellent, especially in high dimensions |
-| **Discrepancy**    | High                                | Low (but fixed structure)             | Medium to Low                            | Low                                  | Very Low                           |
-| **Convergence Rate (Integration)** | $O(N^{-1/2})$       | Depends on function, may be poor      | Usually better than PRNG, near $O(N^{-1})$ (varies) | $O(N^{-1}(\log N)^s)$ or better    | $O(N^{-1}(\log N)^s)$ or better    |
-| **Deterministic**  | No (seed-dependent)                 | Yes                                   | No (random within strata)                | Yes                                  | Yes (without scrambling)            |
-| **Progressive Generation** | Yes                          | Usually No (needs predefined total points) | Usually No (needs predefined total points) | Yes                                | Yes                                |
-| **Computational Cost (Generation)** | Very Low           | Low                                   | Low to Medium                            | Low                                  | Low (bit operations)               |
-| **Correlation/Patterns** | Low (theoretically), but finite period | Strong regularity, axis-aligned patterns | Avoids 1D clustering, but may have structure in high-dim | May have linear correlation for some bases | Initial projections may be poor (improvable through scrambling) |
-| **Main Advantages** | Simple implementation, fast         | Simple and intuitive                  | Guarantees good 1D coverage, effective for certain models | Good uniformity, deterministic    | Excellent uniformity, fast convergence, progressive |
-| **Main Disadvantages** | Slow convergence, poor high-dim coverage | "Curse of dimensionality", inflexible | May be inferior to QMC in high-dim, non-progressive | Initial point issues, base-sensitive | Initial point issues, direction number dependent |
-| **Typical Uses**   | General simulation, games, cryptography (CSPRNG) | Low-dim parameter sweeps, visualization | Computer experiments, uncertainty quantification, optimization | Numerical integration, parameter space exploration | Numerical integration, finance, graphics, sensitivity analysis |
-| **Python Examples** | `numpy.random.rand()` `torch.rand()` | `numpy.meshgrid()` `itertools.product()` | `scipy.stats.qmc.LatinHypercube` | `scipy.stats.qmc.Halton` | `scipy.stats.qmc.Sobol` `torch.quasirandom.SobolEngine` |
-
-**Some Explanations:**
-* **Grid Sampling:** Takes equidistant points in each dimension and combines them. While intuitive in low dimensions, point requirements grow exponentially with dimensions (curse of dimensionality).
-* **Stratified Sampling:** Divides space into non-overlapping subregions (strata) with independent sampling within each. LHS is a special form of stratified sampling.
-* **Latin Hypercube Sampling (LHS):** Divides each dimension into N equal-probability intervals, randomly samples one value from each interval, ensuring one sample per stratum in each dimension, then randomly combines these values. Guarantees uniformity in one-dimensional projections.
-* **Halton/Hammersley Sequences:** Classical low-discrepancy sequences. Halton uses Van der Corput sequences with different prime bases, while Hammersley modifies the first dimension.
-
-Sobol sequences are often considered one of the best low-discrepancy sequences, particularly for high-dimensional uniform sampling and fast convergence in quasi-Monte Carlo integration.
+## 总结
 
 
-## Summary
+Sobol 序列作为一种经典的低差异序列，通过其确定性的生成方式和优异的均匀分布特性，在多维空间采样方面表现出色。它能够比传统的伪随机数更有效地填充采样空间，从而在数值积分、金融建模、计算机图形学以及机器学习等多个领域中提高计算效率和结果精度。
 
-Sobol sequences, as a classic low-discrepancy sequence, demonstrate excellent performance in multi-dimensional sampling through their deterministic generation method and superior uniform distribution properties. They can fill sampling spaces more effectively than traditional pseudorandom numbers, thereby improving computational efficiency and result accuracy in numerical integration, financial modeling, computer graphics, and machine learning applications.
-
-Despite certain challenges such as initial point distribution and dimensional limitations, Sobol sequences remain a powerful and valuable tool in scientific computing and engineering practice, thanks to optimized direction numbers and scrambling techniques in modern implementations. Libraries like SciPy and PyTorch in Python make Sobol sequences easily accessible and usable.
+尽管存在一些如初始点分布和维度限制等问题，但通过现代实现中使用的优化方向数和加扰技术，Sobol 序列仍然是科学计算和工程实践中一个强大且有价值的工具。Python 中的 SciPy 和 PyTorch 等库使得 Sobol 序列的获取和使用变得非常便捷。
