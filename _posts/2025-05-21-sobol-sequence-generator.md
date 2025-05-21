@@ -30,34 +30,34 @@ In many applications, especially Monte Carlo methods, we need points that are un
 Unlike pseudorandom numbers, low-discrepancy sequences don't aim to "look random" but rather focus on covering the sampling space more uniformly and systematically, avoiding both high clustering of points and large empty regions. Common low-discrepancy sequences include Halton sequences, Faure sequences, Niederreiter sequences, and our focus in this article—**Sobol sequences**.
 
 All random number generation algorithms based on modern CPUs are typically **pseudorandom**, generating sequences through deterministic algorithms that repeat after a very long period. **Quasi-random sequences**, like Sobol sequences, are also deterministic but are designed for low discrepancy, meaning high uniformity.
-## 看待随机性的两个重要维度
+## Two Important Dimensions of Randomness
 
-从应用的角度来看，我们经常需要从两个维度来评价随机序列：
+From an application perspective, we often need to evaluate random sequences from two dimensions:
 
-1. **统计随机性 (Statistical Randomness)：** 序列在统计意义上的随机程度，如均匀性、相关性、重复周期等。这可以通过各种统计检验来评估。
+1. **Statistical Randomness:** The degree of randomness in a statistical sense, such as uniformity, correlation, and repetition period. This can be assessed through various statistical tests.
 
-2. **空间分布均匀性 (Spatial Uniformity)：** 序列在空间中的分布特性，特别是在多维情况下。这通常可以用差异性 (Discrepancy) 来量化。
+2. **Spatial Uniformity:** The distribution characteristics of the sequence in space, especially in multi-dimensional cases. This is typically quantified using discrepancy.
 
-对于一个 $s$ 维单位超立方体 $[0,1]^s$ 中的点集 $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$，其差异性 $D_N(P)$ 可以表达为：
+For a point set $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$ in an $s$-dimensional unit hypercube $[0,1]^s$, its discrepancy $D_N(P)$ can be expressed as:
 $$
 \begin{equation}
 D_N(P) = \sup_{B \in J} \left| \frac{A(B; P)}{N} - \lambda_s(B) \right|
 \end{equation}$$
 
-其中 $J$ 是超立方体中特定形状子区域的集合，$A(B; P)$ 是落入子区域 $B$ 的点数，$N$ 是总点数，$\lambda_s(B)$ 是子区域的体积。
+where $J$ is the set of specific shaped subregions in the hypercube, $A(B; P)$ is the number of points falling in subregion $B$, $N$ is the total number of points, and $\lambda_s(B)$ is the volume of the subregion.
 
-随着应用场景的不同，我们可能更关注其中一个维度。例如，在加密应用中，统计随机性更为重要；而在数值积分中，空间分布均匀性可能更为关键。准随机序列（如 Sobol 序列）正是在空间分布均匀性方面做了特别的优化。
+Depending on the application scenario, we may focus more on one dimension. For example, statistical randomness is more important in encryption applications, while spatial uniformity may be more critical in numerical integration. Quasi-random sequences (like Sobol sequences) are specifically optimized for spatial uniformity.
 
-## 什么是 Sobol 序列？
+## What is a Sobol Sequence?
 
-Sobol 序列是一系列 $n$ 维点，它们被设计成比标准伪随机序列更均匀地分布在单位超立方体 $[0, 1)^n$ 中。
+A Sobol sequence is a series of $n$-dimensional points designed to be more uniformly distributed in the unit hypercube $[0, 1)^n$ than standard pseudo-random sequences.
 
-*   **确定性 (Deterministic)：** 对于给定的维度和索引，Sobol 序列中的点是完全确定的，不像伪随机数那样依赖于随机种子（尽管某些实现允许"加扰"以引入随机性，同时保持低差异性）。
-*   **低差异性 (Low Discrepancy)：** 这是 Sobol 序列的核心特性。差异性是衡量点集分布均匀性的一个指标。低差异意味着点集能够更好地避免出现大的空隙或过度聚集的区域。
+* **Deterministic:** Points in a Sobol sequence are completely determined for a given dimension and index, unlike pseudo-random numbers that depend on random seeds (although some implementations allow "scrambling" to introduce randomness while maintaining low discrepancy).
+* **Low Discrepancy:** This is the core characteristic of Sobol sequences. Discrepancy is a measure of how uniformly points are distributed. Low discrepancy means the point set better avoids large gaps or excessive clustering of points.
 
-**差异性 (Discrepancy) 的概念**
+**The Concept of Discrepancy**
 
-对于一个在 $s$ 维单位超立方体 $[0,1]^s$ 中的点集 $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$，其差异性 $D_N(P)$ 定义为：
+For a point set $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$ in an $s$-dimensional unit hypercube $[0,1]^s$, its discrepancy $D_N(P)$ is defined as:
 
 $$
 \begin{equation}
@@ -65,18 +65,19 @@ D_N(P) = \sup_{B \in J} \left| \frac{A(B; P)}{N} - \lambda_s(B) \right|
 \end{equation}
 $$
 
-其中：
-*   $J$ 是 $[0,1]^s$ 中所有满足特定形状（如与坐标轴对齐的子矩形）的子区域的集合。
-*   $A(B; P)$ 是点集 $P$ 中落入子区域 $B$ 的点的数量。
-*   $N$ 是点集 $P$ 中点的总数量。
-*   $\lambda_s(B)$ 是子区域 $B$ 的 $s$ 维体积（或测度）。
+where:
+* $J$ is the set of all subregions of $[0,1]^s$ with specific shapes (such as axis-aligned subrectangles).
+* $A(B; P)$ is the number of points from set $P$ that fall within subregion $B$.
+* $N$ is the total number of points in set $P$.
+* $\lambda_s(B)$ is the $s$-dimensional volume (or measure) of subregion $B$.
 
-简单来说，差异性衡量的是在最坏情况下，子区域内点的比例与该子区域体积之间的最大偏差。分布越均匀的点集，其差异性越低。
+Simply put, discrepancy measures the maximum deviation between the proportion of points in a subregion and the volume of that subregion in the worst case. Point sets with more uniform distribution have lower discrepancy.
 
-下图直观地展示了伪随机点集与低差异序列点集的区别：
+The following figure intuitively shows the difference between pseudorandom point sets and low-discrepancy sequence point sets:
 
-![伪随机和低差异序列](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/discrepancy.png)
-_左边为伪随机数组成的二维点集，右边则是由低差异序列（如 Sobol 序列）点集，对整个空间的覆盖更加完整和均匀。_
+![Pseudorandom and Low-discrepancy Sequences](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/discrepancy.png)
+_Left: two-dimensional point set composed of pseudorandom numbers; Right: point set from a low-discrepancy sequence (like Sobol sequence), showing more complete and uniform coverage of the space._
+
 
 ## Sobol 序列是如何生成的？
 
