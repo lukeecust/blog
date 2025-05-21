@@ -11,17 +11,17 @@ permalink: /posts/sobol-sequence-generator/
 render_with_liquid: false
 ---
 
-随机数在密码学、计算机图形学、统计学等众多领域都扮演着至关重要的角色。根据应用场景的不同，我们对随机数有不同的要求，从而也衍生出不同类型的随机数。Sobol 序列是一种特殊的序列，属于准随机数（Quasi-Random Numbers）的范畴，因其优异的均匀分布特性而在许多领域得到广泛应用。
+Random numbers play a crucial role in many fields including cryptography, computer graphics, and statistics. Different applications require different types of random numbers, leading to various types of random number generation. The Sobol sequence is a special type of sequence in the category of quasi-random numbers, widely used in many fields due to its excellent uniform distribution properties.
 
-## 引言：随机数的重要性与分类
+## Introduction: Importance and Classification of Random Numbers
 
-在深入 Sobol 序列之前，我们先简单回顾一下随机数的几种主要类型：
+Before diving into Sobol sequences, let's briefly review the main types of random numbers:
 
-*   **统计学伪随机数 (Statistically Pseudorandom Numbers)：** 指生成的随机数序列在统计特性上（如均匀性、独立性）近似于真正的随机序列。例如，对于一个伪随机比特流，0 和 1 的数量应大致相等。
-*   **密码学安全伪随机数 (Cryptographically Secure Pseudorandom Numbers, CSPRNG)：** 除了满足统计学伪随机数的特性外，还要求从序列的一部分推断出其余部分在计算上是不可行的。这对于密钥生成等安全相关的应用至关重要。
-*   **真随机数 (True Random Numbers)：** 其生成基于不可预测的物理过程（如热噪声、放射性衰变等），因此样本不可重现。获取真随机数的成本通常较高。
+* **Statistically Pseudorandom Numbers:** These are random number sequences that approximate true random sequences in statistical properties (such as uniformity, independence). For example, in a pseudorandom bit stream, the number of 0s and 1s should be roughly equal.
+* **Cryptographically Secure Pseudorandom Numbers (CSPRNG):** Beyond meeting the properties of statistical pseudorandom numbers, these require that predicting any part of the sequence from other parts is computationally infeasible. This is crucial for security-related applications like key generation.
+* **True Random Numbers:** Generated based on unpredictable physical processes (such as thermal noise, radioactive decay), making samples non-reproducible. Obtaining true random numbers typically comes at a higher cost.
 
-这些随机数的条件是逐渐增强的，获取难度也随之增加。因此，在实际应用中，我们需要根据具体需求选择合适的随机数生成方式。
+These random number requirements become progressively stricter, with increasing difficulty in generation. Therefore, in practical applications, we need to choose appropriate random number generation methods based on specific requirements.
 
 ## 准随机数生成器 (QRNG) 与低差异序列
 
