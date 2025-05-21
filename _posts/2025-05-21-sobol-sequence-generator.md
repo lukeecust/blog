@@ -79,48 +79,48 @@ The following figure intuitively shows the difference between pseudorandom point
 _Left: two-dimensional point set composed of pseudorandom numbers; Right: point set from a low-discrepancy sequence (like Sobol sequence), showing more complete and uniform coverage of the space._
 
 
-## Sobol 序列是如何生成的？
+## How are Sobol Sequences Generated?
 
-Sobol 序列的生成基于二进制算术和一组特殊的数字，称为**方向数 (direction numbers)** 或 **初始化数 (initialization numbers)**。其核心思想与 **Radical Inversion** 和 **Van der Corput 序列** 有关。
+Sobol sequences are generated based on binary arithmetic and a special set of numbers called **direction numbers** or **initialization numbers**. The core idea is related to **Radical Inversion** and **Van der Corput sequences**.
 
-**Radical Inversion 与 Van der Corput 序列**
+**Radical Inversion and Van der Corput Sequences**
 
-Radical Inversion 是一种将整数 $i$ 映射到 $[0,1)$ 区间的方法。对于一个基数 $b$，整数 $i$ 可以表示为 $b$ 进制数：
+Radical Inversion is a method of mapping an integer $i$ to the interval $[0,1)$. For a base $b$, an integer $i$ can be represented in base $b$ as:
 $$\begin{equation}
 i = \sum_{l=0}^{M-1} a_l(i) b^l
 \end{equation}$$
 
-其 Radical Inversion $\Phi_b(i)$（在 $C$ 为单位矩阵的简化情况下，即 Van der Corput 序列）定义为：
+Its Radical Inversion $\Phi_b(i)$ (in the simplified case where $C$ is the identity matrix, i.e., Van der Corput sequence) is defined as:
 $$\begin{equation}
 \Phi_b(i) = \sum_{l=0}^{M-1} a_l(i) b^{-l-1}
 \end{equation}$$
 
-这相当于将 $i$ 的 $b$ 进制表示的小数点左边的数字镜像到小数点右边。
+This effectively mirrors the digits of $i$'s base-$b$ representation from left to right of the decimal point.
 
-例如，以 2 为基的 Van der Corput 序列的前几项：
+For example, the first few terms of the base-2 Van der Corput sequence:
 *   $i=1=(1)_2 \implies \Phi_2(1) = (0.1)_2 = 1/2$
 *   $i=2=(10)_2 \implies \Phi_2(2) = (0.01)_2 = 1/4$
 *   $i=3=(11)_2 \implies \Phi_2(3) = (0.11)_2 = 3/4$
 *   $i=4=(100)_2 \implies \Phi_2(4) = (0.001)_2 = 1/8$
 
-这个序列的每一个点都是取目前最长的未覆盖区域的中点，因此具有平均分布的特性。
+Each point in this sequence takes the midpoint of the currently longest uncovered interval, thus ensuring uniform distribution.
 
-**Sobol 序列的构造**
+**Sobol Sequence Construction**
 
-Sobol 序列的每一维都可以看作是一个以 2 为基，但使用了不同**生成矩阵 $\mathbf{C}_j$**（对应于方向数）的 Van der Corput 序列的推广。一个 $n$ 维 Sobol 序列的第 $i$ 个点 $\boldsymbol{X}_i$ 可以表示为：
+Each dimension of a Sobol sequence can be viewed as a generalization of a base-2 Van der Corput sequence using different **generating matrices $\mathbf{C}_j$** (corresponding to direction numbers). The $i$-th point $\boldsymbol{X}_i$ of an $n$-dimensional Sobol sequence can be expressed as:
 $$\begin{equation}
 \boldsymbol{X}_i = \left( \boldsymbol{\Phi}_{2, \mathbf{C}_1}(i), \boldsymbol{\Phi}_{2, \mathbf{C}_2}(i), \ldots, \boldsymbol{\Phi}_{2, \mathbf{C}_n}(i) \right)
 \end{equation}$$
 
-其中 $\boldsymbol{\Phi}_{2, \mathbf{C}_j}(i)$ 是第 $j$ 维的坐标，通过对整数 $i$ 的二进制表示与第 $j$ 维的一组方向数（编码在 $\mathbf{C}_j$ 中）进行一系列位异或 (XOR) 操作得到。
+where $\boldsymbol{\Phi}_{2, \mathbf{C}_j}(i)$ is the coordinate for dimension $j$, obtained through a series of bitwise XOR operations between the binary representation of integer $i$ and a set of direction numbers (encoded in $\mathbf{C}_j$) for dimension $j$.
 
-具体来说，对于序列中的第 $k$ 个点和第 $j$ 维：
-1.  将 $k$ 表示为二进制形式 $k = (b_m b_{m-1} \dots b_1)_2$。
-2.  第 $j$ 维的坐标 $x_{k,j}$ 可以表示为 $x_{k,j} = b_1 v_{j,1} \oplus b_2 v_{j,2} \oplus \dots \oplus b_m v_{j,m}$，其中 $\oplus$ 是异或操作，$v_{j,r}$ 是第 $j$ 维对应的第 $r$ 个方向数（本身也是 $[0,1)$ 区间内的二进制小数）。
+Specifically, for the $k$-th point and dimension $j$:
+1.  Express $k$ in binary form: $k = (b_m b_{m-1} \dots b_1)_2$
+2.  The coordinate $x_{k,j}$ can be expressed as $x_{k,j} = b_1 v_{j,1} \oplus b_2 v_{j,2} \oplus \dots \oplus b_m v_{j,m}$, where $\oplus$ is the XOR operation, and $v_{j,r}$ is the $r$-th direction number for dimension $j$ (itself a binary fraction in $[0,1)$).
 
-由于完全以 2 为底数，Sobol 序列的生成可以直接使用高效的位操作（如右移、异或）实现，计算速度非常快。选择合适的原始多项式和由此派生的方向数对于保证 Sobol 序列的低差异性至关重要。
+Being entirely base-2, Sobol sequences can be efficiently implemented using bitwise operations (like right shifts and XOR), making computation very fast. The choice of primitive polynomials and derived direction numbers is crucial for ensuring the low-discrepancy property of Sobol sequences.
 
-一个显著的特性是，当样本数量 $N$ 为 $2$ 的整数次幂时（例如 $N=2^k$），Sobol 序列在 $[0,1)^s$ 区间中以 2 为底的每个基本区间 (elementary interval) 中都有且只会有一个点。这意味着它可以生成和分层采样 (Stratified Sampling) 或拉丁超立方采样 (Latin Hypercube Sampling) 同样高质量分布的样本，同时又不需要预先确定样本的总数量。
+A notable property is that when the number of samples $N$ is a power of 2 (e.g., $N=2^k$), the Sobol sequence will have exactly one point in each base-2 elementary interval of $[0,1)^s$. This means it can generate samples of quality comparable to Stratified Sampling or Latin Hypercube Sampling without requiring the total number of samples to be predetermined.
 
 ## Sobol 采样的优缺点
 优点：
