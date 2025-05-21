@@ -44,7 +44,13 @@ $$
 D_N(P) = \sup_{B \in J} \left| \frac{A(B; P)}{N} - \lambda_s(B) \right|
 \end{equation}$$
 
-where $J$ is the set of specific shaped subregions in the hypercube, $A(B; P)$ is the number of points falling in subregion $B$, $N$ is the total number of points, and $\lambda_s(B)$ is the volume of the subregion.
+where:
+* $J$ is the set of all subregions of $[0,1]^s$ with specific shapes (such as axis-aligned subrectangles).
+* $A(B; P)$ is the number of points from set $P$ that fall within subregion $B$.
+* $N$ is the total number of points in set $P$.
+* $\lambda_s(B)$ is the $s$-dimensional volume (or measure) of subregion $B$.
+
+Simply put, discrepancy measures the maximum deviation between the proportion of points in a subregion and the volume of that subregion in the worst case. Point sets with more uniform distribution have lower discrepancy.
 
 Depending on the application scenario, we may focus more on one dimension. For example, statistical randomness is more important in encryption applications, while spatial uniformity may be more critical in numerical integration. Quasi-random sequences (like Sobol sequences) are specifically optimized for spatial uniformity.
 
@@ -54,24 +60,6 @@ A Sobol sequence is a series of $n$-dimensional points designed to be more unifo
 
 * **Deterministic:** Points in a Sobol sequence are completely determined for a given dimension and index, unlike pseudo-random numbers that depend on random seeds (although some implementations allow "scrambling" to introduce randomness while maintaining low discrepancy).
 * **Low Discrepancy:** This is the core characteristic of Sobol sequences. Discrepancy is a measure of how uniformly points are distributed. Low discrepancy means the point set better avoids large gaps or excessive clustering of points.
-
-**The Concept of Discrepancy**
-
-For a point set $P = \{\mathbf{x}_1, \dots, \mathbf{x}_N\}$ in an $s$-dimensional unit hypercube $[0,1]^s$, its discrepancy $D_N(P)$ is defined as:
-
-$$
-\begin{equation}
-D_N(P) = \sup_{B \in J} \left| \frac{A(B; P)}{N} - \lambda_s(B) \right|
-\end{equation}
-$$
-
-where:
-* $J$ is the set of all subregions of $[0,1]^s$ with specific shapes (such as axis-aligned subrectangles).
-* $A(B; P)$ is the number of points from set $P$ that fall within subregion $B$.
-* $N$ is the total number of points in set $P$.
-* $\lambda_s(B)$ is the $s$-dimensional volume (or measure) of subregion $B$.
-
-Simply put, discrepancy measures the maximum deviation between the proportion of points in a subregion and the volume of that subregion in the worst case. Point sets with more uniform distribution have lower discrepancy.
 
 The following figure intuitively shows the difference between pseudorandom point sets and low-discrepancy sequence point sets:
 
