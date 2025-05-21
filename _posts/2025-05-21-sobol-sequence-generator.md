@@ -1,5 +1,5 @@
 ---
-title: Sobol Sequence: Quasi-Random Sequence Generator and Its Python Implementation
+title: Sobol Sequence - Quasi-Random Sequence Generator and Its Python Implementation
 author: lukeecust
 date: 2025-05-21 02:09:00 +0800
 categories: [Deep Learning, Sampling]
