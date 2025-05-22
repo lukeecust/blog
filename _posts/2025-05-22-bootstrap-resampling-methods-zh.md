@@ -15,7 +15,7 @@ bootstrap 的基本思想是在样本数据上对总体参数 $\theta$（如总�
 
 
 一般来说，bootstrap涉及以下步骤：
-![bootstrap](https://lukeecust.github.io/blog/assets/images/2025-05-22-bootstrap-resampling-methods/bootstrap.png){:.left }
+![bootstrap](https://lukeecust.github.io/blog/assets/images/2025-05-22-bootstrap-resampling-methods/bootstrap.png){: .w-50 .left }
 _bootstrap的步骤_
 
 1．从总体中抽取的样本，样本量为 $n$ 。
