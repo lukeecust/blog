@@ -89,6 +89,10 @@ pageviews:
 #
 theme_mode: # [light | dark]
 
+# ADD THIS SECTION TO ENABLE MATHJAX
+math:
+  provider: mathjax # Specifies MathJax as the math engine
+
 # The CDN endpoint for media resources.
 # Notice that once it is assigned, the CDN url
 # will be added to all media resources (site avatar, posts' images, audio and video files) paths starting with '/'
