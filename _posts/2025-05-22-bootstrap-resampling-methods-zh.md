@@ -25,6 +25,7 @@ Bootstrap 方法，正如其名"自举"，灵感来源于"拔着自己的鞋带�
 2.  **有放回重采样 (Resampling with Replacement)**: 从原始样本 $ S $ 中有放回地随机抽取 $ n $ 个观测值，形成一个新的样本，称为**自助样本 (Bootstrap Sample)** $ S^* $。由于是有放回抽样，$ S^* $ 中的某些原始观测值可能会出现多次，而另一些可能一次也不出现。
 3.  **计算统计量 (Calculate Statistic)**: 对每个自助样本 $ S^* $ 计算我们感兴趣的统计量 $ \hat{\theta}^* $ (例如均值、中位数、方差、相关系数等)。
 4. **重复 (Repeat)**: 重复步骤 2 和步骤 3 大量次数 (例如 B 次，通常 B 至少为 1000，甚至更多，如10000次，以获得更稳定的结果)，得到 B 个自助统计量 $ \hat{\theta}^*\_1, \hat{\theta}^*\_2, ..., \hat{\theta}^*\_B $。
+4. **重复 (Repeat)**: 重复步骤 2 和步骤 3 大量次数 (例如 B 次，通常 B 至少为 1000，甚至更多，如 10000 次，以获得更稳定的结果)，得到 B 个自助统计量  $\hat{\theta}^{*}\_{1}, \hat{\theta}^{*}\_{2}, \ldots, \hat{\theta}^{*}\_{B}$。
 5. **统计推断 (Statistical Inference)**: 用这 B 个 Bootstrap 统计量 $ \\{\hat{\theta}^*\_1, ..., \hat{\theta}^*\_B\\} $ 构建一个经验抽样分布。这个分布被用作对真实统计量 $ \hat{\theta} $ 抽样分布的近似。基于这个分布，我们可以：
     *   估计统计量 $ \hat{\theta} $ 的标准误 (Standard Error, SE)。
     *   构建统计量 $ \hat{\theta} $ 的置信区间 (Confidence Interval, CI)。
