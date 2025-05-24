@@ -1,5 +1,5 @@
 ---
-title: T-S模糊模型
+title: Takagi-Sugeno (T-S) 模糊模型
 author: lukeecust
 date: 2025-05-24 14:09:00 +0800
 categories: [Machine Learning, Model, Fuzzy]
