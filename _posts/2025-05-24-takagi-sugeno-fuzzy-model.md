@@ -152,6 +152,7 @@ Especially in the control field, it's often necessary to establish dynamic syste
 
 **Rule $i$**: **IF** $z_t$ is $A_i$
 **THEN** $\mathbf{x}_{t+1} = A_i \mathbf{x}_t + B_i \mathbf{u}_t$
+
 $y_t = C_i \mathbf{x}_t + D_i \mathbf{u}_t$
 
 Where:

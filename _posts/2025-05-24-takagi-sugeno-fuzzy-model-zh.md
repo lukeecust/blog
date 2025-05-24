@@ -152,6 +152,7 @@ y = \sum_{i=1}^{M} \bar{w}_i (p_{i0} + p_{i1}x_1 + ... + p_{in}x_n)
 
 **Rule $i$**: **IF** $z_t$ is $A_i$
 **THEN** $\mathbf{x}_{t+1} = A_i \mathbf{x}_t + B_i \mathbf{u}_t$
+
 $y_t = C_i \mathbf{x}_t + D_i \mathbf{u}_t$
 
 其中：
