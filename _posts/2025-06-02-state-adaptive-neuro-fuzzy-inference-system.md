@@ -4,10 +4,10 @@ author: lukeecust
 date: 2025-06-02 16:09:00 +0800
 categories: [Machine Learning, Model, Fuzzy]
 tags: [model, fuzzy, neural network]
-lang: zh
+lang: en
 math: true
 translation_id: state-adaptive-neuro-fuzzy-inference-system
-permalink: /zh/posts/state-adaptive-neuro-fuzzy-inference-system/
+permalink: /posts/state-adaptive-neuro-fuzzy-inference-system/
 render_with_liquid: false
 ---
 
