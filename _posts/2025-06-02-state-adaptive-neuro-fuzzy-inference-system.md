@@ -111,7 +111,6 @@ Optimization employs the ADAM algorithm combined with elitist principles to avoi
 
 Data is divided into training and validation samples. $$\theta$$ represents the set of model weights $$\theta^p$$ (premise parameters) and $$\theta^c$$ (consequent parameters), which are initialized differently. Model weight updates are based on the training loss function $$\operatorname{MSE}\left(O_{\text {train }}, \tilde{y}_{\text {train }}^b\right)$$, where $$b$$ represents the batch. To prevent overfitting and achieve regularization, an early stopping mechanism is employed: whenever the validation sample error $$L^{\prime}(\theta)$$ improves, a copy of the current model parameters $$\theta^*$$ is saved. $p$ is used to record the number of consecutive deteriorations in the out-of-sample loss $$L\left(O_{v a l}, y_{v a l}^b\right)$$. The patience threshold $$p_{\max }$$ specifies the maximum number of consecutive deteriorations allowed. When $$p$$ reaches $$p_{\max }$$, the system compares the current model weights with the current optimal solution, replacing it if the new solution is better in terms of out-of-sample loss. Afterwards, all optimization parameters and model weights $$\theta$$ are reset, and iteration begins again in the next training cycle. The number of parameter updates depends on the number of training cycles and batch size, thus affecting computational resources—halving the batch size doubles the number of model weight updates.
 
-<br>
 
 ## S-ANFIS Advantages and Applications
 
