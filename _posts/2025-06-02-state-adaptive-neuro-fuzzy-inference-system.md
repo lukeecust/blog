@@ -109,8 +109,6 @@ $$\begin{equation}
 优化采用ADAM算法，并结合精英原则避免局部最优解，具体训练过程如伪代码所示：
 ![sanfis-a](https://lukeecust.github.io/blog/assets/images/2025-06-02-state-adaptive-neuro-fuzzy-inference-system/lenha.al1-p8-lenha-large.png){: .w-50 .left }
 
-数据被划分为训练样本和验证样本。$\theta$表示模型权重集合$\theta^p$（前提参数）和$\theta^c$ （结果参数），这些权重采用不同的初始化方式。模型权重的更新基于训练损失函数 $\operatorname{MSE}\left(O_{\text {train }}, \tilde{y}_{\text {train }}^b\right)$ ，其中 $b$ 代表批次。为防止过拟合并实现正则化，系统采用早停机制：每当验证样本误差 $L^{\prime}(\theta)$改善时，当前模型参数$\theta^*$的副本将被保存。$p$用于记录样本外损失 $L\left(O_{v a l}, y_{v a l}^b\right)$ 连续恶化的次数。耐心阈值 $p_{\max }$ 规定了允许的最大连续恶化次数。当 $p$ 达到 $p_{\max }$ 时，系统会将当前模型权重与当前最优解进行比较，若新解在样本外损失方面更优则进行替换。此后所有优化参数和模型权重$\theta$将被重置，并在下一个训练周期重新开始迭代。参数更新次数取决于训练周期数和批次大小，因而影响计算资源——将批次大小减半会使模型权重更新次数翻倍。
-
 
 ## S-ANFIS的优势与应用
 
