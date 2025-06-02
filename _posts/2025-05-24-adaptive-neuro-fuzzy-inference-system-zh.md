@@ -3,7 +3,7 @@ title: 自适应神经模糊推理系统（ANFIS）
 author: lukeecust
 date: 2025-05-24 19:09:00 +0800
 categories: [Machine Learning, Model, Fuzzy]
-tags: [model]
+tags: [model, fuzzy]
 lang: zh
 math: true
 translation_id: adaptive-neuro-fuzzy-inference-system
@@ -146,6 +146,11 @@ plt.show()
 - **易过拟合**：模型复杂度可能造成过拟合。  
 - **计算开销**：高维输入提高计算复杂度。  
 - **单输出限制**：ANFIS 仅支持单变量输出。
+
+
+## ANFIS相关工作
+- S-ANFIS：S-ANFIS 是 ANFIS 网络的简单推广，其中模型前提和结果部分的输入可以分别控制。
+
 
 ## 结论
 

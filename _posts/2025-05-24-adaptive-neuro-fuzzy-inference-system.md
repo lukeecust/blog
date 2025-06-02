@@ -3,7 +3,7 @@ title: Adaptive Neuro-Fuzzy Inference System (ANFIS)
 author: lukeecust
 date: 2025-05-24 19:09:00 +0800
 categories: [Machine Learning, Model, Fuzzy]
-tags: [model]
+tags: [model, fuzzy]
 lang: en
 math: true
 translation_id: adaptive-neuro-fuzzy-inference-system
@@ -146,6 +146,9 @@ plt.show()
 - Risk of overfitting with complex models.  
 - Computational cost grows with higher dimensions.  
 - Single-output limitation.
+
+## ANFIS-Related Work
+- S-ANFIS: S-ANFIS is a straightforward extension of the ANFIS network, where inputs for the premise and consequent parts can be controlled separately.
 
 ## Conclusion
 
