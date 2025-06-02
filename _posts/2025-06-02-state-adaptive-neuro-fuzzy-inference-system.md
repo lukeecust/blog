@@ -12,121 +12,124 @@ render_with_liquid: false
 ---
 
 
-状态自适应神经模糊推理系统(State-ANFIS，简称S-ANFIS)是 ANFIS 网络的简单推广，它通过区分状态变量和解释变量，为复杂系统建模提供了更灵活的框架。
+The State-Adaptive Neuro-Fuzzy Inference System (S-ANFIS) is a simple generalization of the ANFIS network that provides a more flexible framework for modeling complex systems by distinguishing between state variables and explanatory variables.
 
-## S-ANFIS核心思想
+## Core Concept of S-ANFIS
 
-S-ANFIS的关键创新在于它将输入变量分为两类：
+The key innovation of S-ANFIS lies in dividing input variables into two categories:
 
-- **状态变量(State Variables, $s$)**: 用于判断系统当前所处的宏观状态或工作模式
-- **解释变量(Explanatory Variables, $x$)**: 在特定状态下解释或预测系统行为的变量
+- **State Variables ($s$)**: Used to determine the current macroscopic state or operating mode of the system
+- **Explanatory Variables ($x$)**: Variables that explain or predict system behavior within a specific state
 
-这种区分允许模型在不同状态下采用不同的参数配置，从而更好地适应复杂系统中的状态依赖行为模式。
+This distinction allows the model to adopt different parameter configurations in different states, thereby better adapting to state-dependent behavioral patterns in complex systems.
 
-## S-ANFIS网络结构与数学表示
+## S-ANFIS Network Structure and Mathematical Representation
 
-S-ANFIS采用两阶段神经模糊建模方法：
+S-ANFIS employs a two-stage neuro-fuzzy modeling approach:
 
-### 前提部分：状态判别与关联度计算
+### Premise Part: State Identification and Association Degree Calculation
 
-在前提部分，S-ANFIS只处理**状态变量 $s$**，目标是识别系统当前状态并计算与每个预定义状态的匹配程度。
+In the premise part, S-ANFIS only processes **state variables $s$**, aiming to identify the current system state and calculate the matching degree with each predefined state.
 
-假设有 $N_s$ 个状态变量，每个状态变量有 $M$ 个模糊隶属函数，则总共会有 $M^{N_s}$ 条模糊规则。前提参数总量为 $M^{N_s} \times K$，其中 $K$ 是每个隶属函数的可训练参数数量。
+Assuming there are $N_s$ state variables, each with $M$ fuzzy membership functions, there will be a total of $M^{N_s}$ fuzzy rules. The total number of premise parameters is $M^{N_s} \times K$, where $K$ is the number of trainable parameters for each membership function.
 
-对于每个状态变量 $s_j$，模糊化后得到隶属度：
+For each state variable $s_j$, the membership degree after fuzzification is:
 $$\begin{equation}
-   \mu_{j,m}(s_j) = \text{MF}_{j,m}(s_j; \theta_p)
+  \mu_{j,m}(s_j) = \text{MF}_{j,m}(s_j; \theta_p)
 \end{equation}$$
 
-其中 $\text{MF}_{j,m}$ 表示第 $j$ 个状态变量的第 $m$ 个隶属函数，$\theta_p$ 是前提参数集合。
+where $\text{MF}_{j,m}$ represents the $m$-th membership function of the $j$-th state variable, and $\theta_p$ is the set of premise parameters.
 
-规则触发强度通过T-范数(如乘积)计算：
+The rule firing strength is calculated using a T-norm (such as product):
 $$\begin{equation}
-   w_i = \prod_{j=1}^{N_s} \mu_{j,m_j}(s_j)
+  w_i = \prod_{j=1}^{N_s} \mu_{j,m_j}(s_j)
 \end{equation}$$
 
-其中 $i$ 是规则编号，$m_j$ 表示该规则对应的第 $j$ 个状态变量的隶属函数索引。
+where $i$ is the rule number, and $m_j$ represents the membership function index of the $j$-th state variable corresponding to that rule.
 
-### 后果部分：解释变量加权与输出
+### Consequent Part: Explanatory Variable Weighting and Output
 
-在后果部分，S-ANFIS针对每个状态(规则)处理**解释变量 $x$**，建立对应的子模型。
+In the consequent part, S-ANFIS processes **explanatory variables $x$** for each state (rule), establishing corresponding sub-models.
 
-对于第 $i$ 条规则，后果部分通常是解释变量的线性组合：
+For the $i$-th rule, the consequent part is typically a linear combination of explanatory variables:
 $$\begin{equation}
-   f_i(x) = p_{i0} + p_{i1}x_1 + p_{i2}x_2 + ... + p_{iN_x}x_{N_x}
+  f_i(x) = p_{i0} + p_{i1}x_1 + p_{i2}x_2 + ... + p_{iN_x}x_{N_x}
 \end{equation}$$
 
-其中 $p_{ij}$ 是需要优化的后果参数，$N_x$ 是解释变量的数量。后果参数总量为 $M^{N_s} \times (N_x+1)$。
+where $p_{ij}$ are the consequent parameters to be optimized, and $N_x$ is the number of explanatory variables. The total number of consequent parameters is $M^{N_s} \times (N_x+1)$.
 
-### 最终输出：加权模型组合
+### Final Output: Weighted Model Combination
 
-S-ANFIS的最终输出是各规则输出的加权平均：
+The final output of S-ANFIS is the weighted average of the outputs from all rules:
 $$\begin{equation}
   O = \frac{\sum_{i=1}^{M^{N_s}} w_i f_i(x)}{\sum_{i=1}^{M^{N_s}} w_i}
 \end{equation}$$
 
-这种结构使得模型能够根据状态变量的值自适应地切换不同的子模型，实现更精确的预测。
+This structure enables the model to adaptively switch between different sub-models based on the values of state variables, achieving more accurate predictions.
 
-## S-ANFIS网络示例
+## S-ANFIS Network Example
 ![sanfis](https://lukeecust.github.io/blog/assets/images/2025-06-02-state-adaptive-neuro-fuzzy-inference-system/sanfis_architecture.png){: .w-50 .left }
 
+As shown in the figure above, for an S-ANFIS network with $N_s=3$ state variables and $M=2$ membership functions per variable:
 
-如上图所示，对于一个具有 $N_s=3$ 个状态变量和每个变量 $M=2$ 个隶属函数的S-ANFIS网络：
+- Number of rules: $M^{N_s} = 2^3 = 8$ rules
+- Number of premise parameters: $M^{N_s} \times K$, depending on the membership function type
+- Number of consequent parameters: $M^{N_s} \times (N_x+1) = 8 \times 3 = 24$, indicating $N_x = 2$, i.e., there are 2 explanatory variables
 
-- 规则数量：$M^{N_s} = 2^3 = 8$ 条规则
-- 前提参数量：$M^{N_s} \times K$，取决于隶属函数类型
-- 后果参数量：$M^{N_s} \times (N_x+1) = 8 \times 3 = 24$，说明 $N_x = 2$，即有2个解释变量
+This network structure divides the input space into 8 fuzzy subspaces, each with its own parameter configuration.
 
-这样的网络结构将输入空间划分为8个模糊子空间，每个子空间有各自的参数配置。
+<br><br><br>
 
-## 实现细节
+## Implementation Details
 
-### 初始化
+### Initialization
 
-S-ANFIS的实现中，前提参数通常在工作空间内等间隔初始化，以确保隶属函数有足够的重叠。目前支持三种隶属函数：
+In S-ANFIS implementation, premise parameters are typically initialized at equal intervals within the workspace to ensure sufficient overlap of membership functions. Three types of membership functions are currently supported:
 
-1. **广义钟形函数**：$$\mu(x) = \frac{1}{1 + |\frac{x-c}{a}|^{2b}}$$
-2. **高斯函数**：$\mu(x) = e^{-\frac{(x-c)^2}{2\sigma^2}}$
-3. **S形函数**：$\mu(x) = \frac{1}{1 + e^{-\gamma(x-c)}}$
+1. **Generalized Bell Function**: $$\mu(x) = \frac{1}{1 + \left\lvert\frac{x-c}{a}\right\rvert^{2b}}$$
+2. **Gaussian Function**: $\mu(x) = e^{-\frac{(x-c)^2}{2\sigma^2}}$
+3. **Sigmoid Function**: $\mu(x) = \frac{1}{1 + e^{-\gamma(x-c)}}$
 
-后果参数则在 $[-0.5, 0.5]$ 范围内随机均匀初始化。
+Consequent parameters are randomly initialized with uniform distribution in the range of $[-0.5, 0.5]$.
 
-### 特征缩放
+### Feature Scaling
 
-输入数据在拟合模型前进行标准化处理：
+Input data is standardized before fitting the model:
 $$\begin{equation}
   \tilde{x}_n = \frac{x_n - \mu_{x,train}}{\sigma_{x,train}} \quad \text{and} \quad \tilde{s}_n = \frac{s_n - \mu_{s,train}}{\sigma_{s,train}}
 \end{equation}$$
 
+### Loss Function and Optimization
 
-###  损失函数与优化
-
-S-ANFIS采用均方误差(MSE)作为损失函数：
+S-ANFIS uses Mean Squared Error (MSE) as the loss function:
 $$\begin{equation}
   L(\theta) = MSE = \frac{1}{N}\sum_{n=1}^{N}(O_n - \tilde{y}_n)^2
 \end{equation}$$
 
-优化采用ADAM算法，并结合精英原则避免局部最优解，具体训练过程如伪代码所示：
+Optimization employs the ADAM algorithm combined with elitist principles to avoid local optima:
 ![sanfis-a](https://lukeecust.github.io/blog/assets/images/2025-06-02-state-adaptive-neuro-fuzzy-inference-system/lenha.al1-p8-lenha-large.png){: .w-50 .left }
 
+Data is divided into training and validation samples. $$\theta$$ represents the set of model weights $$\theta^p$$ (premise parameters) and $$\theta^c$$ (consequent parameters), which are initialized differently. Model weight updates are based on the training loss function $$\operatorname{MSE}\left(O_{\text {train }}, \tilde{y}_{\text {train }}^b\right)$$, where $$b$$ represents the batch. To prevent overfitting and achieve regularization, an early stopping mechanism is employed: whenever the validation sample error $$L^{\prime}(\theta)$$ improves, a copy of the current model parameters $$\theta^*$$ is saved. $p$ is used to record the number of consecutive deteriorations in the out-of-sample loss $$L\left(O_{v a l}, y_{v a l}^b\right)$$. The patience threshold $$p_{\max }$$ specifies the maximum number of consecutive deteriorations allowed. When $$p$$ reaches $$p_{\max }$$, the system compares the current model weights with the current optimal solution, replacing it if the new solution is better in terms of out-of-sample loss. Afterwards, all optimization parameters and model weights $$\theta$$ are reset, and iteration begins again in the next training cycle. The number of parameter updates depends on the number of training cycles and batch size, thus affecting computational resources—halving the batch size doubles the number of model weight updates.
 
-## S-ANFIS的优势与应用
+<br><br>
 
-S-ANFIS具有以下几个显著优势：
+## S-ANFIS Advantages and Applications
 
-1. **状态感知建模**：能够识别并适应系统的不同工作状态，为每种状态提供专门的子模型
-2. **保留ANFIS优点**：继承了ANFIS的专家知识转化能力、参数训练框架和可解释性
-3. **灵活的模型架构**：可以根据需要设置状态变量和解释变量，甚至可以允许它们重叠
-4. **状态识别能力**：前提部分本身可用于研究状态变量之间的动态交互，以及识别系统的不同工作模式
+S-ANFIS has several significant advantages:
 
-这种模型特别适用于具有多种工作状态或运行模式的复杂系统，如:
-- 具有模式切换的工业控制系统
-- 受外部因素影响的时间序列预测
-- 非线性动力学系统建模
+1. **State-Aware Modeling**: Able to identify and adapt to different operating states of the system, providing specialized sub-models for each state
+2. **Retains ANFIS Benefits**: Inherits ANFIS's ability to transform expert knowledge, parameter training framework, and interpretability
+3. **Flexible Model Architecture**: Can set state variables and explanatory variables according to needs, even allowing them to overlap
+4. **State Recognition Capability**: The premise part itself can be used to study dynamic interactions between state variables and identify different operating modes of the system
 
-## 实现示例
+This model is particularly suitable for complex systems with multiple operating states or modes, such as:
+- Industrial control systems with mode switching
+- Time series prediction influenced by external factors
+- Nonlinear dynamic system modeling
 
-S-ANFIS可通过PyTorch实现，以下是一个简单的使用示例：
+## Implementation Example
+
+S-ANFIS can be implemented using PyTorch. Here is a simple usage example:
 
 ```python
 import numpy as np
@@ -134,45 +137,44 @@ import torch
 from sanfis import SANFIS, plottingtools
 from sanfis.datagenerators import sanfis_generator
 
-# 设置随机种子
+# Set random seed
 np.random.seed(3)
 torch.manual_seed(3)
 
-# 生成数据
+# Generate data
 S, S_train, S_valid, X, X_train, X_valid, y, y_train, y_valid = sanfis_generator.gen_data_ts(
-    n_obs=1000, test_size=0.33, plot_dgp=True)
+  n_obs=1000, test_size=0.33, plot_dgp=True)
 
-# 定义隶属函数
+# Define membership functions
 membfuncs = [
-    {'function': 'sigmoid',
-     'n_memb': 2,
-     'params': {'c': {'value': [0.0, 0.0],
-                      'trainable': True},
-                'gamma': {'value': [-2.5, 2.5],
-                          'trainable': True}}},
+  {'function': 'sigmoid',
+   'n_memb': 2,
+   'params': {'c': {'value': [0.0, 0.0],
+            'trainable': True},
+        'gamma': {'value': [-2.5, 2.5],
+              'trainable': True}}},
 
-    {'function': 'sigmoid',
-     'n_memb': 2,
-     'params': {'c': {'value': [0.0, 0.0],
-                      'trainable': True},
-                'gamma': {'value': [-2.5, 2.5],
-                          'trainable': True}}}
+  {'function': 'sigmoid',
+   'n_memb': 2,
+   'params': {'c': {'value': [0.0, 0.0],
+            'trainable': True},
+        'gamma': {'value': [-2.5, 2.5],
+              'trainable': True}}}
 ]
 
-# 创建模型
+# Create model
 fis = SANFIS(membfuncs=membfuncs, n_input=2, scale='Std')
 loss_function = torch.nn.MSELoss(reduction='mean')
 optimizer = torch.optim.Adam(fis.parameters(), lr=0.005)
 
-# 训练模型
+# Train model
 history = fis.fit([S_train, X_train, y_train], [S_valid, X_valid, y_valid],
-                  optimizer, loss_function, epochs=1000)
+          optimizer, loss_function, epochs=1000)
 
-# 评估模型
+# Evaluate model
 y_pred = fis.predict([S, X])
 plottingtools.plt_prediction(y, y_pred)
 ```
+## Conclusion
 
-## 结论
-
-S-ANFIS通过区分状态变量和解释变量，为复杂系统建模提供了一种灵活且强大的框架。它不仅可以适应系统的不同工作状态，还保留了传统ANFIS的优势，包括专家知识转化、参数训练和可解释性。这种模型在处理具有多种工作模式或状态依赖行为的系统时尤其有效。
+S-ANFIS provides a flexible and powerful framework for modeling complex systems by distinguishing between state variables and explanatory variables. It not only adapts to different operating states of the system but also retains the advantages of traditional ANFIS, including expert knowledge transformation, parameter training, and interpretability. This model is particularly effective when dealing with systems that have multiple operating modes or state-dependent behaviors.
