@@ -1,5 +1,5 @@
 ---
-title: 状态自适应神经模糊推理系统S-ANFIS
+title: State-Adaptive Neuro-Fuzzy Inference System S-ANFIS
 author: lukeecust
 date: 2025-06-02 16:09:00 +0800
 categories: [Machine Learning, Model, Fuzzy]
