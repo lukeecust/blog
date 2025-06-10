@@ -63,7 +63,7 @@ A Sobol sequence is a series of $n$-dimensional points designed to be more unifo
 
 The following figure intuitively shows the difference between pseudorandom point sets and low-discrepancy sequence point sets:
 
-![Pseudorandom and Low-discrepancy Sequences](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/discrepancy.png)
+![Pseudorandom and Low-discrepancy Sequences](/blog/assets/images/2025-05-21-sobol-sequence-generator/discrepancy.png)
 _Left: two-dimensional point set composed of pseudorandom numbers; Right: point set from a low-discrepancy sequence (like Sobol sequence), showing more complete and uniform coverage of the space._
 
 
@@ -253,7 +253,7 @@ if dimension == 2:
     plt.show()
 ```
 
-![Sampling Methods Comparison](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/sampling_methods_2d.png)
+![Sampling Methods Comparison](/blog/assets/images/2025-05-21-sobol-sequence-generator/sampling_methods_2d.png)
 
 **Notes:**
 * `qmc.Sobol(d=dimension, scramble=False)`: Initializes a Sobol sequence generator. `d` is the dimension. `scramble=True` enables scrambling, which typically improves finite sample quality but loses pure determinism (scrambling itself is random, but for a fixed seed, the scrambled sequence is deterministic).

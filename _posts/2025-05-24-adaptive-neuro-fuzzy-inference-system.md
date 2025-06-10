@@ -43,7 +43,7 @@ This integrates fuzzy logic’s interpretability with neural networks’ adaptab
 
 ANFIS has five layers, each corresponding to a step in the fuzzy inference system:
 
-![anfis](https://lukeecust.github.io/blog/assets/images/2025-05-24-adaptive-neuro-fuzzy-inference-system/anfis_architecture.png){: .w-50 .left }
+![anfis](/blog/assets/images/2025-05-24-adaptive-neuro-fuzzy-inference-system/anfis_architecture.png){: .w-50 .left }
 
 1. **Fuzzification Layer (Layer 1)**  
    - Performs fuzzification on inputs.  
@@ -148,7 +148,7 @@ plt.show()
 - Single-output limitation.
 
 ## ANFIS-Related Work
-- [S-ANFIS](https://haoxiang.lu/blog/posts/state-adaptive-neuro-fuzzy-inference-system/): S-ANFIS is a straightforward extension of the ANFIS network, where inputs for the premise and consequent parts can be controlled separately.
+- [S-ANFIS](/blog/posts/state-adaptive-neuro-fuzzy-inference-system/): S-ANFIS is a straightforward extension of the ANFIS network, where inputs for the premise and consequent parts can be controlled separately.
 
 ## Conclusion
 

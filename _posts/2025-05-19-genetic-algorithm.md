@@ -48,7 +48,7 @@ Understanding genetic algorithms requires mastering the following core concepts:
 
 Genetic algorithms typically follow these basic steps:
 
-![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-19-genetic-algorithm/basic-flow-of-a-genetic-algorithm.png){:.left }
+![Desktop View](/blog/assets/images/2025-05-19-genetic-algorithm/basic-flow-of-a-genetic-algorithm.png){:.left }
 _Basic Flow of Genetic Algorithm_
 
 1.  **Initialization**

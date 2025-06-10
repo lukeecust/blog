@@ -63,7 +63,7 @@ Sobol 序列是一系列 $n$ 维点，它们被设计成比标准伪随机序列
 
 下图直观地展示了伪随机点集与低差异序列点集的区别：
 
-![伪随机和低差异序列](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/discrepancy.png)
+![伪随机和低差异序列](/blog/assets/images/2025-05-21-sobol-sequence-generator/discrepancy.png)
 _左边为伪随机数组成的二维点集，右边则是低差异序列（如 Sobol 序列）点集，对整个空间的覆盖更加完整和均匀。_
 
 ## Sobol 序列是如何生成的？
@@ -250,7 +250,7 @@ if dimension == 2:
     plt.show()
 ```
 
-![采样方法对比](https://lukeecust.github.io/blog/assets/images/2025-05-21-sobol-sequence-generator/sampling_methods_2d.png)
+![采样方法对比](/blog/assets/images/2025-05-21-sobol-sequence-generator/sampling_methods_2d.png)
 
 **说明：**
 *   `qmc.Sobol(d=dimension, scramble=False)`: 初始化一个 Sobol 序列生成器。`d` 是维度。`scramble=True` 会启用加扰，这通常能改善有限样本的质量，但会失去纯粹的确定性（加扰本身是随机的，但对于固定的种子，加扰后的序列是确定的）。

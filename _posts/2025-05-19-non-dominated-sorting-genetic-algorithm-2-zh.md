@@ -13,7 +13,7 @@ render_with_liquid: false
 
 
 
-NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)的扩展得到的非常流行的多目标优化算法，由 Deb 等人在 2002 年提出，它保留了GA的基本框架，并加入了非支配排序和多样性维持策略，是多目标优化中的经典方法之一。它在初代 NSGA 的基础上进行了改进，主要解决了 NSGA 计算复杂度高、缺乏精英保留策略以及需要指定共享参数等问题。NSGA-II 的核心思想是基于帕累托最优概念，通过非支配排序和拥挤度计算来指导种群的进化，从而找到一组近似的帕累托最优解集。
+NSGA-II 是一种由[GA](/blog/zh/genetic-algorithm/)的扩展得到的非常流行的多目标优化算法，由 Deb 等人在 2002 年提出，它保留了GA的基本框架，并加入了非支配排序和多样性维持策略，是多目标优化中的经典方法之一。它在初代 NSGA 的基础上进行了改进，主要解决了 NSGA 计算复杂度高、缺乏精英保留策略以及需要指定共享参数等问题。NSGA-II 的核心思想是基于帕累托最优概念，通过非支配排序和拥挤度计算来指导种群的进化，从而找到一组近似的帕累托最优解集。
 
 ## 核心概念
 
@@ -36,7 +36,7 @@ NSGA-II 是一种由[GA](https://lukeecust.github.io/blog/zh/genetic-algorithm/)
 
 *   **非支配排序 (Non-dominated Sorting):**
     这是 NSGA-II 的核心步骤之一。它将种群中的所有个体分到不同的非支配层级 (fronts)。
-![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/non-dominated-level.png){: .w-50 .left }
+![Desktop View](/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/non-dominated-level.png){: .w-50 .left }
 _非支配等级示意图_
     1.  第一层 (Front 1)：包含所有非支配解。
     2.  第二层 (Front 2)：移除第一层解后，在剩余解中找到所有非支配解。
@@ -53,7 +53,7 @@ _非支配等级示意图_
 
 ## NSGA-II 算法流程
 
-![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/algorithm-for-nsga-2.png){:.left }
+![Desktop View](/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/algorithm-for-nsga-2.png){:.left }
 _NSGA-II算法流程图_
 1.  **初始化种群 $P_0$:**
     随机生成一个规模为 $N$ 的初始种群 $P_0$。计算 $P_0$ 中每个个体的目标函数值。

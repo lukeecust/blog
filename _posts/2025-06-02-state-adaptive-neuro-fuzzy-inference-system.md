@@ -68,7 +68,7 @@ $$\begin{equation}
 This structure enables the model to adaptively switch between different sub-models based on the values of state variables, achieving more accurate predictions.
 
 ## S-ANFIS Network Example
-![sanfis](https://lukeecust.github.io/blog/assets/images/2025-06-02-state-adaptive-neuro-fuzzy-inference-system/sanfis_architecture.png){: .w-50 .left }
+![sanfis](/blog/assets/images/2025-06-02-state-adaptive-neuro-fuzzy-inference-system/sanfis_architecture.png){: .w-50 .left }
 
 As shown in the figure above, for an S-ANFIS network with $N_s=3$ state variables and $M=2$ membership functions per variable:
 
@@ -107,7 +107,7 @@ $$\begin{equation}
 \end{equation}$$
 
 Optimization employs the ADAM algorithm combined with elitist principles to avoid local optima:
-![sanfis-a](https://lukeecust.github.io/blog/assets/images/2025-06-02-state-adaptive-neuro-fuzzy-inference-system/lenha.al1-p8-lenha-large.png){: .w-50 .left }
+![sanfis-a](/blog/assets/images/2025-06-02-state-adaptive-neuro-fuzzy-inference-system/lenha.al1-p8-lenha-large.png){: .w-50 .left }
 
 Data is divided into training and validation samples. $$\theta$$ represents the set of model weights $$\theta^p$$ (premise parameters) and $$\theta^c$$ (consequent parameters), which are initialized differently. Model weight updates are based on the training loss function $$\operatorname{MSE}\left(O_{\text {train }}, \tilde{y}_{\text {train }}^b\right)$$, where $$b$$ represents the batch. To prevent overfitting and achieve regularization, an early stopping mechanism is employed: whenever the validation sample error $$L^{\prime}(\theta)$$ improves, a copy of the current model parameters $$\theta^*$$ is saved. $p$ is used to record the number of consecutive deteriorations in the out-of-sample loss $$L\left(O_{v a l}, y_{v a l}^b\right)$$. The patience threshold $$p_{\max }$$ specifies the maximum number of consecutive deteriorations allowed. When $$p$$ reaches $$p_{\max }$$, the system compares the current model weights with the current optimal solution, replacing it if the new solution is better in terms of out-of-sample loss. Afterwards, all optimization parameters and model weights $$\theta$$ are reset, and iteration begins again in the next training cycle. The number of parameter updates depends on the number of training cycles and batch size, thus affecting computational resources—halving the batch size doubles the number of model weight updates.
 

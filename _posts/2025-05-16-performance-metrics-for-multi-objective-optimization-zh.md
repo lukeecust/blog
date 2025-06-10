@@ -21,7 +21,7 @@ render_with_liquid: false
 
 ### **<font color="red">超体积（Hypervolume，HV）</font>**：
 
-![Desktop View]![Desktop View](https://lukeecust.github.io/blog/assets/images/2025-05-16-performance-metrics-for-multi-objective-optimization/1688440-fig-1-source-large.png){: .w-50 .left }{: .w-50 .left }
+![Desktop View]![Desktop View](/blog/assets/images/2025-05-16-performance-metrics-for-multi-objective-optimization/1688440-fig-1-source-large.png){: .w-50 .left }{: .w-50 .left }
 _两目标问题的超体积指标_
 
 **定义**：超体积指标衡量的是由解集中的点与一个预定义的参考点（Reference Point）在目标空间中所围成的区域的“体积”（或面积，如果是二维）。参考点通常选择一个在所有目标维度上都比解集中任何解都“差”的点（例如，对于最小化问题，参考点的每个分量都大于解集中对应目标分量的最大值）。**HV值越大，通常表示解集的综合性能越好**，因为它意味着解集更接近真实的帕累托前沿并且/或者具有更好的分布。
