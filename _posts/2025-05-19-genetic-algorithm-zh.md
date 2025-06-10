@@ -48,7 +48,7 @@ render_with_liquid: false
 
 遗传算法通常遵循以下基本步骤：
 
-![Desktop View](/blog/assets/images/2025-05-19-genetic-algorithm/basic-flow-of-a-genetic-algorithm.png){:.left }
+![Desktop View](/assets/images/2025-05-19-genetic-algorithm/basic-flow-of-a-genetic-algorithm.png){:.left }
 _遗传算法基本流程_
 
 1.  **创建初始种群 (Initialization)**

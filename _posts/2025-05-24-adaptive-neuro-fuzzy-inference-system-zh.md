@@ -43,7 +43,7 @@ ANFIS 将模糊推理系统的计算过程结构化为神经网络形式，并�
 
 ANFIS 的网络结构分为五层，每层对应模糊推理系统的一个步骤：
 
-![anfis](/blog/assets/images/2025-05-24-adaptive-neuro-fuzzy-inference-system/anfis_architecture.png){: .w-50 .left }
+![anfis](/assets/images/2025-05-24-adaptive-neuro-fuzzy-inference-system/anfis_architecture.png){: .w-50 .left }
 
 1. **模糊层（Layer 1）**  
    - 功能：对输入进行模糊化。  
@@ -149,7 +149,7 @@ plt.show()
 
 
 ## ANFIS相关工作
-- [S-ANFIS](/blog/zh/posts/state-adaptive-neuro-fuzzy-inference-system/)：S-ANFIS 是 ANFIS 网络的简单推广，其中模型前提和结果部分的输入可以分别控制。
+- [S-ANFIS](/zh/posts/state-adaptive-neuro-fuzzy-inference-system/)：S-ANFIS 是 ANFIS 网络的简单推广，其中模型前提和结果部分的输入可以分别控制。
 
 
 ## 结论

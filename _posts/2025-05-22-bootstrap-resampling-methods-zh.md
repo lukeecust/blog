@@ -20,7 +20,7 @@ Bootstrap 方法，正如其名"自举"，灵感来源于"拔着自己的鞋带�
 这是一种**重采样**方法，从具有相同样本量 $ n $ 的现有样本数据中独立地进行有放回采样，并在这些重采样数据中进行推断。
 
 **基本步骤** 
-![bootstrap](/blog/assets/images/2025-05-22-bootstrap-resampling-methods/bootstrap.png){: .w-50 .left }
+![bootstrap](/assets/images/2025-05-22-bootstrap-resampling-methods/bootstrap.png){: .w-50 .left }
 1.  **原始样本 (Original Sample)**: 我们有一个从未知总体中抽取的、包含 $ n $ 个观测值的原始样本 $ S = \{x_1, x_2, ..., x_n\} $。
 2.  **有放回重采样 (Resampling with Replacement)**: 从原始样本 $ S $ 中有放回地随机抽取 $ n $ 个观测值，形成一个新的样本，称为**自助样本 (Bootstrap Sample)** $ S^* $。由于是有放回抽样，$ S^* $ 中的某些原始观测值可能会出现多次，而另一些可能一次也不出现。
 3.  **计算统计量 (Calculate Statistic)**: 对每个自助样本 $ S^* $ 计算我们感兴趣的统计量 $ \hat{\theta}^* $ (例如均值、中位数、方差、相关系数等)。

@@ -13,7 +13,7 @@ render_with_liquid: false
 
 
 
-NSGA-II is a popular multi-objective optimization algorithm extended from [GA](/blog/zh/genetic-algorithm/), proposed by Deb et al. in 2002. It maintains GA's basic framework while incorporating non-dominated sorting and diversity preservation strategies, making it a classic approach in multi-objective optimization. It improves upon the original NSGA by addressing issues such as high computational complexity, lack of elitism, and the need for sharing parameters. NSGA-II's core concept is based on Pareto optimality, using non-dominated sorting and crowding distance calculations to guide population evolution towards finding an approximate Pareto-optimal solution set.
+NSGA-II is a popular multi-objective optimization algorithm extended from [GA](/zh/genetic-algorithm/), proposed by Deb et al. in 2002. It maintains GA's basic framework while incorporating non-dominated sorting and diversity preservation strategies, making it a classic approach in multi-objective optimization. It improves upon the original NSGA by addressing issues such as high computational complexity, lack of elitism, and the need for sharing parameters. NSGA-II's core concept is based on Pareto optimality, using non-dominated sorting and crowding distance calculations to guide population evolution towards finding an approximate Pareto-optimal solution set.
 
 ## Core Concepts
 
@@ -36,7 +36,7 @@ Before understanding NSGA-II, it's essential to grasp these core concepts:
 
 *   **Non-dominated Sorting:**
     This is a key step in NSGA-II. It divides the population into different non-dominated fronts.
-![Desktop View](/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/non-dominated-level.png){: .w-50 .left }
+![Desktop View](/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/non-dominated-level.png){: .w-50 .left }
 _Non-dominated levels illustration_
     1.  First Front: Contains all non-dominated solutions.
     2.  Second Front: Non-dominated solutions after removing First Front solutions.
@@ -53,7 +53,7 @@ _Non-dominated levels illustration_
 
 ## NSGA-II Algorithm Flow
 
-![Desktop View](/blog/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/algorithm-for-nsga-2.png){:.left }
+![Desktop View](/assets/images/2025-05-19-non-dominated-sorting-genetic-algorithm-2/algorithm-for-nsga-2.png){:.left }
 _NSGA-II algorithm flowchart_
 1.  **Initialize Population $P_0$:**
     Generate random initial population of size $N$. Calculate objective values for each individual.

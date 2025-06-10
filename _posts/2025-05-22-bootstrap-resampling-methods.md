@@ -20,7 +20,7 @@ Bootstrap method, as its name suggests, draws inspiration from the absurd story 
 This is a **resampling** method that involves independent sampling with replacement from existing sample data with the same sample size $ n $, and making inferences based on these resampled data.
 
 **Basic Steps** 
-![bootstrap](/blog/assets/images/2025-05-22-bootstrap-resampling-methods/bootstrap.png){: .w-50 .left }
+![bootstrap](/assets/images/2025-05-22-bootstrap-resampling-methods/bootstrap.png){: .w-50 .left }
 1.  **Original Sample**: We have an original sample $ S = \{x_1, x_2, ..., x_n\} $ containing $ n $ observations drawn from an unknown population.
 2.  **Resampling with Replacement**: Randomly draw $ n $ observations with replacement from the original sample $ S $ to form a new sample, called a **Bootstrap Sample** $ S^* $. Since sampling is done with replacement, some original observations may appear multiple times in $ S^* $, while others may not appear at all.
 3.  **Calculate Statistic**: For each bootstrap sample $ S^* $, calculate the statistic $ \hat{\theta}^* $ of interest (e.g., mean, median, variance, correlation coefficient, etc.).
