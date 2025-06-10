@@ -9,8 +9,6 @@ math: true
 translation_id: adaptive-neuro-fuzzy-inference-system
 permalink: /zh/posts/adaptive-neuro-fuzzy-inference-system/
 render_with_liquid: false
-links:
-  to_sanfis_post: {% post_url 2025-06-02-state-adaptive-neuro-fuzzy-inference-system-zh %}
 ---
 
 自适应神经模糊推理系统（Adaptive Neuro-Fuzzy Inference System, ANFIS）融合了神经网络和模糊逻辑，由 Jyh-Shing Roger Jang 于 1993 年首次提出。它结合模糊推理系统的可解释性和神经网络的自适应学习能力，通过模糊规则和神经网络的训练机制，构建输入与输出之间的映射关系。ANFIS 擅长处理不确定性和非线性问题，可对输入与输出的复杂关系进行建模。
