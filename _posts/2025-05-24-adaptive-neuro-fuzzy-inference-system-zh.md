@@ -151,7 +151,7 @@ plt.show()
 
 
 ## ANFIS相关工作
-- [S-ANFIS]({{ page.links.to_sanfis_post }})：S-ANFIS 是 ANFIS 网络的简单推广，其中模型前提和结果部分的输入可以分别控制。
+- [S-ANFIS](https://haoxiang.lu/blog/zh/posts/state-adaptive-neuro-fuzzy-inference-system/)：S-ANFIS 是 ANFIS 网络的简单推广，其中模型前提和结果部分的输入可以分别控制。
 
 
 ## 结论

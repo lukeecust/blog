@@ -13,7 +13,7 @@ render_with_liquid: false
 
 
 
-NSGA-II is a popular multi-objective optimization algorithm extended from [GA](/zh/genetic-algorithm/), proposed by Deb et al. in 2002. It maintains GA's basic framework while incorporating non-dominated sorting and diversity preservation strategies, making it a classic approach in multi-objective optimization. It improves upon the original NSGA by addressing issues such as high computational complexity, lack of elitism, and the need for sharing parameters. NSGA-II's core concept is based on Pareto optimality, using non-dominated sorting and crowding distance calculations to guide population evolution towards finding an approximate Pareto-optimal solution set.
+NSGA-II is a popular multi-objective optimization algorithm extended from [GA](https://haoxiang.lu/blog/posts/genetic-algorithm/), proposed by Deb et al. in 2002. It maintains GA's basic framework while incorporating non-dominated sorting and diversity preservation strategies, making it a classic approach in multi-objective optimization. It improves upon the original NSGA by addressing issues such as high computational complexity, lack of elitism, and the need for sharing parameters. NSGA-II's core concept is based on Pareto optimality, using non-dominated sorting and crowding distance calculations to guide population evolution towards finding an approximate Pareto-optimal solution set.
 
 ## Core Concepts
 

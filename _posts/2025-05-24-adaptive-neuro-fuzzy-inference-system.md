@@ -9,8 +9,6 @@ math: true
 translation_id: adaptive-neuro-fuzzy-inference-system
 permalink: /posts/adaptive-neuro-fuzzy-inference-system/
 render_with_liquid: false
-links:
-  to_sanfis_post: {% post_url 2025-06-02-state-adaptive-neuro-fuzzy-inference-system %}
 ---
 
 An adaptive neuro-fuzzy inference system (ANFIS) integrates neural networks and fuzzy logic, first introduced by Jyh-Shing Roger Jang in 1993. It combines the interpretability of fuzzy inference systems with the adaptive learning ability of neural networks to build a mapping between inputs and outputs using fuzzy rules and network training. ANFIS excels at handling uncertainty and nonlinear problems by modeling complex relationships between inputs and outputs.
@@ -150,7 +148,7 @@ plt.show()
 - Single-output limitation.
 
 ## ANFIS-Related Work
-- [S-ANFIS]({{ page.links.to_sanfis_post }}): S-ANFIS is a straightforward extension of the ANFIS network, where inputs for the premise and consequent parts can be controlled separately.
+- [S-ANFIS](https://haoxiang.lu/blog/posts/state-adaptive-neuro-fuzzy-inference-system/): S-ANFIS is a straightforward extension of the ANFIS network, where inputs for the premise and consequent parts can be controlled separately.
 
 ## Conclusion
 

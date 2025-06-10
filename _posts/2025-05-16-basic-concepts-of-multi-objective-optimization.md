@@ -107,7 +107,7 @@ Methods can be classified into three categories based on when the decision-maker
     *   **Advantages:** The decision-maker can gradually learn problem characteristics and adjust preferences, avoiding the difficulties of preference setting in a priori methods and the overwhelming number of solutions in a posteriori methods.
     *   **Disadvantages:** Requires significant time commitment from the decision-maker to participate in the optimization process.
 
-## [Performance Metrics for Multi-Objective Optimization]({% post_url 2025-05-16-performance-metrics-for-multi-objective-optimization %})
+## [Performance Metrics for Multi-Objective Optimization](https://haoxiang.lu/blog/posts/performance-metrics-for-multi-objective-optimization/)
 How to evaluate the "goodness" of a Pareto front found by a multi-objective optimization algorithm? Common metrics include:
 1.  **Hypervolume (HV):** Measures the volume of the objective space dominated by the solution set and bounded by a reference point. Larger is better.
 2.  **Generational Distance (GD):** Measures the average distance from the found solution set to the true (or best known) Pareto front. Smaller is better.
