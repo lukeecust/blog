@@ -148,7 +148,7 @@ plt.show()
 - Single-output limitation.
 
 ## ANFIS-Related Work
-- [S-ANFIS](/posts/state-adaptive-neuro-fuzzy-inference-system/): S-ANFIS is a straightforward extension of the ANFIS network, where inputs for the premise and consequent parts can be controlled separately.
+- [S-ANFIS]({% post_url 2025-06-02-state-adaptive-neuro-fuzzy-inference-system %}): S-ANFIS is a straightforward extension of the ANFIS network, where inputs for the premise and consequent parts can be controlled separately.
 
 ## Conclusion
 
