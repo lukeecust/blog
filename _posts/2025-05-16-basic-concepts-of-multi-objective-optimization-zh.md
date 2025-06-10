@@ -111,7 +111,7 @@ render_with_liquid: false
       - **优点：** 决策者可以逐步学习问题特性并调整偏好，避免了先验方法中偏好设定的困难和后验方法中解集过于庞大的问题。
       - **缺点：** 需要决策者花费较多时间参与优化过程。
 
-## [多目标优化的性能度量](/zh/posts/performance-metrics-for-multi-objective-optimization/)
+## [多目标优化的性能度量]({% post_url 2025-05-16-performance-metrics-for-multi-objective-optimization-zh %})
 
 1. **Hypervolume (HV)**: 衡量解集覆盖的超体积，越大越好。
 2. **Generational Distance (GD)**: 衡量找到的解集到真实帕累托前沿的平均距离，越小越好。
