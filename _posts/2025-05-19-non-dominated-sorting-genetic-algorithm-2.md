@@ -3,6 +3,7 @@ title: Non-dominated Sorting Genetic Algorithm II (NSGA-II)
 author: lukeecust
 date: 2025-05-19 22:09:00 +0800
 categories: [Multi-Objective Optimization, Optimization Algorithm]
+tags: [optimization]
 lang: en
 math: true
 translation_id: non-dominated-sorting-genetic-algorithm-2
