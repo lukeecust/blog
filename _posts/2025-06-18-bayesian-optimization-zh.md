@@ -11,7 +11,7 @@ permalink: /zh/posts/bayesian-optimization/
 render_with_liquid: false
 ---
 
-在机器学习领域，模型的性能在很大程度上取决于超参数（Hyperparameters）的选择。然而，寻找最优超参数组合的过程，即超参数优化（Hyperparameter Optimization, HPO），是一个极具挑战性的任务。本文将深入探讨解决这一问题的强大框架——贝叶斯优化（Bayesian Optimization, BO），从其数学基础出发，剖析其核心组件，并最终通过 `hyperopt` 库展示其在实践中的应用。
+在机器学习领域，模型性能在很大程度上取决于超参数（Hyperparameters）的选择。然而，寻找最优超参数组合的过程——即超参数优化（Hyperparameter Optimization, HPO）——始终是一项具有挑战性的任务。本文将聚焦当前该领域的主流方法之一：贝叶斯优化（Bayesian Optimization, BO）。我们将从其数学原理出发，深入解析贝叶斯优化的核心组成部分，并通过 `hyperopt` 库演示其在实际应用中的效果。
 
 ## 超参数优化：一个黑盒优化问题
 
@@ -41,10 +41,10 @@ $$
 算法的迭代流程如下：
 1.  **初始化**：随机采样少量点，构成初始数据集 $D_0 = \{(x_1, y_1), ..., (x_n, y_n)\}$。
 2.  **循环迭代** for $t=1, 2, ...$:
-    a.  使用当前数据 $D_{t-1}$ 拟合概率代理模型，更新对 $f(x)$ 的后验概率分布。
-    b.  优化采集函数 $\alpha(x)$，找到下一个评估点：$x_t = \underset{x \in \mathcal{X}}{\text{argmax}} \, \alpha(x)$。
-    c.  评估 $y_t = f(x_t)$。
-    d.  更新数据集 $D_t = D_{t-1} \cup \{(x_t, y_t)\}$。
+    a.  使用当前数据 $$D_{t-1}$$ 拟合概率代理模型，更新对 $$f(x)$$ 的后验概率分布。
+    b.  优化采集函数 $$\alpha(x)$$，找到下一个评估点：$$x_t = \underset{x \in \mathcal{X}}{\text{argmax}} \, \alpha(x)$$。
+    c.  评估 $$y_t = f(x_t)$$。
+    d.  更新数据集 $$D_t = D_{t-1} \cup \{(x_t, y_t)\}$$。
 3.  **终止**后，从所有已评估的点中返回最优者。
 
 ###  组件一：概率代理模型 - 学习目标函数
@@ -59,32 +59,32 @@ $$
 f(x) \sim \mathcal{GP}(m(x), k(x, x'))
 \end{equation}
 $$
-**高斯过程回归（GPR）** 利用 GP 先验和已观测数据 $D_t$，可以推导出在任意新点 $x_*$ 处的后验分布，该分布仍为高斯分布 $p(f(x_*) | D_t, x_*) = \mathcal{N}(\mu_t(x_*), \sigma_t^2(x_*))$，其均值和方差有解析解：
+**高斯过程回归（GPR）** 利用 GP 先验和已观测数据 $D_t$，可以推导出在任意新点 $$x_\ast$$ 处的后验分布，该分布仍为高斯分布 $$p(f(x_\ast) | D_t, x_\ast) = \mathcal{N}(\mu_t(x_\ast), \sigma_t^2(x_\ast))$$，其均值和方差有解析解：
 $$
 \begin{equation}
-\mu_t(x_*) = \mathbf{k}_*^T (\mathbf{K} + \sigma_n^2\mathbf{I})^{-1} \mathbf{y}
+\mu_t(x_\ast) = \mathbf{k}_\ast^T (\mathbf{K} + \sigma_n^2\mathbf{I})^{-1} \mathbf{y}
 \end{equation}
 $$
 $$
 \begin{equation}
-\sigma_t^2(x_*) = k(x_*, x_*) - \mathbf{k}_*^T (\mathbf{K} + \sigma_n^2\mathbf{I})^{-1} \mathbf{k}_*
+\sigma_t^2(x_\ast) = k(x_\ast, x_\ast) - \mathbf{k}_\ast^T (\mathbf{K} + \sigma_n^2\mathbf{I})^{-1} \mathbf{k}_\ast
 \end{equation}
 $$
-其中 $\mathbf{K}$ 是核矩阵，$\mathbf{k}_*$ 是新点与观测点间的核向量，$\mathbf{y}$ 是观测值向量。$\mu_t(x_*)$ 是对 $f(x_*)$ 的最佳预测，而 $\sigma_t^2(x_*)$ 则量化了该预测的不确定性。
+其中 $\mathbf{K}$ 是核矩阵，$\mathbf{k}_\ast$ 是新点与观测点间的核向量，$\mathbf{y}$ 是观测值向量。$\mu_t(x_\ast)$ 是对 $f(x_\ast)$ 的最佳预测，而 $\sigma_t^2(x_\ast)$ 则量化了该预测的不确定性。
 
 ####  树状结构Parzen估计器 (TPE)：实用的高效替代方案
 
 与 GPR 直接建模 $p(y|x)$ 不同，**TPE（Tree-structured Parzen Estimator）** 通过贝叶斯定理转而对 $p(x|y)$ 和 $p(y)$ 进行建模。其核心思想是：
 
-1.  **划分数据**：根据一个分位数阈值 $y^*$（例如，取所有观测值的最好15%），将历史观测数据划分为“好”的一组 $\mathcal{D}_g = \{(x,y) | y < y^*\}$ 和“坏”的一组 $\mathcal{D}_b = \{(x,y) | y \ge y^*\}$。
-2.  **建立密度模型**：分别为这两组数据的超参数 $x$ 建立概率密度模型。好的参数分布为 $l(x) = p(x|y<y^*)$，坏的参数分布为 $g(x) = p(x|y \ge y^*)$。这些密度函数通常使用Parzen窗（即核密度估计）来估计。
+1.  **划分数据**：根据一个分位数阈值 $y^\ast$（例如，取所有观测值的最好15%），将历史观测数据划分为“好”的一组 $\mathcal{D}_g = \{(x,y) | y < y^\ast\}$ 和“坏”的一组 $\mathcal{D}_b = \{(x,y) | y \ge y^\ast\}$。
+2.  **建立密度模型**：分别为这两组数据的超参数 $x$ 建立概率密度模型。好的参数分布为 $l(x) = p(x|y<y^\ast)$，坏的参数分布为 $g(x) = p(x|y \ge y^\ast)$。这些密度函数通常使用Parzen窗（即核密度估计）来估计。
 3.  **优化采集函数**：TPE的采集函数与期望改进量（EI）相关，最终目标是寻找使比值 $l(x)/g(x)$ 最大化的点 $x$。直观上，这意味着我们要寻找那些在“好”的分布中概率很高，但在“坏”的分布中概率很低的的参数点。
 
 TPE的主要优势在于它能自然地处理复杂的、包含条件和离散变量的树状结构搜索空间，并且计算上比GPR更具扩展性。
 
 | 特性 | 高斯过程回归 (GPR) | 树状结构Parzen估计器 (TPE) |
 | :--- | :--- | :--- |
-| **核心思想** | 建模 $p(y|x)$，直接估计函数值的分布 | 建模 $p(x|y)$，估计参数在好/坏情况下的分布 |
+| **核心思想** | 建模 $$p(y|x)$$，直接估计函数值的分布 | 建模 $$p(x|y)$$，估计参数在好/坏情况下的分布 |
 | **数学基础** | 高斯过程、贝叶斯线性回归 | 贝叶斯定理、核密度估计（Parzen窗） |
 | **参数空间** | 最适合**连续**和**低维**空间 | 极佳地处理**离散、条件参数**和**高维**空间 |
 | **计算复杂度** | $O(n^3)$，受限于核矩阵求逆，扩展性较差 | $O(n \log n)$，扩展性更好 |
