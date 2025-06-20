@@ -29,12 +29,12 @@ render_with_liquid: false
 
 假设预测值为 $\hat{y}$，真实值为 $y$，那么误差就是 $e = y - \hat{y}$。Huber损失 $L_{\delta}(e)$ 的计算方式如下：
 
-$$
+$$\begin{equation}
 L_\delta(e)= \begin{cases}\frac{1}{2} e^2, & \text{ if } |e| \le \delta \\ \delta\left(|e|-\frac{1}{2} \delta\right), & \text{ if } |e| > \delta\end{cases}
-$$
+\end{equation}$$
 
-1.  **当误差的绝对值 $|e|$ 小于等于 $\delta$ 时**：损失函数就是 $\frac{1}{2}e^2$。这正是MSE的形式。在这个区间内，我们认为误差是“正常的”，使用二次惩罚可以让模型在接近最优解时进行更精细的调整。
-2.  **当误差的绝对值 $|e|$ 大于 $\delta$ 时**：损失函数变为 $\delta(|e| - \frac{1}{2}\delta)$。这是一个线性函数，其增长方式和MAE类似。这意味着，当误差大到被判定为“异常值”时，我们只给予它线性的惩罚，避免其对总损失产生不成比例的巨大影响。
+1.  **当误差的绝对值 $\lvert e \rvert$ 小于等于 $\delta$ 时**：损失函数就是 $\frac{1}{2}e^2$。这正是MSE的形式。在这个区间内，我们认为误差是"正常的"，使用二次惩罚可以让模型在接近最优解时进行更精细的调整。
+2.  **当误差的绝对值 $\lvert e \rvert$ 大于 $\delta$ 时**：损失函数变为 $\delta(\lvert e \rvert - \frac{1}{2}\delta)$。这是一个线性函数，其增长方式和MAE类似。这意味着，当误差大到被判定为"异常值"时，我们只给予它线性的惩罚，避免其对总损失产生不成比例的巨大影响。
 
 最巧妙的是，这个函数在分界点 $e = \pm\delta$ 处，不仅函数值是连续的，其导数也是连续的。这解决了MAE在零点不可导的问题，保证了基于梯度的优化算法可以顺畅运行。
 
@@ -111,9 +111,9 @@ loss = loss_fn(y_pred, y_true)
 print(f"Huber Loss: {loss.item()}")
 ```
 参数说明：`reduction='mean'`
-`'none'`：返回每个样本的 loss，不进行汇总；
-`'mean'`：返回所有 loss 的平均值（默认）；
-`'sum'`：返回所有 loss 的总和。
+* `'none'`：返回每个样本的 loss，不进行汇总；
+* `'mean'`：返回所有 loss 的平均值（默认）；
+* `'sum'`：返回所有 loss 的总和。
 
 
 ## **结论**
