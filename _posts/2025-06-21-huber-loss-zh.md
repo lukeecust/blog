@@ -95,6 +95,35 @@ loss_val = huber_loss(y_true, y_pred, delta=1.0)
 print(f"Huber Loss: {loss_val}")
 ```
 
+### Scikit-learn 实现
+
+scikit-learn提供了基于Huber损失的回归模型`HuberRegressor`，专为处理含有异常值的数据集设计：
+
+```python
+from sklearn.linear_model import HuberRegressor
+import numpy as np
+
+# 准备数据
+X = np.array([[1], [2], [3], [4]])
+y = np.array([1, 2, 3, 10])  # 最后一个是异常值
+
+# 创建并训练HuberRegressor模型
+huber = HuberRegressor(epsilon=1.35)  # epsilon相当于delta参数
+huber.fit(X, y)
+
+# 预测
+y_pred = huber.predict(X)
+print("预测值:", y_pred)
+print("模型系数:", huber.coef_)
+print("模型截距:", huber.intercept_)
+```
+
+`HuberRegressor`的重要参数：
+- `epsilon`：类似于我们讨论的δ参数，决定了MSE和MAE行为的切换点
+- `alpha`：正则化参数，控制L2正则化的强度
+- `max_iter`：最大迭代次数
+- `tol`：收敛容差
+
 ###  PyTorch 实现
 ```python
 import torch

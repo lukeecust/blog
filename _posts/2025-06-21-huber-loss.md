@@ -94,6 +94,34 @@ y_pred = np.array([1.1, 2.2, 2.9, 5.0])
 loss_val = huber_loss(y_true, y_pred, delta=1.0)
 print(f"Huber Loss: {loss_val}")
 ```
+### Scikit-learn Implementation
+
+Scikit-learn provides a regression model based on Huber loss called `HuberRegressor`, which is specifically designed for datasets containing outliers:
+
+```python
+from sklearn.linear_model import HuberRegressor
+import numpy as np
+
+# Prepare data
+X = np.array([[1], [2], [3], [4]])
+y = np.array([1, 2, 3, 10])  # The last one is an outlier
+
+# Create and train HuberRegressor model
+huber = HuberRegressor(epsilon=1.35)  # epsilon is equivalent to the delta parameter
+huber.fit(X, y)
+
+# Prediction
+y_pred = huber.predict(X)
+print("Predictions:", y_pred)
+print("Model coefficients:", huber.coef_)
+print("Model intercept:", huber.intercept_)
+```
+
+Important parameters of `HuberRegressor`:
+- `epsilon`: Similar to the δ parameter we discussed, determines the switching point between MSE and MAE behavior
+- `alpha`: Regularization parameter, controls the strength of L2 regularization
+- `max_iter`: Maximum number of iterations
+- `tol`: Convergence tolerance
 
 ###  PyTorch Implementation
 ```python
