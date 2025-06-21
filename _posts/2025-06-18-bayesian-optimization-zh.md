@@ -134,129 +134,227 @@ TPE的主要优势在于它能自然地处理复杂的、包含条件和离散�
 
 贝叶斯优化是实现 HPO 的一种先进且高效的方法，有时也被应用于 NAS 任务中。
 
-## 使用 `hyperopt` (TPE) 进行 XGBoost 调优
 
-`hyperopt` 是一个实现了SMBO框架的流行Python库，其核心算法是TPE。下面，我们用它来为一个 `XGBoost` 分类器寻找最优超参数。
+## 使用 `optuna` (TPE) 进行 XGBoost 调优
 
-### 第1步：定义目标函数 $f(x)$
+`optuna` 是一个现代化的自动超参数优化框架，它默认使用 TPE 算法，并提供了非常直观和灵活的 "Define-by-Run" API。下面，我们用它来为一个 `XGBoost` 分类器寻找最优超参数。
+
+### 第1步：加载数据
+首先需要准备好用于模型训练和评估的数据。
+
 ```python
 import xgboost as xgb
 from sklearn.model_selection import cross_val_score
 from sklearn.datasets import load_iris
-from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-import numpy as np
+import optuna
 
 # 1. 加载数据
 iris = load_iris()
 X = iris.data
 y = iris.target
+```
 
+### 第2步：定义目标函数 $f(x)$
+这是 `optuna` 与 `hyperopt` 核心区别所在。在 `optuna` 中，搜索空间是在目标函数内部通过 `trial` 对象动态定义的。目标函数接收一个 `trial` 对象作为参数，并返回一个需要被优化的数值（如损失或准确率）。
+
+```python
 # 2. 定义目标函数
-def objective(params):
-    # hyperopt 会传递浮点数，某些参数需要转为整数
-    params['max_depth'] = int(params['max_depth'])
-    params['n_estimators'] = int(params['n_estimators'])
+def objective(trial):
+  # 在函数内部，通过 trial 对象建议(suggest)超参数的值
+  # 这就是 "Define-by-Run" API
+  params = {
+    'n_estimators': trial.suggest_int('n_estimators', 50, 500, step=25),
+    'max_depth': trial.suggest_int('max_depth', 3, 15),
+    'learning_rate': trial.suggest_float('learning_rate', 0.005, 0.2, log=True),
+    'gamma': trial.suggest_float('gamma', 0, 0.5),
+    'colsample_bytree': trial.suggest_float('colsample_bytree', 0.5, 1.0),
+    'subsample': trial.suggest_float('subsample', 0.5, 1.0),
+    'booster': trial.suggest_categorical('booster', ['gbtree', 'gblinear', 'dart']),
     
-    clf = xgb.XGBClassifier(
-        **params,
-        use_label_encoder=False,
-        eval_metric='mlogloss'
-    )
-    
-    # 使用交叉验证评估模型，返回负的准确率作为损失
-    accuracy = cross_val_score(clf, X, y, cv=5).mean()
-    loss = 1 - accuracy
-    
-    # hyperopt 需要一个字典返回，必须包含 'loss' 和 'status'
-    return {'loss': loss, 'status': STATUS_OK, 'accuracy': accuracy}
-```
-
-### 第2步：定义搜索空间 $\mathcal{X}$
-```python
-# 3. 定义搜索空间
-space = {
-    'n_estimators': hp.quniform('n_estimators', 50, 500, 25),
-    'max_depth': hp.quniform('max_depth', 3, 15, 1),
-    'learning_rate': hp.loguniform('learning_rate', np.log(0.005), np.log(0.2)),
-    'gamma': hp.uniform('gamma', 0, 0.5),
-    'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1.0),
-    'subsample': hp.uniform('subsample', 0.5, 1.0)
-}
-```
-**参数说明：**
-
-- **`hp.quniform(label, low, high, q)`**: 离散均匀分布
-  - `label`: 参数标签名称
-  - `low`: 最小值
-  - `high`: 最大值
-  - `q`: 离散化步长
-
-- **`hp.uniform(label, low, high)`**: 连续均匀分布
-  - `label`: 参数标签名称
-  - `low`: 最小值
-  - `high`: 最大值
-
-- **`hp.loguniform(label, low, high)`**: 对数均匀分布
-  - `label`: 参数标签名称
-  - `low`: 最小值的对数
-  - `high`: 最大值的对数
-
-- **其他可用分布函数：**
-  - `hp.choice(label, options)`: 从选项中选择
-  - `hp.randint(label, upper)`: 随机整数 [0, upper)
-  - `hp.normal(label, mu, sigma)`: 正态分布
-  - `hp.lognormal(label, mu, sigma)`: 对数正态分布
+    # 固定参数可以直接写入
+    'use_label_encoder': False,
+    'eval_metric': 'mlogloss'
+  }
   
-### 第3步：运行贝叶斯优化
+  clf = xgb.XGBClassifier(**params)
+  
+  # 使用交叉验证评估模型，返回负的准确率作为损失
+  accuracy = cross_val_score(clf, X, y, cv=5).mean()
+  
+  # Optuna 会根据 study 的优化方向来处理这个返回值
+  # 我们希望最小化损失，所以返回 1 - accuracy
+  loss = 1 - accuracy
+  return loss
+```
+
+**`trial` 对象方法说明：**
+`trial` 对象是在目标函数内部用于定义搜索空间的核心工具。
+
+- **`trial.suggest_int(name, low, high, step=1, log=False)`**: 建议一个整数。
+  - `name` (str): 参数的名称，在一次 `study` 中必须是唯一的。
+  - `low` (int): 搜索范围的下界（包含）。
+  - `high` (int): 搜索范围的上界（包含）。
+  - `step` (int): 建议值的步长。例如 `step=25` 会从 `[50, 75, 100, ...]` 中取值。
+  - `log` (bool): 若为 `True`，则在对数尺度上采样，适用于跨数量级的整数。
+
+- **`trial.suggest_float(name, low, high, step=None, log=False)`**: 建议一个浮点数。
+  - `name` (str): 参数的名称。
+  - `low` (float): 搜索范围的下界（包含）。
+  - `high` (float): 搜索范围的上界（包含）。
+  - `step` (float, 可选): 如果指定，则建议离散的浮点数值。
+  - `log` (bool): 若为 `True`，则在对数尺度上采样。这对于学习率 (`learning_rate`) 等参数非常有效，因为它能更均匀地探索 `0.001` 和 `0.01` 之间，以及 `0.01` 和 `0.1` 之间的区域。
+
+- **`trial.suggest_categorical(name, choices)`**: 从一个列表中建议一个类别。
+  - `name` (str): 参数的名称。
+  - `choices` (list): 包含所有可能选项的列表，例如 `['gbtree', 'dart']`。
+
+- **`trial.suggest_discrete_uniform(name, low, high, q)`**: 建议一个离散均匀分布的值。
+  - `name` (str): 参数的名称。
+  - `low` (float): 搜索范围的下界（包含）。
+  - `high` (float): 搜索范围的上界（包含）。
+  - `q` (float): 离散化步长。
+
+- **`trial.suggest_loguniform(name, low, high)`**: 建议一个对数均匀分布的值（已弃用，推荐使用 `suggest_float` 并设置 `log=True`）。
+
+- **`trial.suggest_uniform(name, low, high)`**: 建议一个均匀分布的值（已弃用，推荐使用 `suggest_float`）。
+**与 `hyperopt` 分布函数的映射关系：**
+
+| hyperopt | optuna | 含义 |
+|----------|--------|------|
+| `hp.choice(label, options)` | `trial.suggest_categorical(name, choices)` | 从离散选项中选择一个值，适用于类别型参数 |
+| `hp.randint(label, upper)` | `trial.suggest_int(name, 0, upper-1)` | 返回范围 [0, upper-1] 内的随机整数 |
+| `hp.uniform(label, low, high)` | `trial.suggest_float(name, low, high)` | 在 [low, high] 范围内均匀采样浮点数 |
+| `hp.quniform(label, low, high, q)` | `trial.suggest_float(name, low, high, step=q)` | 在 [low, high] 范围内按步长 q 均匀采样离散值 |
+| `hp.loguniform(label, low, high)` | `trial.suggest_float(name, np.exp(low), np.exp(high), log=True)` | 在对数空间上均匀采样，适用于需要探索多个数量级的参数 |
+| `hp.qloguniform(label, low, high, q)` | `trial.suggest_float(name, np.exp(low), np.exp(high), log=True, step=q)` | 在对数空间上按步长 q 均匀采样离散值 |
+| `hp.normal(label, mu, sigma)` | *无直接对应，可通过自定义采样器实现* | 从正态分布（均值 mu，标准差 sigma）中采样 |
+| `hp.lognormal(label, mu, sigma)` | *无直接对应，可通过自定义采样器实现* | 从对数正态分布中采样，适用于非负且有长尾分布的参数 |
+
+### 第3步：创建 Study 并运行优化
+在 `optuna` 中，我们首先创建一个 `study` 对象来管理整个优化过程，然后调用其 `optimize` 方法来启动优化。
+
 ```python
-# 4. 运行优化
-trials = Trials()
+# 3. 创建 study 对象并运行优化
+# direction='minimize' 表示我们的目标是最小化 objective 函数的返回值
+study = optuna.create_study(direction='minimize')
 
-best_params = fmin(
-    fn=objective,
-    space=space,
-    algo=tpe.suggest,  # 明确指定使用TPE算法
-    max_evals=100,
-    trials=trials
-)
+# 调用 optimize 方法启动优化
+study.optimize(objective, n_trials=100, show_progress_bar=True)
+```
 
+**函数说明：**
+
+- **`optuna.create_study()`**: 创建一个 `study` 对象，它是优化任务的控制器。
+  - `direction` (str): 优化方向。`'minimize'` (默认) 表示目标是最小化返回值，`'maximize'` 表示目标是最大化返回值。
+  - `sampler` (Sampler, 可选): 指定采样算法。默认为 `TPESampler` (即TPE算法)。
+  - `pruner` (Pruner, 可选): 指定剪枝器，用于提前终止没有希望的试验。
+  - `study_name` (str, 可选): 研究的名称，在存储研究时很有用。
+  - `storage` (str 或 None, 可选): 存储研究的数据库URL。
+
+**可用的采样器 (`sampler`) 说明：**
+
+- **`TPESampler`**: 默认采样器，基于树状结构Parzen估计器的贝叶斯优化算法。
+  ```python
+  # 完整配置示例
+  from optuna.samplers import TPESampler
+  sampler = TPESampler(
+    seed=42,                    # 随机种子
+    n_startup_trials=10,        # 初始随机采样的试验数
+    multivariate=True,          # 是否使用多变量TPE
+    prior_weight=1.0,           # 先验分布的权重
+    consider_magic_clip=True,   # 使用魔术剪切来稳定核密度估计
+    consider_endpoints=True,    # 在核密度估计中是否考虑端点
+    n_ei_candidates=24          # EI最大化中的候选点数量
+  )
+  ```
+
+- **`RandomSampler`**: 纯随机搜索采样器，类似于scikit-learn的RandomizedSearchCV。
+  ```python
+  from optuna.samplers import RandomSampler
+  sampler = RandomSampler(seed=42)
+  ```
+
+- **`CmaEsSampler`**: 使用CMA-ES（协方差矩阵自适应进化策略）算法，特别适合连续参数的优化。
+  ```python
+  from optuna.samplers import CmaEsSampler
+  sampler = CmaEsSampler(
+    seed=42,
+    x0=None,           # 初始平均向量
+    sigma0=0.1,        # 初始步长
+    n_startup_trials=1 # 在启动CMA-ES前的随机试验数
+  )
+  ```
+
+- **`NSGAIISampler`**: 用于多目标优化的非支配排序遗传算法II (NSGA-II)。
+  ```python
+  from optuna.samplers import NSGAIISampler
+  sampler = NSGAIISampler(
+    seed=42,
+    population_size=50,  # 每代的个体数量
+    crossover_prob=0.9,  # 交叉概率
+    mutation_prob=None   # 变异概率
+  )
+  ```
+
+- **`GridSampler`**: 传统的网格搜索采样器，会遍历所有参数组合。
+  ```python
+  from optuna.samplers import GridSampler
+  search_space = {
+    'n_estimators': [50, 100, 150],
+    'max_depth': [3, 5, 7],
+    'learning_rate': [0.01, 0.1]
+  }
+  sampler = GridSampler(search_space)
+  ```
+
+- **`BruteForceSampler`**: 暴力采样器，用于枚举所有可能的离散参数组合。
+
+- **`PartialFixedSampler`**: 部分参数固定的采样器，用于条件搜索空间。
+
+- **`MOTPESampler`**: 多目标树状结构Parzen估计器采样器，用于多目标优化。
+
+### 第4步：查看优化结果
+优化完成后，所有结果都保存在 `study` 对象中，可以通过其属性和方法方便地获取。
+
+```python
+# 4. 查看优化结果
 print("\n" + "="*50)
 print("优化完成")
 print("="*50)
-# fmin返回的是使loss最小的参数值，但某些值可能是浮点数，需要整理
-best_params['max_depth'] = int(best_params['max_depth'])
-best_params['n_estimators'] = int(best_params['n_estimators'])
-print("找到的最佳超参数组合:")
-print(best_params)
 
-# 从trials对象中获取最佳的试验结果
-best_trial = trials.best_trial
-print(f"\n最佳损失值 (1 - accuracy): {best_trial['result']['loss']:.4f}")
-print(f"对应的交叉验证准确率: {best_trial['result']['accuracy']:.4f}")
+# study.best_trial 包含了关于最佳试验的所有信息
+best_trial = study.best_trial
+print(f"最佳损失值 (1 - accuracy): {best_trial.value:.4f}")
+print(f"对应的交叉验证准确率: {1 - best_trial.value:.4f}")
+
+# study.best_params 直接返回最佳超参数的字典
+print("找到的最佳超参数组合:")
+print(study.best_params)
+
+# 可视化优化历史
+import optuna.visualization as vis
+import matplotlib.pyplot as plt
+
+# 绘制优化历史
+vis.plot_optimization_history(study).show()
+
+# 绘制参数重要性
+vis.plot_param_importances(study).show()
+
+# 绘制参数之间的相关性
+vis.plot_contour(study).show()
 ```
 
+**`study` 对象结果属性说明：**
 
-**参数说明：**
+- **`study.best_trial`**: 返回一个 `FrozenTrial` 对象，包含了最佳那次试验的全部信息（如参数、值、开始/结束时间等）。
+- **`study.best_value`**: 直接返回最佳试验的目标函数值（在这里是最小的 `loss`）。
+- **`study.best_params`**: 返回一个字典，包含最佳试验的超参数组合。这是最常用的结果之一，其值的类型已经正确（整数就是整数），无需手动转换。
+- **`study.trials`**: 返回一个列表，包含所有已完成的试验对象。
+- **`study.trials_dataframe()`**: 将所有试验历史转换为 Pandas DataFrame，非常便于进行深入的分析和可视化。
+- **`study.get_trials(deepcopy=True, states=None)`**: 获取满足特定状态的试验。
+- **`study.direction`**: 返回优化方向（'minimize' 或 'maximize'）。
 
-- **`fmin()`** 参数：
-  - `fn`: 目标函数 (必需)
-  - `space`: 搜索空间 (必需)
-  - `algo`: 优化算法 (必需，如 `tpe.suggest`)
-  - `max_evals`: 最大评估次数 (必需)
-  - `trials`: 试验对象 (可选，默认为None)
-  - `rstate`: 随机状态 (可选，默认为None)
-  - `verbose`: 详细输出 (可选，默认为0)
-  - `return_argmin`: 是否返回最小值参数 (可选，默认为True)
-  - `show_progressbar`: 是否显示进度条 (可选，默认为True)
-
-- **`Trials()`** 参数：
-  - `exp_key`: 实验关键字 (可选，默认为None)
-  - `refresh`: 是否刷新 (可选，默认为True)
-
-- **其他可用算法：**
-  - `tpe.suggest`: TPE算法 (Tree-structured Parzen Estimator)
-  - `rand.suggest`: 随机搜索
-  - `anneal.suggest`: 模拟退火
 
 ## 结论
 

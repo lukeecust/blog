@@ -134,129 +134,227 @@ When discussing Bayesian optimization, it's necessary to clarify its position in
 
 Bayesian optimization is an advanced and efficient method for implementing HPO, and is sometimes also applied to NAS tasks.
 
-## Using `hyperopt` (TPE) for XGBoost Tuning
+## Using `optuna` (TPE) for XGBoost Tuning
 
-`hyperopt` is a popular Python library implementing the SMBO framework, with TPE as its core algorithm. Below, we use it to find optimal hyperparameters for an `XGBoost` classifier.
+`optuna` is a modern automated hyperparameter optimization framework that uses the TPE algorithm by default and provides a very intuitive and flexible "Define-by-Run" API. Below, we'll use it to find the optimal hyperparameters for an `XGBoost` classifier.
 
-### Step 1: Define the Objective Function $f(x)$
+### Step 1: Load the Data
+First, we need to prepare the data for model training and evaluation.
+
 ```python
 import xgboost as xgb
 from sklearn.model_selection import cross_val_score
 from sklearn.datasets import load_iris
-from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-import numpy as np
+import optuna
 
 # 1. Load data
 iris = load_iris()
 X = iris.data
 y = iris.target
+```
 
-# 2. Define objective function
-def objective(params):
-  # hyperopt passes floats, some parameters need to be converted to integers
-  params['max_depth'] = int(params['max_depth'])
-  params['n_estimators'] = int(params['n_estimators'])
+### Step 2: Define the Objective Function $f(x)$
+This is where the core difference between `optuna` and `hyperopt` lies. In `optuna`, the search space is dynamically defined within the objective function through the `trial` object. The objective function takes a `trial` object as a parameter and returns a value to be optimized (such as loss or accuracy).
+
+```python
+# 2. Define the objective function
+def objective(trial):
+  # Inside the function, suggest hyperparameter values through the trial object
+  # This is the "Define-by-Run" API
+  params = {
+    'n_estimators': trial.suggest_int('n_estimators', 50, 500, step=25),
+    'max_depth': trial.suggest_int('max_depth', 3, 15),
+    'learning_rate': trial.suggest_float('learning_rate', 0.005, 0.2, log=True),
+    'gamma': trial.suggest_float('gamma', 0, 0.5),
+    'colsample_bytree': trial.suggest_float('colsample_bytree', 0.5, 1.0),
+    'subsample': trial.suggest_float('subsample', 0.5, 1.0),
+    'booster': trial.suggest_categorical('booster', ['gbtree', 'gblinear', 'dart']),
+    
+    # Fixed parameters can be written directly
+    'use_label_encoder': False,
+    'eval_metric': 'mlogloss'
+  }
   
-  clf = xgb.XGBClassifier(
-    **params,
-    use_label_encoder=False,
-    eval_metric='mlogloss'
-  )
+  clf = xgb.XGBClassifier(**params)
   
-  # Evaluate the model using cross-validation, return negative accuracy as loss
+  # Use cross-validation to evaluate the model, return negative accuracy as loss
   accuracy = cross_val_score(clf, X, y, cv=5).mean()
+  
+  # Optuna will handle this return value according to the study's optimization direction
+  # We want to minimize the loss, so return 1 - accuracy
   loss = 1 - accuracy
-  
-  # hyperopt requires a dictionary return, must include 'loss' and 'status'
-  return {'loss': loss, 'status': STATUS_OK, 'accuracy': accuracy}
+  return loss
 ```
 
-### Step 2: Define the Search Space $\mathcal{X}$
+**`trial` Object Method Explanation:**
+The `trial` object is the core tool for defining the search space within the objective function.
+
+- **`trial.suggest_int(name, low, high, step=1, log=False)`**: Suggests an integer.
+  - `name` (str): The parameter name, must be unique within a `study`.
+  - `low` (int): The lower bound of the search range (inclusive).
+  - `high` (int): The upper bound of the search range (inclusive).
+  - `step` (int): The step size for suggested values. For example, `step=25` will select from `[50, 75, 100, ...]`.
+  - `log` (bool): If `True`, sampling is performed on a logarithmic scale, suitable for integers across orders of magnitude.
+
+- **`trial.suggest_float(name, low, high, step=None, log=False)`**: Suggests a floating-point number.
+  - `name` (str): The parameter name.
+  - `low` (float): The lower bound of the search range (inclusive).
+  - `high` (float): The upper bound of the search range (inclusive).
+  - `step` (float, optional): If specified, suggests discrete floating-point values.
+  - `log` (bool): If `True`, sampling is performed on a logarithmic scale. This is very effective for parameters such as `learning_rate`, as it allows more uniform exploration of the regions between `0.001` and `0.01`, as well as between `0.01` and `0.1`.
+
+- **`trial.suggest_categorical(name, choices)`**: Suggests a category from a list.
+  - `name` (str): The parameter name.
+  - `choices` (list): A list containing all possible options, e.g., `['gbtree', 'dart']`.
+
+- **`trial.suggest_discrete_uniform(name, low, high, q)`**: Suggests a value from a discrete uniform distribution.
+  - `name` (str): The parameter name.
+  - `low` (float): The lower bound of the search range (inclusive).
+  - `high` (float): The upper bound of the search range (inclusive).
+  - `q` (float): The discretization step.
+
+- **`trial.suggest_loguniform(name, low, high)`**: Suggests a value from a log-uniform distribution (deprecated, recommend using `suggest_float` with `log=True`).
+
+- **`trial.suggest_uniform(name, low, high)`**: Suggests a value from a uniform distribution (deprecated, recommend using `suggest_float`).
+
+**Mapping Relationship with `hyperopt` Distribution Functions:**
+
+| hyperopt | optuna | Meaning |
+|----------|--------|------|
+| `hp.choice(label, options)` | `trial.suggest_categorical(name, choices)` | Choose a value from discrete options, suitable for categorical parameters |
+| `hp.randint(label, upper)` | `trial.suggest_int(name, 0, upper-1)` | Return a random integer in the range [0, upper-1] |
+| `hp.uniform(label, low, high)` | `trial.suggest_float(name, low, high)` | Sample floating-point numbers uniformly in the range [low, high] |
+| `hp.quniform(label, low, high, q)` | `trial.suggest_float(name, low, high, step=q)` | Sample discrete values uniformly in the range [low, high] with step size q |
+| `hp.loguniform(label, low, high)` | `trial.suggest_float(name, np.exp(low), np.exp(high), log=True)` | Sample uniformly in log-space, suitable for parameters that need to be explored across multiple orders of magnitude |
+| `hp.qloguniform(label, low, high, q)` | `trial.suggest_float(name, np.exp(low), np.exp(high), log=True, step=q)` | Sample discrete values uniformly in log-space with step size q |
+| `hp.normal(label, mu, sigma)` | *No direct equivalent, can be implemented through custom samplers* | Sample from a normal distribution (mean mu, standard deviation sigma) |
+| `hp.lognormal(label, mu, sigma)` | *No direct equivalent, can be implemented through custom samplers* | Sample from a log-normal distribution, suitable for non-negative parameters with a long-tail distribution |
+
+### Step 3: Create a Study and Run Optimization
+In `optuna`, we first create a `study` object to manage the entire optimization process, then call its `optimize` method to start the optimization.
+
 ```python
-# 3. Define search space
-space = {
-  'n_estimators': hp.quniform('n_estimators', 50, 500, 25),
-  'max_depth': hp.quniform('max_depth', 3, 15, 1),
-  'learning_rate': hp.loguniform('learning_rate', np.log(0.005), np.log(0.2)),
-  'gamma': hp.uniform('gamma', 0, 0.5),
-  'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1.0),
-  'subsample': hp.uniform('subsample', 0.5, 1.0)
-}
+# 3. Create a study object and run optimization
+# direction='minimize' indicates that our goal is to minimize the return value of the objective function
+study = optuna.create_study(direction='minimize')
+
+# Call the optimize method to start optimization
+study.optimize(objective, n_trials=100, show_progress_bar=True)
 ```
-**Parameter Descriptions:**
 
-- **`hp.quniform(label, low, high, q)`**: Discrete uniform distribution
-  - `label`: Parameter label name
-  - `low`: Minimum value
-  - `high`: Maximum value
-  - `q`: Discretization step size
+**Function Explanation:**
 
-- **`hp.uniform(label, low, high)`**: Continuous uniform distribution
-  - `label`: Parameter label name
-  - `low`: Minimum value
-  - `high`: Maximum value
+- **`optuna.create_study()`**: Creates a `study` object, which is the controller for the optimization task.
+  - `direction` (str): Optimization direction. `'minimize'` (default) means the goal is to minimize the return value, `'maximize'` means the goal is to maximize the return value.
+  - `sampler` (Sampler, optional): Specify the sampling algorithm. Default is `TPESampler` (i.e., TPE algorithm).
+  - `pruner` (Pruner, optional): Specify a pruner for early termination of trials without promise.
+  - `study_name` (str, optional): The name of the study, useful when storing the study.
+  - `storage` (str or None, optional): Database URL for storing the study.
 
-- **`hp.loguniform(label, low, high)`**: Log-uniform distribution
-  - `label`: Parameter label name
-  - `low`: Logarithm of minimum value
-  - `high`: Logarithm of maximum value
+**Available Samplers Explanation:**
 
-- **Other available distribution functions:**
-  - `hp.choice(label, options)`: Choose from options
-  - `hp.randint(label, upper)`: Random integer [0, upper)
-  - `hp.normal(label, mu, sigma)`: Normal distribution
-  - `hp.lognormal(label, mu, sigma)`: Log-normal distribution
-  
-### Step 3: Run Bayesian Optimization
+- **`TPESampler`**: Default sampler, a Bayesian optimization algorithm based on the Tree-structured Parzen Estimator.
+  ```python
+  # Complete configuration example
+  from optuna.samplers import TPESampler
+  sampler = TPESampler(
+    seed=42,                    # Random seed
+    n_startup_trials=10,        # Number of initial random sampling trials
+    multivariate=True,          # Whether to use multivariate TPE
+    prior_weight=1.0,           # Weight of the prior distribution
+    consider_magic_clip=True,   # Use magic clip to stabilize kernel density estimation
+    consider_endpoints=True,    # Whether to consider endpoints in kernel density estimation
+    n_ei_candidates=24          # Number of candidate points in EI maximization
+  )
+  ```
+
+- **`RandomSampler`**: Pure random search sampler, similar to scikit-learn's RandomizedSearchCV.
+  ```python
+  from optuna.samplers import RandomSampler
+  sampler = RandomSampler(seed=42)
+  ```
+
+- **`CmaEsSampler`**: Uses the CMA-ES (Covariance Matrix Adaptation Evolution Strategy) algorithm, particularly suitable for optimizing continuous parameters.
+  ```python
+  from optuna.samplers import CmaEsSampler
+  sampler = CmaEsSampler(
+    seed=42,
+    x0=None,           # Initial mean vector
+    sigma0=0.1,        # Initial step size
+    n_startup_trials=1 # Number of random trials before starting CMA-ES
+  )
+  ```
+
+- **`NSGAIISampler`**: Non-dominated Sorting Genetic Algorithm II (NSGA-II) for multi-objective optimization.
+  ```python
+  from optuna.samplers import NSGAIISampler
+  sampler = NSGAIISampler(
+    seed=42,
+    population_size=50,  # Number of individuals per generation
+    crossover_prob=0.9,  # Crossover probability
+    mutation_prob=None   # Mutation probability
+  )
+  ```
+
+- **`GridSampler`**: Traditional grid search sampler, will traverse all parameter combinations.
+  ```python
+  from optuna.samplers import GridSampler
+  search_space = {
+    'n_estimators': [50, 100, 150],
+    'max_depth': [3, 5, 7],
+    'learning_rate': [0.01, 0.1]
+  }
+  sampler = GridSampler(search_space)
+  ```
+
+- **`BruteForceSampler`**: Brute force sampler, used to enumerate all possible discrete parameter combinations.
+
+- **`PartialFixedSampler`**: Sampler with partially fixed parameters, used for conditional search spaces.
+
+- **`MOTPESampler`**: Multi-objective Tree-structured Parzen Estimator sampler, used for multi-objective optimization.
+
+### Step 4: View Optimization Results
+After optimization is complete, all results are saved in the `study` object and can be conveniently accessed through its attributes and methods.
+
 ```python
-# 4. Run optimization
-trials = Trials()
-
-best_params = fmin(
-  fn=objective,
-  space=space,
-  algo=tpe.suggest,  # Explicitly specify using the TPE algorithm
-  max_evals=100,
-  trials=trials
-)
-
+# 4. View optimization results
 print("\n" + "="*50)
 print("Optimization completed")
 print("="*50)
-# fmin returns parameters that minimize loss, but some values may be floats and need to be adjusted
-best_params['max_depth'] = int(best_params['max_depth'])
-best_params['n_estimators'] = int(best_params['n_estimators'])
-print("Best hyperparameter combination found:")
-print(best_params)
 
-# Get the best trial result from the trials object
-best_trial = trials.best_trial
-print(f"\nBest loss value (1 - accuracy): {best_trial['result']['loss']:.4f}")
-print(f"Corresponding cross-validation accuracy: {best_trial['result']['accuracy']:.4f}")
+# study.best_trial contains all information about the best trial
+best_trial = study.best_trial
+print(f"Best loss value (1 - accuracy): {best_trial.value:.4f}")
+print(f"Corresponding cross-validation accuracy: {1 - best_trial.value:.4f}")
+
+# study.best_params directly returns a dictionary of the best hyperparameters
+print("Best hyperparameter combination found:")
+print(study.best_params)
+
+# Visualize optimization history
+import optuna.visualization as vis
+import matplotlib.pyplot as plt
+
+# Plot optimization history
+vis.plot_optimization_history(study).show()
+
+# Plot parameter importance
+vis.plot_param_importances(study).show()
+
+# Plot correlation between parameters
+vis.plot_contour(study).show()
 ```
 
+**`study` Object Result Attributes Explanation:**
 
-**Parameter Descriptions:**
+- **`study.best_trial`**: Returns a `FrozenTrial` object containing all information about the best trial (such as parameters, values, start/end times, etc.).
+- **`study.best_value`**: Directly returns the objective function value of the best trial (in this case, the minimum `loss`).
+- **`study.best_params`**: Returns a dictionary containing the hyperparameter combination of the best trial. This is one of the most commonly used results, and its values are already of the correct type (integers are integers), no manual conversion needed.
+- **`study.trials`**: Returns a list containing all completed trial objects.
+- **`study.trials_dataframe()`**: Converts all trial history to a Pandas DataFrame, very convenient for in-depth analysis and visualization.
+- **`study.get_trials(deepcopy=True, states=None)`**: Gets trials that meet specific states.
+- **`study.direction`**: Returns the optimization direction ('minimize' or 'maximize').
 
-- **`fmin()`** parameters:
-  - `fn`: Objective function (required)
-  - `space`: Search space (required)
-  - `algo`: Optimization algorithm (required, e.g., `tpe.suggest`)
-  - `max_evals`: Maximum number of evaluations (required)
-  - `trials`: Trials object (optional, defaults to None)
-  - `rstate`: Random state (optional, defaults to None)
-  - `verbose`: Verbose output (optional, defaults to 0)
-  - `return_argmin`: Whether to return the minimum value parameters (optional, defaults to True)
-  - `show_progressbar`: Whether to display a progress bar (optional, defaults to True)
-
-- **`Trials()`** parameters:
-  - `exp_key`: Experiment key (optional, defaults to None)
-  - `refresh`: Whether to refresh (optional, defaults to True)
-
-- **Other available algorithms:**
-  - `tpe.suggest`: TPE algorithm (Tree-structured Parzen Estimator)
-  - `rand.suggest`: Random search
-  - `anneal.suggest`: Simulated annealing
 
 ## Conclusion
 
