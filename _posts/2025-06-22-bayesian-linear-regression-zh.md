@@ -104,12 +104,12 @@ $$\begin{equation}
 
 ###  预测新数据点
 
-当我们有一个新的数据点 $\mathbf{x}_{\ast}$ 时，预测值 $y_{\ast}$ 的分布可以通过对所有可能的 $\mathbf{w}$ 进行积分得到：
+当我们有一个新的数据点 $$\mathbf{x}_{\ast}$$ 时，预测值 $$y_{\ast}$$ 的分布可以通过对所有可能的 $$\mathbf{w}$$ 进行积分得到：
 $$\begin{equation}
 p(y_{\ast} \vert \mathbf{x}_{\ast}, \mathcal{D}) = \int p(y_{\ast} \vert \mathbf{x}_{\ast}, \mathbf{w}) p(\mathbf{w} \vert \mathcal{D}) d\mathbf{w}
 \end{equation}$$
 
-这个积分的结果也是一个高斯分布，其均值为 $\mathbf{m}_N^T \mathbf{x}_{\ast}$，方差为：
+这个积分的结果也是一个高斯分布，其均值为 $$\mathbf{m}_N^T \mathbf{x}_{\ast}$$，方差为：
 $$\begin{equation}
 \sigma_{\text{pred}}^2 = \underbrace{\frac{1}{\beta}}_{\text{数据固有噪声}} + \underbrace{\mathbf{x}_{\ast}^T \mathbf{S}_N \mathbf{x}_{\ast}}_{\text{模型参数不确定性}}
 \end{equation}$$

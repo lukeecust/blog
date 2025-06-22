@@ -103,12 +103,12 @@ Through mathematical derivation, we've obtained a new Gaussian distribution $\ma
 
 ### Predicting New Data Points
 
-When we have a new data point $\mathbf{x}_{\ast}$, the distribution of the predicted value $y_{\ast}$ can be obtained by integrating over all possible $\mathbf{w}$:
+When we have a new data point $$\mathbf{x}_{\ast}$$, the distribution of the predicted value $$y_{\ast}$$ can be obtained by integrating over all possible $$\mathbf{w}$$:
 $$\begin{equation}
 p(y_{\ast} \vert \mathbf{x}_{\ast}, \mathcal{D}) = \int p(y_{\ast} \vert \mathbf{x}_{\ast}, \mathbf{w}) p(\mathbf{w} \vert \mathcal{D}) d\mathbf{w}
 \end{equation}$$
 
-The result of this integral is also a Gaussian distribution with mean $\mathbf{m}_N^T \mathbf{x}_{\ast}$ and variance:
+The result of this integral is also a Gaussian distribution with mean $$\mathbf{m}_N^T \mathbf{x}_{\ast}$$ and variance:
 $$\begin{equation}
 sigma_{pred}^2 = \underbrace{\frac{1}{\beta}}_{\text{Inherent data noise}} + \underbrace{\mathbf{x}_*^T \mathbf{S}_N \mathbf{x}_*}_{\text{Model parameter uncertainty}}
 \end{equation}$$
