@@ -102,16 +102,16 @@ $$\begin{equation}
 
 通过数学推导，得到了一个全新的高斯分布 $\mathcal{N}(\mathbf{w} \vert \mathbf{m}_N, \mathbf{S}_N)$。这就是我们根据数据更新后的、对参数 $\mathbf{w}$ 的最终信念！
 
-#### 4. 预测新数据点
+###  预测新数据点
 
-当我们有一个新的数据点 $\mathbf{x}_*$ 时，预测值 $y_*$ 的分布可以通过对所有可能的 $\mathbf{w}$ 进行积分得到：
+当我们有一个新的数据点 $\mathbf{x}_{\ast}$ 时，预测值 $y_{\ast}$ 的分布可以通过对所有可能的 $\mathbf{w}$ 进行积分得到：
 $$\begin{equation}
-p(y_* \vert \mathbf{x}_*, \mathcal{D}) = \int p(y_* \vert \mathbf{x}_*, \mathbf{w}) p(\mathbf{w} \vert \mathcal{D}) d\mathbf{w}
+p(y_{\ast} \vert \mathbf{x}_{\ast}, \mathcal{D}) = \int p(y_{\ast} \vert \mathbf{x}_{\ast}, \mathbf{w}) p(\mathbf{w} \vert \mathcal{D}) d\mathbf{w}
 \end{equation}$$
 
-这个积分的结果也是一个高斯分布，其均值为 $\mathbf{m}_N^T \mathbf{x}_*$，方差为：
+这个积分的结果也是一个高斯分布，其均值为 $\mathbf{m}_N^T \mathbf{x}_{\ast}$，方差为：
 $$\begin{equation}
-sigma_{pred}^2 = \underbrace{\frac{1}{\beta}}_{\text{数据固有噪声}} + \underbrace{\mathbf{x}_*^T \mathbf{S}_N \mathbf{x}_*}_{\text{模型参数不确定性}}
+\sigma_{\text{pred}}^2 = \underbrace{\frac{1}{\beta}}_{\text{数据固有噪声}} + \underbrace{\mathbf{x}_{\ast}^T \mathbf{S}_N \mathbf{x}_{\ast}}_{\text{模型参数不确定性}}
 \end{equation}$$
 
 
@@ -268,7 +268,7 @@ plt.legend()
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.show()
 ```
-**结果分析**：`PyMC` 的结果更具"贝叶斯风味"。我们得到的不是一个单一的后验分布参数，而是成千上万个从后验分布中抽取的样本（`trace` 对象）。这些样本构成了对整个后验分布的经验近似。图中的灰色细线就是用这些样本参数画出的，直观地展示了模型的不确定性。
+**结果分析**：`PyMC` 的结果更具"贝叶斯风味"。我们得到的不是一个单一的后验分布参数，而是成千上万个从后验分布中抽取的样本（`trace` 对象）。这些样本构成了对整个后验分布的经验近似。
 
 **PyMC 模型构建函数：**
 - `pm.Model()`：创建一个贝叶斯模型容器

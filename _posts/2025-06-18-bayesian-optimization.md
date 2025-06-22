@@ -89,7 +89,7 @@ The main advantage of TPE is its natural ability to handle complex tree-structur
 | Feature | Gaussian Process Regression (GPR) | Tree-structured Parzen Estimator (TPE) |
 | :--- | :--- | :--- |
 | **Core Idea** | Models $p(y\vert x)$, directly estimating the distribution of function values | Models $p(x\vert y)$, estimating parameter distributions in good/bad cases |
-| **Mathematical Foundation** | Gaussian processes, Bayesian linear regression | Bayes' theorem, kernel density estimation (Parzen window) |
+| **Mathematical Foundation** | Gaussian processes, [Bayesian linear regression](https://haoxiang.lu/blog/posts/bayesian-linear-regression/) | Bayes' theorem, kernel density estimation (Parzen window) |
 | **Parameter Space** | Best for **continuous** and **low-dimensional** spaces | Excellent for handling **discrete, conditional parameters** and **high-dimensional** spaces |
 | **Computational Complexity** | $O(n^3)$, limited by kernel matrix inversion, poor scalability | $O(n \log n)$, better scalability |
 | **Parallelism** | Difficult to parallelize, inherently sequential | Easier to parallelize, can generate multiple candidate points by sampling from $l(x)$ |
