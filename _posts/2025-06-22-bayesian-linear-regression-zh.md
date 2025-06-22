@@ -26,17 +26,17 @@ render_with_liquid: false
 因此，我们的目标不再是找到单一的 $\mathbf{w}$，而是根据观测到的数据，去推断 $\mathbf{w}$ 的**后验概率分布 (Posterior Distribution)**。整个过程遵循贝叶斯定理：
 
 $$\begin{equation}
-  p(\text{参数} | \text{数据}) = \frac{p(\text{数据} | \text{参数}) \times p(\text{参数})}{p(\text{数据})}
+    p(\text{参数} \vert \text{数据}) = \frac{p(\text{数据} \vert \text{参数}) \times p(\text{参数})}{p(\text{数据})}
 \end{equation}$$
 转换成我们线性回归的术语：
 
 $$\begin{equation}
-p(\mathbf{w} | \mathcal{D}) \propto p(\mathcal{D} | \mathbf{w}) \times p(\mathbf{w})
+p(\mathbf{w} \vert \mathcal{D}) \propto p(\mathcal{D} \vert \mathbf{w}) \times p(\mathbf{w})
 \end{equation}$$
 
 这里：
-*   $p(\mathbf{w} | \mathcal{D})$ 是**后验概率 (Posterior)**：在看到数据 $\mathcal{D}$ 后，我们对参数 $\mathbf{w}$ 的信念。这是我们最终想要求解的。
-*   $p(\mathcal{D} | \mathbf{w})$ 是**似然 (Likelihood)**：假设模型为 $y \sim \mathcal{N}(\mathbf{w}^T \mathbf{x}, \sigma^2)$，似然描述了在给定参数 $\mathbf{w}$ 的情况下，当前数据出现的可能性。
+*   $p(\mathbf{w} \vert \mathcal{D})$ 是**后验概率 (Posterior)**：在看到数据 $\mathcal{D}$ 后，我们对参数 $\mathbf{w}$ 的信念。这是我们最终想要求解的。
+*   $p(\mathcal{D} \vert \mathbf{w})$ 是**似然 (Likelihood)**：假设模型为 $y \sim \mathcal{N}(\mathbf{w}^T \mathbf{x}, \sigma^2)$，似然描述了在给定参数 $\mathbf{w}$ 的情况下，当前数据出现的可能性。
 *   $p(\mathbf{w})$ 是**先验概率 (Prior)**：在看到任何数据之前，我们对参数 $\mathbf{w}$ 的初始信念。这是贝叶斯方法的一大优势，它允许我们**融入领域知识**。
 
 那么，这个后验分布具体是如何计算出来的呢？让我们进入数学的世界。
@@ -45,33 +45,33 @@ p(\mathbf{w} | \mathcal{D}) \propto p(\mathcal{D} | \mathbf{w}) \times p(\mathbf
 
 为了求解后验，我们需要先明确定义似然和先验的形式。
 
-### 似然函数 $p(\mathcal{D} | \mathbf{w})$
+### 似然函数 $p(\mathcal{D} \vert \mathbf{w})$
 
 我们假设模型输出 $y$ 与真实值 $\mathbf{w}^T \mathbf{x}$ 之间存在高斯噪声 $\epsilon \sim \mathcal{N}(0, \sigma^2)$。为了数学上的方便，我们通常使用**精度 (precision)** $\beta = 1/\sigma^2$ 来表示。因此，对于单个数据点，其概率为：
 $$\begin{equation}
-p(y_i | \mathbf{x_i}, \mathbf{w}, \beta) = \mathcal{N}(y_i | \mathbf{w}^T \mathbf{x_i}, \beta^{-1})
+p(y_i \vert \mathbf{x_i}, \mathbf{w}, \beta) = \mathcal{N}(y_i \vert \mathbf{w}^T \mathbf{x_i}, \beta^{-1})
 \end{equation}$$
 
 对于整个独立同分布的数据集 $\mathcal{D} = \{(\mathbf{X}, \mathbf{y})\}$，似然函数是所有数据点概率的乘积：
 $$\begin{equation}
-p(\mathbf{y} | \mathbf{X}, \mathbf{w}, \beta) = \prod_{i=1}^{N} \mathcal{N}(y_i | \mathbf{w}^T \mathbf{x_i}, \beta^{-1})
+p(\mathbf{y} \vert \mathbf{X}, \mathbf{w}, \beta) = \prod_{i=1}^{N} \mathcal{N}(y_i \vert \mathbf{w}^T \mathbf{x_i}, \beta^{-1})
 \end{equation}$$
 
 ### 先验分布 $p(\mathbf{w})$
 
 为了让计算变得可行，我们为先验选择一个**共轭先验 (Conjugate Prior)**。当先验和似然是共轭的时候，它们的乘积（即后验）将和先验具有相同的函数形式。对于高斯似然，其共轭先验也是高斯分布。我们假设 $\mathbf{w}$ 服从一个均值为 $\mathbf{m}_0$，协方差为 $\mathbf{S}_0$ 的多维高斯分布：
 $$\begin{equation}
-p(\mathbf{w}) = \mathcal{N}(\mathbf{w} | \mathbf{m}_0, \mathbf{S}_0)
+p(\mathbf{w}) = \mathcal{N}(\mathbf{w} \vert \mathbf{m}_0, \mathbf{S}_0)
 \end{equation}$$
 
 通常，我们会选择一个简单的零均值先验，$\mathbf{m}_0 = \mathbf{0}$，协方差矩阵为 $\mathbf{S}_0 = \alpha^{-1} \mathbf{I}$，其中 $\alpha$ 是一个超参数，代表我们对 $\mathbf{w}$ 权重大小的先验信念精度。
 
-###  推导后验分布 $p(\mathbf{w} | \mathcal{D})$
+###  推导后验分布 $p(\mathbf{w} \vert \mathcal{D})$
 
 现在，我们将似然和先验相乘。为了简化，我们处理它们的对数形式，并忽略与 $\mathbf{w}$ 无关的常数项：
 $$\begin{equation}
 \begin{aligned}
-\ln p(\mathbf{w} | \mathcal{D}) &\propto \ln p(\mathbf{y} | \mathbf{X}, \mathbf{w}, \beta) + \ln p(\mathbf{w}) \\
+\ln p(\mathbf{w} \vert \mathcal{D}) &\propto \ln p(\mathbf{y} \vert \mathbf{X}, \mathbf{w}, \beta) + \ln p(\mathbf{w}) \\
 &= \ln \left[ \exp(-\frac{\beta}{2} (\mathbf{y} - \mathbf{Xw})^T (\mathbf{y} - \mathbf{Xw})) \right] + \ln \left[ \exp(-\frac{1}{2} (\mathbf{w} - \mathbf{m}_0)^T \mathbf{S}_0^{-1} (\mathbf{w} - \mathbf{m}_0)) \right] \\
 &= -\frac{\beta}{2} (\mathbf{y}^T\mathbf{y} - 2\mathbf{y}^T\mathbf{Xw} + \mathbf{w}^T\mathbf{X}^T\mathbf{Xw}) - \frac{1}{2} (\mathbf{w}^T\mathbf{S}_0^{-1}\mathbf{w} - 2\mathbf{m}_0^T\mathbf{S}_0^{-1}\mathbf{w} + \mathbf{m}_0^T\mathbf{S}_0^{-1}\mathbf{m}_0) + \text{const}
 \end{aligned}
@@ -100,13 +100,13 @@ $$\begin{equation}
 \end{equation}$$
 
 
-通过数学推导，得到了一个全新的高斯分布 $\mathcal{N}(\mathbf{w} | \mathbf{m}_N, \mathbf{S}_N)$。这就是我们根据数据更新后的、对参数 $\mathbf{w}$ 的最终信念！
+通过数学推导，得到了一个全新的高斯分布 $\mathcal{N}(\mathbf{w} \vert \mathbf{m}_N, \mathbf{S}_N)$。这就是我们根据数据更新后的、对参数 $\mathbf{w}$ 的最终信念！
 
 #### 4. 预测新数据点
 
 当我们有一个新的数据点 $\mathbf{x}_*$ 时，预测值 $y_*$ 的分布可以通过对所有可能的 $\mathbf{w}$ 进行积分得到：
 $$\begin{equation}
-p(y_* | \mathbf{x}_*, \mathcal{D}) = \int p(y_* | \mathbf{x}_*, \mathbf{w}) p(\mathbf{w} | \mathcal{D}) d\mathbf{w}
+p(y_* \vert \mathbf{x}_*, \mathcal{D}) = \int p(y_* \vert \mathbf{x}_*, \mathbf{w}) p(\mathbf{w} \vert \mathcal{D}) d\mathbf{w}
 \end{equation}$$
 
 这个积分的结果也是一个高斯分布，其均值为 $\mathbf{m}_N^T \mathbf{x}_*$，方差为：
@@ -129,7 +129,9 @@ sigma_{pred}^2 = \underbrace{\frac{1}{\beta}}_{\text{数据固有噪声}} + \und
 现在，让我们看看这两种路径在代码中是如何实现的。
 
 ## 代码实现
+
 ### Scikit-learn 的 `BayesianRidge` 
+
 `BayesianRidge` 应用了我们上面推导的原理，并使用**经验贝叶斯**方法自动估计超参数 $\alpha$ 和 $\beta$。它非常适合作为标准线性回归的直接替代品。
 
 ```python
@@ -181,8 +183,25 @@ plt.show()
 ```
 **结果分析**：`BayesianRidge` 快速给出了一个带有不确定性区间的预测。这个不确定性区间（紫色阴影）的宽度，其背后的数学基础正是我们刚刚推导的预测方差公式。
 
-### 五、实现 2：PyMC (强大灵活的完全体)
+**主要参数说明：**
+- `n_iter`：最大迭代次数，默认为 300
+- `tol`：收敛判定阈值，默认为 1e-3
+- `alpha_1`、`alpha_2`：$\alpha$（权重精度）的伽马先验参数，默认分别为 1e-6 和 1e-6
+- `lambda_1`、`lambda_2`：$\beta$（噪声精度）的伽马先验参数，默认分别为 1e-6 和 1e-6
+- `compute_score`：是否计算每次迭代的对数边际似然，默认为 False
+- `fit_intercept`：是否计算截距，默认为 True
+- `normalize`：已弃用，请使用 `StandardScaler`
+- `copy_X`：是否复制 X，默认为 True
+
+**预测方法参数：**
+- `return_std`：如果为 True，则返回预测的标准差，默认为 False
+- `return_cov`：如果为 True，则返回预测的协方差，默认为 False
+
+### PyMC
+
 `PyMC` 则完全不同。我们不关心是否存在解析解，而是直接向计算机**描述我们的概率模型**，然后让 MCMC 采样器去探索后验分布。
+
+**主要函数和分布说明：**
 
 ```python
 import pymc as pm
@@ -249,7 +268,20 @@ plt.legend()
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.show()
 ```
-**结果分析**：`PyMC` 的结果更具“贝叶斯风味”。我们得到的不是一个单一的后验分布参数，而是成千上万个从后验分布中抽取的样本（`trace` 对象）。这些样本构成了对整个后验分布的经验近似。图中的灰色细线就是用这些样本参数画出的，直观地展示了模型的不确定性。
+**结果分析**：`PyMC` 的结果更具"贝叶斯风味"。我们得到的不是一个单一的后验分布参数，而是成千上万个从后验分布中抽取的样本（`trace` 对象）。这些样本构成了对整个后验分布的经验近似。图中的灰色细线就是用这些样本参数画出的，直观地展示了模型的不确定性。
+
+**PyMC 模型构建函数：**
+- `pm.Model()`：创建一个贝叶斯模型容器
+- `pm.Normal(name, mu, sigma)`：创建一个正态分布变量，`mu`为均值，`sigma`为标准差
+- `pm.HalfNormal(name, sigma)`：创建一个半正态分布变量，用于非负参数
+- `pm.sample(draws, tune, cores)`：
+  - `draws`：样本数量
+  - `tune`：预热迭代次数，用于调整采样器
+  - `cores`：并行计算的核心数
+
+**ArviZ 结果分析函数：**
+- `az.summary(trace, var_names)`：返回后验分布的统计摘要
+- `az.hdi(data, hdi_prob)`：计算高密度区间，`hdi_prob`指定概率质量（如0.94表示94%）
 
 ### `BayesianRidge` vs. `PyMC`
 
