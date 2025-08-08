@@ -3,7 +3,7 @@ title: 排列特征重要性
 author: lukeecust
 date: 2025-08-08 15:09:00 +0800
 categories: [Machine Learning, Model Interpretation]
-tags: [Permutation Importance, Feature Importance, Linear Regression]
+tags: [Feature Importance]
 lang: zh
 math: true
 translation_id: permutation-feature-importance
