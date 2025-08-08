@@ -303,5 +303,3 @@ plt.show()
 ## Summary
 
 Bayesian linear regression shifts us from seeking a single "best answer" to embracing and quantifying uncertainty. Understanding the mathematical principles behind it, we can see that `BayesianRidge` is an elegant application of this theory, while `PyMC` provides a powerful and general path when the theory cannot be directly solved.
-
-I hope this mathematically detailed version helps you understand Bayesian linear regression more thoroughly, and enables you to comfortably choose between the convenience of Scikit-learn and the power of PyMC!
