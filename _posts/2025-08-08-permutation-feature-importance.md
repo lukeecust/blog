@@ -7,7 +7,7 @@ tags: [Permutation Importance, Feature Importance, Linear Regression]
 lang: en
 math: true
 translation_id: permutation-feature-importance
-permalink: /zh/posts/permutation-feature-importance/
+permalink: /posts/permutation-feature-importance/
 render_with_liquid: false
 ---
 
