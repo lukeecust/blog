@@ -365,7 +365,7 @@ print(interaction_pairs_df.nlargest(5, 'Interaction'))
 
 特征交互分析揭示了模型中的协同效应。强交互表明两个特征的联合效应不等于各自效应之和，这在理解复杂模式和构建更好的特征工程中非常重要。
 
-### 6.1 基于SHAP的特征选择
+### 基于SHAP的特征选择
 
 ```python
 # 使用SHAP值进行特征选择
