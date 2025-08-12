@@ -23,7 +23,7 @@ $$\begin{equation}
 \phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(n-|S|-1)!}{n!}[v(S \cup \{i\}) - v(S)]
 \end{equation}$$
 
-The intuitive understanding of this formula is: consider all possible orders in which participants can join, calculate the marginal contribution of participant $$i$$ when they join in each order, then take the average. The weight $\frac{\mid S \mid ! (n - \mid S \mid - 1)!}{n!}$$ represents the probability that set $$S$$ appears before participant $$i$$.
+The intuitive understanding of this formula is: consider all possible orders in which participants can join, calculate the marginal contribution of participant $$i$$ when they join in each order, then take the average. The weight $$\frac{\mid S \mid ! (n - \mid S \mid - 1)!}{n!}$$ represents the probability that set $$S$$ appears before participant $$i$$.
 
 ### From Shapley Values to SHAP: Application in Machine Learning
 
