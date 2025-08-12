@@ -23,7 +23,7 @@ $$\begin{equation}
 \phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(n-|S|-1)!}{n!}[v(S \cup \{i\}) - v(S)]
 \end{equation}$$
 
-这个公式的直观理解是：考虑所有可能的参与者加入顺序，计算参与者 $$i$$ 在每种顺序下加入时带来的边际贡献，然后取平均值。权重 $$\frac{|S|!(n-|S|-1)!}{n!}$$ 表示集合 $$S$$ 出现在参与者 $$i$$ 之前的概率。
+这个公式的直观理解是：考虑所有可能的参与者加入顺序，计算参与者 $$i$$ 在每种顺序下加入时带来的边际贡献，然后取平均值。权重 $$\frac{\mid S \mid ! (n - \mid S \mid - 1)!}{n!}$$ 表示集合 $$S$$ 出现在参与者 $$i$$ 之前的概率。
 
 ### 从Shapley值到SHAP：机器学习中的应用
 
@@ -152,13 +152,13 @@ $$\begin{equation}
 v(S) = \sum_{l \in L} b_l \cdot p(l|x_S)
 \end{equation}$$
 
-其中 $$L$$ 为叶节点集合，$$b_l$$ 为叶节点 $$l$$ 的预测值，$$p(l|x_S)$$ 为给定特征子集 $$x_S$$ 到达叶节点 $$l$$ 的概率。
+其中 $$L$$ 为叶节点集合，$$b_{l}$$ 为叶节点 $$l$$ 的预测值，$$p(l \mid x_{S})$$ 为给定特征子集 $$x_{S}$$ 到达叶节点 $$l$$ 的概率。
 
 TreeSHAP通过动态规划避免了指数级的枚举，将复杂度降低到 $O(TLD^2)$，其中 $T$ 是树的数量，$L$ 是最大叶子数，$D$ 是最大深度。
 
 **两种条件期望模式**：
 - **Interventional**：假设特征独立，$v(S) = E_{X_{\bar{S}} \sim p(X_{\bar{S}})}[f(x_S, X_{\bar{S}})]$
-- **Tree Path-Dependent**：保留树路径依赖，$$v(S) = E_{X_{\bar{S}} \sim p(X_{\bar{S}}|x_S)}[f(x_S, X_{\bar{S}})]$$
+- **Tree Path-Dependent**：保留树路径依赖，$$v(S) = \mathbb{E}_{X_{\bar{S}} \sim p(X_{\bar{S}} \mid x_{S})} \left[ f(x_{S}, X_{\bar{S}}) \right]$$
 
 前者更接近因果解释，后者保留了树模型的内在结构。
 

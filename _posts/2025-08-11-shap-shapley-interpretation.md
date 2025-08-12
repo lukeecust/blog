@@ -23,7 +23,7 @@ $$\begin{equation}
 \phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(n-|S|-1)!}{n!}[v(S \cup \{i\}) - v(S)]
 \end{equation}$$
 
-The intuitive understanding of this formula is: consider all possible orders in which participants can join, calculate the marginal contribution of participant $$i$$ when they join in each order, then take the average. The weight $$\frac{|S|!(n-|S|-1)!}{n!}$$ represents the probability that set $$S$$ appears before participant $$i$$.
+The intuitive understanding of this formula is: consider all possible orders in which participants can join, calculate the marginal contribution of participant $$i$$ when they join in each order, then take the average. The weight $\frac{\mid S \mid ! (n - \mid S \mid - 1)!}{n!}$$ represents the probability that set $$S$$ appears before participant $$i$$.
 
 ### From Shapley Values to SHAP: Application in Machine Learning
 
@@ -152,13 +152,13 @@ $$\begin{equation}
 v(S) = \sum_{l \in L} b_l \cdot p(l|x_S)
 \end{equation}$$
 
-where $$L$$ is the set of leaf nodes, $$b_l$$ is the prediction value of leaf node $$l$$, and $$p(l|x_S)$$ is the probability of reaching leaf node $$l$$ given feature subset $$x_S$$.
+where $$L$$ is the set of leaf nodes, $$b_{l}$$ is the prediction value of leaf node $$l$$, and $$p(l \mid x_{S})$$ is the probability of reaching leaf node $$l$$ given feature subset $$x_{S}$$.
 
 TreeSHAP avoids exponential enumeration through dynamic programming, reducing complexity to $O(TLD^2)$, where $T$ is the number of trees, $L$ is the maximum number of leaves, and $D$ is the maximum depth.
 
 **Two Conditional Expectation Modes**:
 - **Interventional**: Assumes feature independence, $v(S) = E_{X_{\bar{S}} \sim p(X_{\bar{S}})}[f(x_S, X_{\bar{S}})]$
-- **Tree Path-Dependent**: Preserves tree path dependency, $$v(S) = E_{X_{\bar{S}} \sim p(X_{\bar{S}}|x_S)}[f(x_S, X_{\bar{S}})]$$
+- **Tree Path-Dependent**: Preserves tree path dependency, $$v(S) = \mathbb{E}_{X_{\bar{S}} \sim p(X_{\bar{S}} \mid x_{S})} \left[ f(x_{S}, X_{\bar{S}}) \right]$$
 
 The former is closer to causal explanation, while the latter preserves the inherent structure of tree models.
 
