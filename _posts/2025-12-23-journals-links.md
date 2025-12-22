@@ -57,17 +57,17 @@ render_with_liquid: false
 
 ## PaperPlaza / PaperCept
 - IFAC PaperCept portal (IFAC): [ifac.papercept.net/conferences/scripts/start.pl](https://ifac.papercept.net/conferences/scripts/start.pl)
-  - IFAC World Congress (IFAC WC) — IFAC-PapersOnLine: [www.sciencedirect.com/journal/ifac-papersonline](https://www.sciencedirect.com/journal/ifac-papersonline)
-  - IFAC Symposium on Advanced Control of Chemical Processes (ADCHEM) — IFAC-PapersOnLine: [www.sciencedirect.com/journal/ifac-papersonline](https://www.sciencedirect.com/journal/ifac-papersonline)
-  - IFAC Symposium on System Identification (SYSID) — IFAC-PapersOnLine: [www.sciencedirect.com/journal/ifac-papersonline](https://www.sciencedirect.com/journal/ifac-papersonline)
+  - IFAC World Congress (IFAC WC): [www.sciencedirect.com/journal/ifac-papersonline](https://www.sciencedirect.com/journal/ifac-papersonline)
+  - IFAC Symposium on Advanced Control of Chemical Processes (ADCHEM): [www.sciencedirect.com/journal/ifac-papersonline](https://www.sciencedirect.com/journal/ifac-papersonline)
+  - IFAC Symposium on System Identification (SYSID): [www.sciencedirect.com/journal/ifac-papersonline](https://www.sciencedirect.com/journal/ifac-papersonline)
 
 - IEEE Control Systems Society PaperPlaza portal (CSS): [css.paperplaza.net/conferences/scripts/start.pl](https://css.paperplaza.net/conferences/scripts/start.pl)
-  - American Control Conference (ACC) — IEEE Xplore Proceedings: [ieeexplore.ieee.org/xpl/conhome/1000030/all-proceedings](https://ieeexplore.ieee.org/xpl/conhome/1000030/all-proceedings)
-  - IEEE Conference on Decision and Control (CDC) — IEEE Xplore Proceedings: [ieeexplore.ieee.org/xpl/conhome/1000188/all-proceedings](https://ieeexplore.ieee.org/xpl/conhome/1000188/all-proceedings)
-  - IEEE Conference on Control Technology and Applications (CCTA) — IEEE Xplore Proceedings: [ieeexplore.ieee.org/xpl/conhome/1800370/all-proceedings](https://ieeexplore.ieee.org/xpl/conhome/1800370/all-proceedings)
+  - American Control Conference (ACC): [ieeexplore.ieee.org/xpl/conhome/1000030/all-proceedings](https://ieeexplore.ieee.org/xpl/conhome/1000030/all-proceedings)
+  - IEEE Conference on Decision and Control (CDC): [ieeexplore.ieee.org/xpl/conhome/1000188/all-proceedings](https://ieeexplore.ieee.org/xpl/conhome/1000188/all-proceedings)
+  - IEEE Conference on Control Technology and Applications (CCTA): [ieeexplore.ieee.org/xpl/conhome/1800370/all-proceedings](https://ieeexplore.ieee.org/xpl/conhome/1800370/all-proceedings)
 
 - PaperCept controls community portal (PaperCept): [controls.papercept.net/conferences/scripts/start.pl](https://controls.papercept.net/conferences/scripts/start.pl)
-  - European Control Conference (ECC) — IEEE Xplore Proceedings: [ieeexplore.ieee.org/xpl/conhome/1803817/all-proceedings](https://ieeexplore.ieee.org/xpl/conhome/1803817/all-proceedings)
+  - European Control Conference (ECC): [ieeexplore.ieee.org/xpl/conhome/1803817/all-proceedings](https://ieeexplore.ieee.org/xpl/conhome/1803817/all-proceedings)
 
 ## PNAS
 - Proceedings of the National Academy of Sciences (PNAS): [www.pnas.org](https://www.pnas.org/)
