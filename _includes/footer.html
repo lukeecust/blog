@@ -47,3 +47,32 @@
     {{ site.data.locales[include.lang].meta | replace: ':PLATFORM', _platform | replace: ':THEME', _theme }}
   </p>
 </footer>
+
+<!-- Open external links in a new tab -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href) return;
+
+    // ignore anchors, mailto, tel, javascript
+    if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) {
+      return;
+    }
+
+    // treat absolute http(s) links as candidates
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      try {
+        const url = new URL(href, window.location.href);
+        const isExternal = url.host && url.host !== window.location.host;
+        if (isExternal) {
+          a.setAttribute('target', '_blank');
+          a.setAttribute('rel', 'noopener noreferrer');
+        }
+      } catch (e) {
+        // ignore malformed URLs
+      }
+    }
+  });
+});
+</script>
