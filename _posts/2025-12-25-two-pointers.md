@@ -5,7 +5,7 @@ date: 2025-12-25 00:09:00 +0800
 categories: [LeetCode, Hot100]
 lang: en
 math: true
-translation_id: journals-links
+translation_id: two-pointers
 permalink: /posts/two-pointers/
 render_with_liquid: false
 ---
