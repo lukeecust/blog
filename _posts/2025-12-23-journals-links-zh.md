@@ -20,11 +20,13 @@ render_with_liquid: false
 - Publisher portal (ACS Researcher Resources): [researcher-resources.acs.org/publish](https://researcher-resources.acs.org/publish/)
 
 ## Elsevier
+- Automatica: [www.sciencedirect.com/journal/automatica](https://www.sciencedirect.com/journal/automatica)
 - Chemical Engineering and Processing - Process Intensification (CEP-PI): [www.sciencedirect.com/journal/chemical-engineering-and-processing-process-intensification](https://www.sciencedirect.com/journal/chemical-engineering-and-processing-process-intensification)
 - Chemical Engineering Journal (CEJ): [www.sciencedirect.com/journal/chemical-engineering-journal](https://www.sciencedirect.com/journal/chemical-engineering-journal)
 - Chemical Engineering Science (CES): [www.sciencedirect.com/journal/chemical-engineering-science](https://www.sciencedirect.com/journal/chemical-engineering-science)
 - Chinese Journal of Chemical Engineering (CJCHE): [www.sciencedirect.com/journal/chinese-journal-of-chemical-engineering](https://www.sciencedirect.com/journal/chinese-journal-of-chemical-engineering)
 - Computers & Chemical Engineering (C&CE): [www.sciencedirect.com/journal/computers-and-chemical-engineering](https://www.sciencedirect.com/journal/computers-and-chemical-engineering)
+- Control Engineering Practice (CEP): [www.sciencedirect.com/journal/control-engineering-practice](https://www.sciencedirect.com/journal/control-engineering-practice)
 - Current Opinion in Chemical Engineering (COCE): [www.sciencedirect.com/journal/current-opinion-in-chemical-engineering](https://www.sciencedirect.com/journal/current-opinion-in-chemical-engineering)
 - Engineering Applications of Artificial Intelligence (EAAI): [www.sciencedirect.com/journal/engineering-applications-of-artificial-intelligence](https://www.sciencedirect.com/journal/engineering-applications-of-artificial-intelligence)
 - Green Chemical Engineering (GCE): [www.sciencedirect.com/journal/green-chemical-engineering](https://www.sciencedirect.com/journal/green-chemical-engineering)
@@ -33,7 +35,13 @@ render_with_liquid: false
 - Water Research (WR): [www.sciencedirect.com/journal/water-research](https://www.sciencedirect.com/journal/water-research)
 
 ## IEEE
+- IEEE/CAA Journal of Automatica Sinica (JAS): [ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=6570654](https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=6570654)
+- IEEE Control Systems Letters (L-CSS): [ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=7782633](https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=7782633)
+- IEEE Transactions on Automatic Control (TAC): [ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=9](https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=9)
+- IEEE Transactions on Control Systems Technology (TCST): [ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=87](https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=87)
 - IEEE Transactions on Industrial Informatics (TII): [ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=9424](https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=9424)
+- IEEE Transactions on Neural Networks and Learning Systems (TNNLS): [ieeexplore.ieee.org/xpl/mostRecentIssue.jsp?punumber=5962385](https://ieeexplore.ieee.org/xpl/mostRecentIssue.jsp?punumber=5962385) :contentReference[oaicite:0]{index=0}
+- IEEE Transactions on Systems, Man, and Cybernetics: Systems (TSMC: Systems): [ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=6221021](https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=6221021)
 
 ## OpenReview (ML/AI Venues)
 - International Conference on Learning Representations (ICLR)
